@@ -35,6 +35,9 @@ jobs:
       - name: Run build metadata check
         run: python3 scripts/check_build_yaml.py
 
+      - name: Run config compatibility check
+        run: python3 scripts/check_config.py
+
   build:
     name: Build Corne firmware
     needs: validate

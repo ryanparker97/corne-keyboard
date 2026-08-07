@@ -9,9 +9,11 @@ This repository is a ZMK user configuration for a Corne v4 split keyboard using 
   - `LWR`: number, function, navigation, reachable `ESC`, and Option layer.
   - `RSE`: symbol, paired punctuation, Option, and Neovim-informed Ctrl-arrow resize chord layer.
   - `ADJ`: tri-layer reached by holding Lower + Raise, with Bluetooth profile controls, Mac modifiers, caps lock, bootloader, and reset.
-- `config/corne.conf` — Corne runtime options for debounce, Bluetooth latency preferences, display, power management, disabled RGB/encoder, and ZMK Studio.
+- `config/corne.conf` — Corne runtime options for Bluetooth latency preferences, display, power management, disabled RGB/encoder, and current-ZMK-safe defaults.
 - `build.yaml` — GitHub Actions build matrix for `nice_nano/nrf52840/zmk` + `corne_left` and `corne_right`.
 - `config/west.yml` — ZMK manifest used by the GitHub Actions user-config build.
+
+The shared `config/corne.conf` is applied to both split halves. It therefore avoids global USB or ZMK Studio enablement: the `corne_right` artifact is a peripheral and current ZMK rejects USB on non-central split halves. RGB is disabled with supported ZMK underglow configuration only; obsolete `WS2812_STRIP` overrides and user-forced deprecated KSCAN Kconfig settings are intentionally absent so warnings remain build failures instead of being suppressed.
 
 ## Layout notes
 
@@ -73,6 +75,7 @@ Static checks can be run without a local ZMK checkout:
 ```sh
 python3 scripts/check_keymap.py
 python3 scripts/check_build_yaml.py
+python3 scripts/check_config.py
 ```
 
-These checks validate key binding counts for the four 42-key Corne layers, required plain Caps/Space/Command placement, macOS/Neovim/ZMK control bindings, the exact `nice_nano/nrf52840/zmk` Corne build matrix, matching README build commands, and absence of legacy nice!nano board targets. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow.
+These checks validate key binding counts for the four 42-key Corne layers, required plain Caps/Space/Command placement, macOS/Neovim/ZMK control bindings, the exact `nice_nano/nrf52840/zmk` Corne build matrix, matching README build commands, absence of legacy nice!nano board targets, and absence of unsupported Kconfig cleanup regressions (`WS2812_STRIP`, user-forced deprecated KSCAN settings, global USB/Studio, or warning suppression). Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow.
