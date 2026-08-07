@@ -1,0 +1,12 @@
+# ZMK / Zephyr build outputs
+build/
+modules/
+tools/
+.zmk-build/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS/editor noise
+.DS_Store

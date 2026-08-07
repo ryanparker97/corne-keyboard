@@ -1,0 +1,16 @@
+manifest:
+  defaults:
+    # Track current ZMK so the Corne shield, Studio options, and user-config
+    # workflow stay aligned. Pin to a release tag if reproducible builds are needed.
+    revision: main
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    # Additional modules containing boards/shields/custom code can be listed here as well
+    # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
+  projects:
+    - name: zmk
+      remote: zmkfirmware
+      import: app/west.yml
+  self:
+    path: config

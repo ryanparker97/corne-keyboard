@@ -1,0 +1,41 @@
+name: Build ZMK firmware
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate keymap and build metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          auth_header="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)"
+          git -c http.extraheader="AUTHORIZATION: basic $auth_header" \
+            fetch --no-tags --prune --depth=1 origin "+$GITHUB_REF:refs/remotes/origin/checkout"
+          git checkout --detach "$GITHUB_SHA"
+
+      - name: Run keymap check
+        run: python3 scripts/check_keymap.py
+
+      - name: Run build metadata check
+        run: python3 scripts/check_build_yaml.py
+
+  build:
+    name: Build Corne firmware
+    needs: validate
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
