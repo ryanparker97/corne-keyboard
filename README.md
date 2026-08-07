@@ -1,6 +1,6 @@
 # Corne v4 ZMK Configuration
 
-This repository is a ZMK user configuration for a Corne v4 split keyboard using nice!nano v2 controllers.
+This repository is a ZMK user configuration for a Corne v4 split keyboard using nice!nano controllers. The build matrix uses ZMK main's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`.
 
 ## What is included
 
@@ -10,7 +10,7 @@ This repository is a ZMK user configuration for a Corne v4 split keyboard using 
   - `RSE`: symbol, paired punctuation, Option, and Neovim-informed Ctrl-arrow resize chord layer.
   - `ADJ`: tri-layer reached by holding Lower + Raise, with Bluetooth profile controls, Mac modifiers, caps lock, bootloader, and reset.
 - `config/corne.conf` — Corne runtime options for debounce, Bluetooth latency preferences, display, power management, disabled RGB/encoder, and ZMK Studio.
-- `build.yaml` — GitHub Actions build matrix for `nice_nano_v2` + `corne_left` and `corne_right`.
+- `build.yaml` — GitHub Actions build matrix for `nice_nano/nrf52840/zmk` + `corne_left` and `corne_right`.
 - `config/west.yml` — ZMK manifest used by the GitHub Actions user-config build.
 
 ## Layout notes
@@ -42,6 +42,12 @@ The macOS workflow depends on configuration outside this repository; those files
 
 Firmware choices are deliberately conservative: no application macro sprawl was added. Hyper is produced by holding the pinky Caps key with normal keys, Lower numbers, or Lower arrows; Neovim Ctrl-arrow resizing remains on Raise.
 
+## Safety comparison and flashing guidance
+
+Compared with the first repository version (`d9ba6f9`), the keymap, runtime configuration, shields, workflow shape, Bluetooth/power settings, and key ergonomics remain unchanged. The build matrix now uses ZMK main's hardware-model-v2 nice!nano target instead of the legacy board identifier so it continues to configure against current upstream ZMK.
+
+This configuration is a reasonable **go** for building/flashing only when the physical keyboard is actually a Corne v4 split using nice!nano v2-compatible controllers and standard ZMK `corne_left`/`corne_right` shields. It builds separate `corne_v4_left` and `corne_v4_right` artifacts using `nice_nano/nrf52840/zmk`, which upstream ZMK currently defines with default revision `2.0.0`, and keeps bootloader/reset access on the guarded `ADJ` tri-layer. Do **not** flash it if the PCB revision, controller, diode matrix, display/power wiring, or handedness differs from those assumptions; first confirm the exact hardware and use matching ZMK board/shield targets. This repository cannot verify physical soldering, battery polarity, charging safety, display wiring, radio performance, or successful flashing.
+
 ## Building
 
 The included workflow first validates this repository and then uses ZMK's reusable user-config workflow:
@@ -56,8 +62,8 @@ The workflow grants the default `GITHUB_TOKEN` read-only repository contents acc
 Local builds require a ZMK/west workspace. If one is available, build with commands equivalent to:
 
 ```sh
-west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=corne_left
-west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=corne_right
+west build -s zmk/app -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_left
+west build -s zmk/app -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_right
 ```
 
 ## Verification performed in this repository
@@ -69,4 +75,4 @@ python3 scripts/check_keymap.py
 python3 scripts/check_build_yaml.py
 ```
 
-These checks validate key binding counts for the four 42-key Corne layers, required plain Caps/Space/Command placement, macOS/Neovim/ZMK control bindings, and the expected build targets. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow.
+These checks validate key binding counts for the four 42-key Corne layers, required plain Caps/Space/Command placement, macOS/Neovim/ZMK control bindings, the exact `nice_nano/nrf52840/zmk` Corne build matrix, matching README build commands, and absence of legacy nice!nano board targets. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow.
