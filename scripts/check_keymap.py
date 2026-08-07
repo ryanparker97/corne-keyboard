@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Static sanity checks for the Corne ZMK keymap."""
+
 from __future__ import annotations
 
 import re
@@ -34,7 +35,7 @@ for layer, expected in EXPECTED_LAYERS.items():
         errors.append(f"{layer}: expected {expected} bindings, found {len(bindings)}")
 
 required_tokens = [
-    "compatible = \"zmk,conditional-layers\"",
+    'compatible = "zmk,conditional-layers"',
     "if-layers = <LWR RSE>",
     "then-layer = <ADJ>",
     "&bt BT_SEL 0",
@@ -56,24 +57,30 @@ for token in required_tokens:
 # Default layer physical placement checks. Keep Command and Space plain thumb keys
 # on opposite hands, and keep Caps as a plain left pinky base key for the
 # host Karabiner Hyper/Escape rule.
-default_match = re.search(r"default_layer\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", without_comments)
+default_match = re.search(
+    r"default_layer\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", without_comments
+)
 if default_match:
-    default_bindings = re.findall(r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)?", default_match.group(1))
+    default_bindings = re.findall(
+        r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)?", default_match.group(1)
+    )
     normalized = [" ".join(binding.split()) for binding in default_bindings]
     expected_positions = {
         12: "&kp CAPS",
         35: "&kp LCTRL",
         36: "&kp LALT",
-        37: "&mo 1",
-        38: "&kp SPACE",
-        39: "&kp LGUI",
-        40: "&mo 2",
+        37: "&mo 2",
+        38: "&kp LGUI",
+        39: "&kp SPACE",
+        40: "&mo 1",
         41: "&kp RET",
     }
     for index, expected in expected_positions.items():
         if len(normalized) <= index or normalized[index] != expected:
             actual = normalized[index] if len(normalized) > index else "<missing>"
-            errors.append(f"default_layer position {index}: expected {expected}, found {actual}")
+            errors.append(
+                f"default_layer position {index}: expected {expected}, found {actual}"
+            )
 
 forbidden_tokens = [
     "zmk,behavior-hold-tap",
@@ -86,4 +93,6 @@ for token in forbidden_tokens:
 if errors:
     raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
-print("Keymap check passed: 4 layers, 42 bindings per layer, tri-layer/system bindings, plain Caps/Space/Command/Enter placement, macOS modifiers, ESC, and Ctrl-arrow chords present.")
+print(
+    "Keymap check passed: 4 layers, 42 bindings per layer, tri-layer/system bindings, plain Caps/Space/Command/Enter placement, macOS modifiers, ESC, and Ctrl-arrow chords present."
+)
