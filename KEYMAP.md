@@ -26,8 +26,8 @@ The firmware therefore sends normal `Caps Lock` on the left home-row pinky key i
 | Layer | Number | Name in keymap | Purpose | Activation |
 |---|---:|---|---|---|
 | `DEF` | 0 | `default_layer` | macOS QWERTY typing with left-pinky Caps/Hyper plus opposite-hand Space and Command thumbs | Active by default |
-| `LWR` | 1 | `lower_layer` | Numbers, function keys, navigation, `ESC`, Option | Hold the left thumb `LOWER` key (`&mo 1`) |
-| `RSE` | 2 | `raise_layer` | Symbols, paired punctuation, Ctrl-arrow chords, Option | Hold the right thumb `RAISE` key (`&mo 2`) |
+| `LWR` | 1 | `lower_layer` | Numbers, function keys, navigation, `ESC`, Option | Hold the right middle thumb `LOWER` key (`&mo 1`) |
+| `RSE` | 2 | `raise_layer` | Symbols, paired punctuation, Ctrl-arrow chords, Option | Hold the left middle thumb `RAISE` key (`&mo 2`) |
 | `ADJ` | 3 | `adjust_layer` | Bluetooth, modifiers, bootloader, reset | Conditional tri-layer when `LWR` and `RSE` are both active |
 
 The `ADJ` layer is configured with ZMK conditional layers:
@@ -45,9 +45,9 @@ The dedicated Caps key is on the left home-row outer key, reachable by the left 
 
 | Position | Left inner cluster | Right inner cluster |
 |---|---|---|
-| Outer thumb | `LEFT OPTION` | `LEFT GUI` / macOS Command |
-| Middle thumb | `LOWER` (`&mo 1`) | `RAISE` (`&mo 2`) |
-| Inner thumb | `SPACE` | `ENTER` |
+| Outer thumb | `LEFT OPTION` | `SPACE` |
+| Middle thumb | `RAISE` (`&mo 2`) | `LOWER` (`&mo 1`) |
+| Inner thumb | `LEFT GUI` / macOS Command | `ENTER` |
 
 ### Non-default layer thumbs
 
@@ -62,7 +62,7 @@ Source node: `default_layer`.
 | Top | `TAB` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |
 | Home | `CAPS LOCK` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |
 | Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `LEFT CTRL` |
-| Thumbs | `LEFT OPTION` `LOWER` `SPACE` | `LEFT GUI` `RAISE` `ENTER` |
+| Thumbs | `LEFT OPTION` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
 
 Raw bindings by position:
 
@@ -71,13 +71,13 @@ Raw bindings by position:
 | Top | `&kp TAB` `&kp Q` `&kp W` `&kp E` `&kp R` `&kp T` | `&kp Y` `&kp U` `&kp I` `&kp O` `&kp P` `&kp BSPC` |
 | Home | `&kp CAPS` `&kp A` `&kp S` `&kp D` `&kp F` `&kp G` | `&kp H` `&kp J` `&kp K` `&kp L` `&kp SEMI` `&kp SQT` |
 | Bottom | `&kp LSHFT` `&kp Z` `&kp X` `&kp C` `&kp V` `&kp B` | `&kp N` `&kp M` `&kp COMMA` `&kp DOT` `&kp FSLH` `&kp LCTRL` |
-| Thumbs | `&kp LALT` `&mo 1` `&kp SPACE` | `&kp LGUI` `&mo 2` `&kp RET` |
+| Thumbs | `&kp LALT` `&mo 2` `&kp LGUI` | `&kp SPACE` `&mo 1` `&kp RET` |
 
 Displaced base keys from the prior documented layout: `Caps Lock` moved from the left outer thumb to the left home-row outer pinky key; `LEFT CTRL` moved from the left home-row outer key to the right bottom-row outer key; the previous right-side `RIGHT SHIFT` base key was removed, with `LEFT SHIFT` retained on the left bottom-row outer key.
 
 ## Layer 1: `LWR` / numbers, function keys, navigation, escape, Option
 
-Source node: `lower_layer`. Activated while holding default-layer `LOWER` (`&mo 1`).
+Source node: `lower_layer`. Activated while holding default-layer `LOWER` (`&mo 1`) on the right middle thumb.
 
 | Row | Left 6 keys | Right 6 keys |
 |---|---|---|
@@ -97,11 +97,11 @@ Raw bindings by position:
 
 ## Layer 2: `RSE` / symbols, paired punctuation, and Ctrl-arrow chords
 
-Source node: `raise_layer`. Activated while holding default-layer `RAISE` (`&mo 2`).
+Source node: `raise_layer`. Activated while holding default-layer `RAISE` (`&mo 2`) on the left middle thumb.
 
 | Row | Left 6 keys | Right 6 keys |
 |---|---|---|
-| Top | `~` `!` `@` `#` `$` `%` | `^` `&` `*` `(` `)` `BACKSPACE` |
+| Top | `~` `!` `@` `#` `$` `%` | `^` `&` `*` `(` `)` `?` |
 | Home | `ESC` `-` `=` `[` `]` `\\` | `CTRL+LEFT` `CTRL+DOWN` `CTRL+UP` `CTRL+RIGHT` `:` `"` |
 | Bottom | `LEFT OPTION` `_` `+` `{` `}` `|` | `HOME` `PAGE DOWN` `PAGE UP` `END` `<` `>` |
 | Thumbs | `transparent` `transparent` `transparent` | `transparent` `transparent` `transparent` |
@@ -110,7 +110,7 @@ Raw bindings by position:
 
 | Position | Left 6 keys | Right 6 keys |
 |---|---|---|
-| Top | `&kp TILDE` `&kp EXCL` `&kp AT` `&kp HASH` `&kp DLLR` `&kp PRCNT` | `&kp CARET` `&kp AMPS` `&kp STAR` `&kp LPAR` `&kp RPAR` `&kp BSPC` |
+| Top | `&kp TILDE` `&kp EXCL` `&kp AT` `&kp HASH` `&kp DLLR` `&kp PRCNT` | `&kp CARET` `&kp AMPS` `&kp STAR` `&kp LPAR` `&kp RPAR` `&kp QUESTION` |
 | Home | `&kp ESC` `&kp MINUS` `&kp EQUAL` `&kp LBKT` `&kp RBKT` `&kp BSLH` | `&kp LC(LEFT)` `&kp LC(DOWN)` `&kp LC(UP)` `&kp LC(RIGHT)` `&kp COLON` `&kp DQT` |
 | Bottom | `&kp LALT` `&kp UNDER` `&kp PLUS` `&kp LBRC` `&kp RBRC` `&kp PIPE` | `&kp HOME` `&kp PG_DN` `&kp PG_UP` `&kp END` `&kp LT` `&kp GT` |
 | Thumbs | `&trans` `&trans` `&trans` | `&trans` `&trans` `&trans` |
@@ -135,6 +135,12 @@ Raw bindings by position:
 | Bottom | `&trans` `&trans` `&trans` `&trans` `&trans` `&trans` | `&trans` `&trans` `&trans` `&trans` `&bootloader` `&sys_reset` |
 | Thumbs | `&trans` `&trans` `&trans` | `&trans` `&trans` `&trans` |
 
+## Practical common-key coverage baseline
+
+This compact layout is checked for the commonly used keys needed for normal typing, shell/editor work, and the verified macOS workflow: all letters, digits, US punctuation pairs, `Escape`, `Tab`, `Backspace`, `Delete`, `Enter`, `Space`, `Caps Lock`, standard left-side modifiers, arrows, `Home`, `End`, `Page Up`, `Page Down`, and `F1` through `F12`.
+
+It intentionally does not chase full-size keyboard parity for unconfirmed niche keys such as `Print Screen`, `Scroll Lock`, `Pause`, `Insert`, numpad-only keys, or media controls.
+
 ## Host dependencies and verified shortcut rationale
 
 These bindings intentionally depend on host configuration that was read, not modified:
@@ -142,10 +148,10 @@ These bindings intentionally depend on host configuration that was read, not mod
 | Evidence | Firmware choice | Resulting use |
 |---|---|---|
 | `/Users/ryanparker/.config/karabiner/karabiner.json`: `Caps Lock: Hyper when held, Escape when tapped` | Base left home-row pinky key sends `&kp CAPS` | Tap for Escape; hold with keys for `command+control+option+shift` Hyper chords. |
-| `/Users/ryanparker/.config/skhd/skhdrc`: `hyper - h/j/k/l` focus windows | Hyper thumb + base `H/J/K/L` | Focus yabai windows west/south/north/east. |
-| `skhdrc`: `hyper - z/f/b/r` | Hyper thumb + base `Z/F/B/R` | Toggle zoom parent/fullscreen, balance space, rotate space. |
-| `skhdrc`: `hyper - 1..5` and `hyper - left/right` | Hyper thumb + Lower numbers/arrows | Focus named spaces `chat`, `terminal`, `web`, `notes`, `default`, or previous/next space. |
-| `skhdrc`: `hyper - m` / `hyper - s`, then modal `h/j/k/l` or `1..5` | Hyper thumb + `M`/`S`, then base directions or Lower numbers | Enter move/swap modes and trigger verified yabai warp/swap/space actions. |
+| `/Users/ryanparker/.config/skhd/skhdrc`: `hyper - h/j/k/l` focus windows | Hold Caps/Hyper + base `H/J/K/L` | Focus yabai windows west/south/north/east. |
+| `skhdrc`: `hyper - z/f/b/r` | Hold Caps/Hyper + base `Z/F/B/R` | Toggle zoom parent/fullscreen, balance space, rotate space. |
+| `skhdrc`: `hyper - 1..5` and `hyper - left/right` | Hold Caps/Hyper + Lower numbers/arrows | Focus named spaces `chat`, `terminal`, `web`, `notes`, `default`, or previous/next space. |
+| `skhdrc`: `hyper - m` / `hyper - s`, then modal `h/j/k/l` or `1..5` | Hold Caps/Hyper + `M`/`S`, then base directions or Lower numbers | Enter move/swap modes and trigger verified yabai warp/swap/space actions. |
 | Neovim `lua/ryanparker/core/keymaps.lua`: leader is `<Space>` | Thumb `SPACE` remains unchanged | Preserves leader mappings. |
 | Neovim `keymaps.lua`: `<C-h/j/k/l>` window navigation | Base `LEFT CTRL` plus `H/J/K/L` remains unchanged | Produces confirmed Neovim navigation chords without firmware macros. |
 | Neovim `keymaps.lua`: `<C-Up/Down/Left/Right>` window resizing | Raise right home-row sends `CTRL+LEFT/DOWN/UP/RIGHT` | Direct access to confirmed Neovim resize chords. |

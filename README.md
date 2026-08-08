@@ -20,7 +20,7 @@ The shared `config/corne.conf` is applied to both split halves. It therefore avo
 The keymap preserves the standard 3x6+3 Corne key positions. Command and Space are plain, dedicated opposite-hand thumb keys:
 
 ```text
-Left:  LALT  LOWER  SPACE     Right: LGUI  RAISE  ENTER
+Left:  LALT  RAISE  LGUI      Right: SPACE LOWER  ENTER
 ```
 
 `Caps Lock` is a plain, dedicated left home-row outer key for pinky access. On the active host, Karabiner-Elements maps `Caps Lock` to Hyper (`command+control+option+shift`) when held and `Escape` when tapped, so the verified host rule remains the single Hyper implementation.
@@ -43,6 +43,8 @@ The macOS workflow depends on configuration outside this repository; those files
 - `/Users/ryanparker/Documents/personal/code/dotfiles/nvim` uses Space leader, `<C-h/j/k/l>` window navigation, and `<C-Up/Down/Left/Right>` window resizing.
 
 Firmware choices are deliberately conservative: no application macro sprawl was added. Hyper is produced by holding the pinky Caps key with normal keys, Lower numbers, or Lower arrows; Neovim Ctrl-arrow resizing remains on Raise.
+
+Common typing and editing coverage is intentionally limited to the practical compact-keyboard baseline in `KEYMAP.md`: letters, digits, US punctuation pairs, Escape, Tab, Backspace, Delete, Enter, Space, standard modifiers, arrows, Home/End, Page Up/Down, and F1-F12. Niche full-size keys such as Print Screen, Scroll Lock, Pause, Insert, numpad keys, and media keys are not mapped.
 
 ## Safety comparison and flashing guidance
 
