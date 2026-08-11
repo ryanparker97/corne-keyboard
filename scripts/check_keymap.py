@@ -78,8 +78,9 @@ common_key_baseline_by_layer = {
         "base_editing_modifiers": [
             "&kp ESC",
             "&kp BSPC",
-            "&lt 1 RET",
+            "&kp RET",
             "&kp SPACE",
+            "&mo 1",
             "&kp CAPS",
             "&kp LSHFT",
             "&kp LCTRL",
@@ -149,8 +150,8 @@ for layer, groups in common_key_baseline_by_layer.items():
                 errors.append(f"{layer}: missing common {group} binding: {binding}")
 
 # Default layer physical placement checks. Keep Command and Space plain thumb keys
-# on opposite hands, and keep Caps as a plain left pinky base key for the
-# host Karabiner Hyper/Escape rule.
+# on opposite hands, use separate Lower and Enter right thumbs, and keep Caps as
+# a plain left pinky base key for the host Karabiner Hyper/Escape rule.
 default_match = re.search(
     r"default_layer\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", without_comments
 )
@@ -161,15 +162,15 @@ if default_match:
     normalized = [" ".join(binding.split()) for binding in default_bindings]
     expected_positions = {
         0: "&kp ESC",
-        11: "&kp MINUS",
+        11: "&kp BSPC",
         12: "&kp CAPS",
         35: "&kp LCTRL",
         36: "&kp LALT",
         37: "&mo 2",
         38: "&kp LGUI",
         39: "&kp SPACE",
-        40: "&lt 1 RET",
-        41: "&kp BSPC",
+        40: "&mo 1",
+        41: "&kp RET",
     }
     for index, expected in expected_positions.items():
         if len(normalized) <= index or normalized[index] != expected:
@@ -177,6 +178,60 @@ if default_match:
             errors.append(
                 f"default_layer position {index}: expected {expected}, found {actual}"
             )
+
+# ADJ physical placement checks. Validate every position so macOS shortcuts cannot
+# shift the Bluetooth selectors, clear action, or guarded boot/reset controls.
+adjust_bindings = layer_bindings.get("adjust_layer", [])
+expected_adjust_bindings = [
+    "&trans",
+    "&bt BT_SEL 0",
+    "&bt BT_SEL 1",
+    "&bt BT_SEL 2",
+    "&bt BT_SEL 3",
+    "&bt BT_SEL 4",
+    "&kp LG(LS(N3))",
+    "&kp LG(LS(N4))",
+    "&kp LG(LS(N5))",
+    "&kp LG(SPACE)",
+    "&kp LG(TAB)",
+    "&kp LC(LG(Q))",
+    "&bt BT_CLR",
+    "&kp LG(A)",
+    "&kp LG(S)",
+    "&trans",
+    "&kp LG(F)",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&kp LG(Z)",
+    "&kp LG(X)",
+    "&kp LG(C)",
+    "&kp LG(V)",
+    "&kp LG(LS(Z))",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&bootloader",
+    "&sys_reset",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+]
+for index, expected in enumerate(expected_adjust_bindings):
+    if len(adjust_bindings) <= index or adjust_bindings[index] != expected:
+        actual = adjust_bindings[index] if len(adjust_bindings) > index else "<missing>"
+        errors.append(
+            f"adjust_layer position {index}: expected {expected}, found {actual}"
+        )
 
 # Lower layer physical placement checks. Holding Lower with the right thumb should
 # expose left-thumb Ctrl for comfortable Ctrl+number shortcuts.
@@ -200,5 +255,5 @@ if errors:
     raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
 print(
-    "Keymap check passed: 4 layers, 42 bindings per layer, tri-layer/system bindings, plain Caps/Space/Command, Enter/Lower, Backspace, Lower Ctrl+number support, macOS modifiers, ESC, Ctrl-arrow chords, and practical common-key coverage present."
+    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed Backspace/Space/Lower/Enter positions, exact ADJ macOS shortcuts and BT/boot/reset safety positions, Lower Ctrl+number support, ESC, Ctrl-arrow chords, and practical common-key coverage present."
 )
