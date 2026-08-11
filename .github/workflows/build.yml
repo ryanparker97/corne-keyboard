@@ -29,14 +29,8 @@ jobs:
             fetch --no-tags --prune --depth=1 origin "+$GITHUB_REF:refs/remotes/origin/checkout"
           git checkout --detach "$GITHUB_SHA"
 
-      - name: Run keymap check
-        run: python3 scripts/check_keymap.py
-
-      - name: Run build metadata check
-        run: python3 scripts/check_build_yaml.py
-
-      - name: Run config compatibility check
-        run: python3 scripts/check_config.py
+      - name: Run repository validation
+        run: python3 scripts/validate.py
 
   build:
     name: Build Corne firmware

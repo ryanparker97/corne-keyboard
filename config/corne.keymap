@@ -30,16 +30,16 @@
             // LAYER 0: DEF - macOS Corne QWERTY
             // Karabiner maps the left pinky Caps Lock key to Hyper when held and Escape when tapped.
             // -----------------------------------------------------------------------------------------
-            // | TAB  |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  | BSPC |
+            // | ESC  |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  |  -   |
             // | CAPS |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |  '   |
             // | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  | CTRL |
-            //                    | OPT | RSE | GUI |   | SPC | LWR | ENT |
+            //                    | OPT | RSE | GUI |   | SPC |ENT/L| BSPC|
 
             bindings = <
-&kp TAB    &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
+&kp ESC    &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp MINUS
 &kp CAPS   &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
-                         &kp LALT  &mo 2  &kp LGUI    &kp SPACE  &mo 1  &kp RET
+                         &kp LALT  &mo 2  &kp LGUI    &kp SPACE  &lt 1 RET  &kp BSPC
             >;
         };
 
@@ -48,15 +48,15 @@
             // Hold the left pinky Caps key with H/J/K/L, 1-5, or arrows for verified skhd/yabai Hyper controls.
             // -----------------------------------------------------------------------------------------
             // |  `   |  1  |  2  |  3  |  4  |  5  |   |  6  |  7   |  8   |  9  |  0  | DEL  |
-            // | ESC  | F1  | F2  | F3  | F4  | F5  |   | LFT | DWN  |  UP  | RGT | PGU |      |
+            // | TAB  | F1  | F2  | F3  | F4  | F5  |   | LFT | DWN  |  UP  | RGT | PGU |      |
             // | OPT  | F6  | F7  | F8  | F9  | F10 |   | HOM | PGDN | PGUP | END | F11 | F12  |
-            //                    |     |     |     |   |     |     |     |
+            //                    | CTRL|     |     |   |     |     |     |
 
             bindings = <
 &kp GRAVE  &kp N1  &kp N2  &kp N3  &kp N4  &kp N5     &kp N6    &kp N7     &kp N8     &kp N9     &kp N0   &kp DEL
-&kp ESC    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &kp PG_UP  &trans
+&kp TAB    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &kp PG_UP  &trans
 &kp LALT   &kp F6  &kp F7  &kp F8  &kp F9  &kp F10    &kp HOME  &kp PG_DN  &kp PG_UP  &kp END    &kp F11  &kp F12
-                           &trans  &trans  &trans     &trans    &trans     &trans
+                           &kp LCTRL  &trans  &trans     &trans    &trans     &trans
             >;
         };
 
@@ -78,7 +78,7 @@
 
         adjust_layer {
             // LAYER 3: ADJ - Bluetooth and system controls
-            // Activated by holding Lower and Raise together.
+            // Activated by holding the Enter/Lower thumb and Raise together.
             // -----------------------------------------------------------------------------------------
             // |      | BT1 | BT2 | BT3 | BT4 | BT5 |   |      |      |      |      |      |      |
             // | BTCLR| CAPS| GUI | OPT | CTRL| SHFT|   |      |      |      |      |      |      |

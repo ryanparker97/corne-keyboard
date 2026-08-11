@@ -76,9 +76,9 @@ common_key_baseline_by_layer = {
             "&kp FSLH",
         ],
         "base_editing_modifiers": [
-            "&kp TAB",
+            "&kp ESC",
             "&kp BSPC",
-            "&kp RET",
+            "&lt 1 RET",
             "&kp SPACE",
             "&kp CAPS",
             "&kp LSHFT",
@@ -91,7 +91,7 @@ common_key_baseline_by_layer = {
         "digits": [f"&kp N{digit}" for digit in range(10)],
         "lower_symbol_punctuation": ["&kp GRAVE"],
         "lower_editing_navigation": [
-            "&kp ESC",
+            "&kp TAB",
             "&kp DEL",
             "&kp LEFT",
             "&kp DOWN",
@@ -156,18 +156,20 @@ default_match = re.search(
 )
 if default_match:
     default_bindings = re.findall(
-        r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)?", default_match.group(1)
+        r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)*", default_match.group(1)
     )
     normalized = [" ".join(binding.split()) for binding in default_bindings]
     expected_positions = {
+        0: "&kp ESC",
+        11: "&kp MINUS",
         12: "&kp CAPS",
         35: "&kp LCTRL",
         36: "&kp LALT",
         37: "&mo 2",
         38: "&kp LGUI",
         39: "&kp SPACE",
-        40: "&mo 1",
-        41: "&kp RET",
+        40: "&lt 1 RET",
+        41: "&kp BSPC",
     }
     for index, expected in expected_positions.items():
         if len(normalized) <= index or normalized[index] != expected:
@@ -175,6 +177,16 @@ if default_match:
             errors.append(
                 f"default_layer position {index}: expected {expected}, found {actual}"
             )
+
+# Lower layer physical placement checks. Holding Lower with the right thumb should
+# expose left-thumb Ctrl for comfortable Ctrl+number shortcuts.
+lower_bindings = layer_bindings.get("lower_layer", [])
+if len(lower_bindings) > 36 and lower_bindings[36] != "&kp LCTRL":
+    errors.append(
+        f"lower_layer position 36: expected &kp LCTRL for Ctrl+number shortcuts, found {lower_bindings[36]}"
+    )
+elif len(lower_bindings) <= 36:
+    errors.append("lower_layer position 36: expected &kp LCTRL, found <missing>")
 
 forbidden_tokens = [
     "zmk,behavior-hold-tap",
@@ -188,5 +200,5 @@ if errors:
     raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
 print(
-    "Keymap check passed: 4 layers, 42 bindings per layer, tri-layer/system bindings, plain Caps/Space/Command/Enter placement, macOS modifiers, ESC, Ctrl-arrow chords, and practical common-key coverage present."
+    "Keymap check passed: 4 layers, 42 bindings per layer, tri-layer/system bindings, plain Caps/Space/Command, Enter/Lower, Backspace, Lower Ctrl+number support, macOS modifiers, ESC, Ctrl-arrow chords, and practical common-key coverage present."
 )
