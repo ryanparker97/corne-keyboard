@@ -1,9 +1,8 @@
 manifest:
   defaults:
-    # Track current ZMK so the Corne shield, Studio options, and user-config
-    # workflow stay aligned. Pin this only after recording a known-good ZMK commit or tag
-    # from a successful full firmware build; do not choose an arbitrary revision.
-    revision: main
+    # Pin the exact ZMK revision verified by successful corne_left and
+    # corne_right builds. Keep this aligned with the reusable workflow ref.
+    revision: 6e2ef41e022d555b10f116e395832913f71717b3
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware

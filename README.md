@@ -2,7 +2,7 @@
 
 This layout is documented as an **NJ68-to-Corne transition layout**: it keeps familiar QWERTY typing, gives you dedicated top-left Escape and top-right Backspace keys, keeps Tab/number/navigation access on a predictable Lower layer, and places Space, Lower, and Enter on separate right-thumb keys so the smaller Corne feels less abrupt.
 
-This repository is a ZMK user configuration for a Corne v4 split keyboard using nice!nano controllers. The build matrix uses ZMK main's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`.
+This repository is a ZMK user configuration for a Corne v4 split keyboard using nice!nano controllers. The build matrix uses ZMK's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`. ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`.
 
 ## What is included
 
@@ -87,7 +87,7 @@ For the NJ68 transition, common typing and editing coverage is intentionally lim
 
 ## Safety comparison and flashing guidance
 
-Compared with the first repository version (`d9ba6f9`), the build/runtime safety assumptions, shields, workflow shape, and Bluetooth/power settings remain conservative. The current keymap intentionally changes transition ergonomics by placing Esc and Backspace at the top-left and top-right base corners, moving Tab to Lower, dedicating the right thumbs to Space, momentary Lower, and Enter, and keeping Minus on Raise. The build matrix now uses ZMK main's hardware-model-v2 nice!nano target instead of the legacy board identifier so it continues to configure against current upstream ZMK.
+Compared with the first repository version (`d9ba6f9`), the build/runtime safety assumptions, shields, workflow shape, and Bluetooth/power settings remain conservative. The current keymap intentionally changes transition ergonomics by placing Esc and Backspace at the top-left and top-right base corners, moving Tab to Lower, dedicating the right thumbs to Space, momentary Lower, and Enter, and keeping Minus on Raise. The build matrix uses ZMK's hardware-model-v2 nice!nano target instead of the legacy board identifier and is pinned to the exact upstream revision verified below.
 
 This configuration is a reasonable **go** for building/flashing only when the physical keyboard is actually a Corne v4 split using nice!nano v2-compatible controllers and standard ZMK `corne_left`/`corne_right` shields. It builds separate `corne_v4_left` and `corne_v4_right` artifacts using `nice_nano/nrf52840/zmk`, which upstream ZMK currently defines with default revision `2.0.0`, and keeps bootloader/reset access on the guarded `ADJ` tri-layer. Do **not** flash it if the PCB revision, controller, diode matrix, display/power wiring, or handedness differs from those assumptions; first confirm the exact hardware and use matching ZMK board/shield targets. This repository cannot verify physical soldering, battery polarity, charging safety, display wiring, radio performance, or successful flashing.
 
@@ -100,18 +100,20 @@ The included workflow first validates this repository and then uses ZMK's reusab
 3. After validation succeeds, the `Build Corne firmware` job builds the configured left and right Corne artifacts.
 4. Download the generated `corne_v4_left` and `corne_v4_right` firmware artifacts.
 
-The workflow grants the default `GITHUB_TOKEN` read-only repository contents access and checks out the exact event SHA with `git` instead of adding a separate checkout action reference. The firmware job still calls `zmkfirmware/zmk/.github/workflows/build-user-config.yml@main` because ZMK's user-config workflow is consumed as an upstream reusable workflow. That `@main` reference is intentionally documented as a floating upstream ref; this repository does not pin or verify a specific ZMK workflow commit.
+The workflow grants the default `GITHUB_TOKEN` read-only repository contents access and checks out the exact event SHA with `git` instead of adding a separate checkout action reference. The firmware job calls ZMK's reusable user-config workflow at the same exact revision pinned by `config/west.yml`.
 
 ### Dependency reproducibility status
 
-No known-good ZMK commit or release tag has been verified in this repository yet. For that reason, `config/west.yml` and the reusable GitHub Actions workflow continue to track ZMK `main` instead of pretending to provide reproducible firmware inputs. To make builds reproducible later, first run and record a successful full firmware build for both `corne_left` and `corne_right`, then pin `config/west.yml` and the reusable workflow to that verified commit or tag. Until that evidence exists, do not replace `main` with an arbitrary commit.
+`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. Both `corne_left` and `corne_right` compiled successfully at that revision with Zephyr `9df4b12b5af3438a8b9d7a33780dc3b3b2f516c1` (`v4.1.0+zmk-fixes`) and Zephyr SDK `0.17.0`. Update both pins together only after repeating the full two-half build against the proposed revision.
 
-Local builds require a ZMK/west workspace. If one is available, build with commands equivalent to:
+Local builds require a ZMK/west workspace. If one is available, point `ZMK_CONFIG` at this repository's `config` directory and build each half into a separate directory:
 
 ```sh
-west build -s zmk/app -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_left
-west build -s zmk/app -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_right
+west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
+
+The verified local outputs are copied to ignored paths `build/corne_v4_left.uf2` and `build/corne_v4_right.uf2`; regenerate them after changing configuration.
 
 ## Flashing and post-flash checklist
 
@@ -138,7 +140,9 @@ This repository cannot validate physical hardware health, bootloader state, batt
 
 The keymap is portable as a normal USB/BLE keyboard for ordinary keys. The 14 `ADJ` chords emit standard modifier/key events directly from firmware, although their documented actions follow macOS conventions. The Hyper workflow remains host dependent: without the Karabiner-Elements rule, the left pinky key sends plain `Caps Lock`; without skhd/yabai, Hyper shortcuts do nothing; without the Neovim mappings, the Ctrl-arrow chords are just normal Ctrl-arrow key events.
 
-The BLE settings in `config/corne.conf` now target fast typing on macOS: the firmware avoids forced 2M PHY, advertises preferred connection parameters (`CONFIG_BT_PERIPHERAL_PREF_MIN_INT=9`, `CONFIG_BT_PERIPHERAL_PREF_MAX_INT=18`, and `CONFIG_BT_PERIPHERAL_PREF_LATENCY=0`), and increases the BLE keyboard report queue from ZMK's default `20` to `40` so quick bursts have more room before BLE notifications catch up. The connected host negotiates the final BLE interval and latency, so the `BT_PERIPHERAL_PREF` values are preferences rather than guarantees. Transmit power remains high for link margin, which can increase battery drain. Validate BLE changes with a real full firmware build and hardware test before documenting them as safe.
+The BLE settings in `config/corne.conf` target stable, responsive macOS typing. The firmware disables forced 2M PHY through ZMK's experimental connection option and requests a 15 ms interval (`MIN_INT=12`, `MAX_INT=12` in 1.25 ms units), peripheral latency `30`, and a 6 s supervision timeout (`TIMEOUT=600` in 10 ms units). This combination follows Apple's BLE accessory constraints; peripheral latency permits idle radio events to be skipped but does not prevent the keyboard from attending the next event when a report is ready. Apple notes that some devices may choose 30 ms when offered 15 ms. The host negotiates the final parameters, so firmware preferences are not guarantees.
+
+The keyboard report queue remains `40` (ZMK defaults to `20`) to absorb short typing bursts. Separately, `CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE=16` and `CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE=16` give matrix and split-central position events more room to avoid possible dropped press/release events before BLE reports are formed; this stuck-key mitigation is distinct from the BLE interval/latency preferences above. `CONFIG_BT_CTLR_TX_PWR_PLUS_8=y` follows ZMK's weak-link troubleshooting guidance; ZMK describes its extra nRF52840 power use as negligible. The explicit data-length settings retain 251-byte packet support, which Apple recommends for performance and radio efficiency. The split peripheral battery-fetch/proxy options are not enabled, so they are not adding split BLE polling traffic.
 
 ## Verification performed in this repository
 
@@ -154,7 +158,16 @@ python3 scripts/check_config.py
 python3 scripts/check_dependencies.py
 ```
 
-These checks validate key binding counts for the four 42-key Corne layers; required plain Caps/Space/Command placement; exact base Backspace/Lower/Enter positions; exact `ADJ` macOS chord, Bluetooth, bootloader, and reset positions; Lower Ctrl+number and macOS/Neovim/ZMK control bindings; practical common-key coverage; the exact `nice_nano/nrf52840/zmk` Corne build matrix and matching README commands; absence of legacy nice!nano board targets; exact active supported Kconfig/BLE settings; no active forced BLE 2M PHY; and the documented dependency pinning status. They do not compile firmware, exercise a keyboard, or prove that macOS performs each documented action. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow, and physical behavior requires hardware testing.
+These checks validate key binding counts for the four 42-key Corne layers; required plain Caps/Space/Command placement; exact base Backspace/Lower/Enter positions; exact `ADJ` macOS chord, Bluetooth, bootloader, and reset positions; Lower Ctrl+number and macOS/Neovim/ZMK control bindings; practical common-key coverage; the exact `nice_nano/nrf52840/zmk` Corne build matrix and matching README commands; absence of legacy nice!nano board targets; exact active supported Kconfig/BLE settings including the report, kscan, and split-central queue sizes; no active forced BLE 2M PHY; and the documented dependency pinning status. They do not compile firmware, inspect negotiated BLE parameters, exercise a keyboard, or prove that macOS performs each documented action. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow, and physical behavior requires hardware testing.
+
+### Bluetooth lag isolation after flashing
+
+1. Flash both matching halves, reboot both, forget the keyboard on macOS, clear the active ZMK profile with `ADJ` + `BT clear`, and pair again. This distinguishes stale bonds from connection timing.
+2. Compare left-half and right-half keys. Lag only from the right points to split-link RF, power, or pairing; lag from both points to the central-to-host link or host.
+3. Compare BLE with USB output. If USB is also laggy, investigate switches, sockets, matrix wiring, and host remapping software rather than BLE parameters.
+4. Note whether delay occurs only on the first key after five minutes. `CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=300000` intentionally allows deep sleep and reconnection; sustained lag while actively typing has a different cause.
+5. Test close to the host with Wi-Fi temporarily on 5 GHz and without a metal case or USB 3 hub beside either antenna. If only one host/location is affected, keep firmware unchanged and investigate that host's Bluetooth chipset, RF coexistence, and saved bond.
+6. For decisive evidence, capture ZMK USB logs while forcing the output endpoint to BLE and inspect the host's negotiated interval, latency, timeout, RSSI/retransmissions, disconnect reason, and any `Keyboard message queue full` warning. Do not permanently enable logging because it affects power and timing.
 
 ## Contributing
 
