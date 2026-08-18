@@ -12,7 +12,6 @@ WORKFLOW = Path(".github/workflows/build.yml")
 
 REQUIRED_CONFIG_SETTINGS = {
     "CONFIG_ZMK_RGB_UNDERGLOW": "y",
-    "CONFIG_WS2812_STRIP": "y",
     "CONFIG_ZMK_DISPLAY": "y",
     "CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM": "y",
     "CONFIG_NICE_OLED_ON": "y",
@@ -44,9 +43,11 @@ REQUIRED_CONFIG_SNIPPETS = [
 ]
 
 FORBIDDEN_CONFIG_SNIPPETS = {
+    "CONFIG_WS2812_STRIP": "WS2812_STRIP is not a current ZMK user-config symbol; enable underglow with CONFIG_ZMK_RGB_UNDERGLOW=y only.",
     "CONFIG_ZMK_KSCAN_DEBOUNCE_": "Do not force deprecated KSCAN debounce Kconfig; leave current shield defaults/devicetree in control.",
     "CONFIG_ZMK_KSCAN=": "Do not force deprecated ZMK KSCAN integration from user config.",
     "CONFIG_KSCAN=": "Do not force Zephyr's deprecated KSCAN symbol from user config.",
+    "CONFIG_ZMK_STUDIO=y": "Studio must not be enabled globally because corne_right is a split peripheral.",
     "CONFIG_ZMK_USB=y": "USB must not be enabled globally because corne_right is a split peripheral.",
     "CONFIG_KCONFIG_WARNINGS_AS_ERRORS=n": "Do not suppress Kconfig warnings.",
     "KCONFIG_WARNINGS_AS_ERRORS=OFF": "Do not suppress Kconfig warnings.",
