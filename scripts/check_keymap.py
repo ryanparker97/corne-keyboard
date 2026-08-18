@@ -207,10 +207,10 @@ expected_adjust_bindings = [
     "&kp LG(TAB)",
     "&kp LC(LG(Q))",
     "&bt BT_CLR",
-    "&kp LG(A)",
-    "&kp LG(S)",
     "&trans",
-    "&kp LG(F)",
+    "&trans",
+    "&trans",
+    "&trans",
     "&trans",
     "&rgb_ug RGB_EFF",
     "&rgb_ug RGB_TOG",
@@ -219,11 +219,11 @@ expected_adjust_bindings = [
     "&rgb_ug RGB_HUI",
     "&rgb_ug RGB_SAI",
     "&trans",
-    "&kp LG(Z)",
-    "&kp LG(X)",
-    "&kp LG(C)",
-    "&kp LG(V)",
-    "&kp LG(LS(Z))",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
+    "&trans",
     "&trans",
     "&trans",
     "&trans",
@@ -267,5 +267,5 @@ if errors:
     raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
 print(
-    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed mirrored thumb rows, Backspace/Space/Lower/Enter positions, exact ADJ macOS shortcuts, full RGB underglow controls, BT/boot/reset safety positions, ESC, Ctrl-arrow chords, and practical common-key coverage present."
+    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed mirrored thumb rows, Backspace/Space/Lower/Enter positions, exact ADJ layout, full RGB underglow controls, BT/boot/reset safety positions, ESC, Ctrl-arrow chords, and practical common-key coverage present."
 )
