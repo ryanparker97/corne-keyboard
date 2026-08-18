@@ -34,7 +34,7 @@ This repository uses a lightweight GitHub Flow based on the current `master` bra
    - `Validate keymap and build metadata`
    - `Build Corne firmware`
 
-   For firmware-affecting changes, confirm the build produces artifacts for both `corne_v4_left` and `corne_v4_right`.
+   For firmware-affecting changes, confirm the build produces artifacts for both `corne_v3_1_left` and `corne_v3_1_right`.
 
 7. Merge the reviewed pull request, then delete the short-lived branch locally and remotely. Do not maintain parallel `develop` or release integration branches.
 

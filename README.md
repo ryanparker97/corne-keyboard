@@ -1,21 +1,21 @@
-# Corne v4 ZMK Configuration
+# Corne v3.1 ZMK Configuration
 
 This layout is documented as an **NJ68-to-Corne transition layout**: it keeps familiar QWERTY typing, gives you dedicated top-left Escape and top-right Backspace keys, keeps Tab/number/navigation access on a predictable Lower layer, and places Space, Lower, and Enter on separate right-thumb keys so the smaller Corne feels less abrupt.
 
-This repository is a ZMK user configuration for a Corne v4 split keyboard using nice!nano controllers. The build matrix uses ZMK's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`. ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`.
+This repository is a ZMK user configuration for a standard Corne v3.1 42-key split keyboard using nice!nano v2-compatible controllers and 128x32 SSD1306 OLEDs through `mctechnology17/zmk-nice-oled`. The build matrix uses ZMK's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`, with `corne_left nice_oled` and `corne_right nice_oled` shields. ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`.
 
 ## What is included
 
 - `config/corne.keymap` — macOS-oriented Corne QWERTY layout with four layers:
   - `DEF`: conventional 3x6+3 QWERTY base layer with easy top-left Esc, top-right Backspace, left-pinky Caps/Hyper, opposite-hand Space and Command thumbs, and separate Lower and Enter thumbs.
-  - `LWR`: number, function, navigation, `TAB`, and Option layer.
-  - `RSE`: symbol, paired punctuation (including Minus), Option, and Neovim-informed Ctrl-arrow resize chord layer.
-  - `ADJ`: conditional Lower + Raise tri-layer with Bluetooth profile controls, built-in macOS productivity chords, bootloader, and reset.
-- `config/corne.conf` — Corne runtime options for Bluetooth latency preferences, display, power management, disabled RGB/encoder, and current-ZMK-safe defaults.
-- `build.yaml` — GitHub Actions build matrix for `nice_nano/nrf52840/zmk` + `corne_left` and `corne_right`.
+  - `LWR`: number, function, navigation, `TAB`, Option, and mirrored base thumb access.
+  - `RSE`: symbol, paired punctuation (including Minus), Option, Neovim-informed Ctrl-arrow resize chords, and mirrored base thumb access.
+  - `ADJ`: conditional Lower + Raise tri-layer with Bluetooth profile controls, built-in macOS productivity chords, RGB underglow controls, bootloader, reset, and mirrored base thumb access.
+- `config/corne.conf` — Corne runtime options for Bluetooth latency preferences, zmk-nice-oled display widgets, RGB underglow support, power management, disabled encoder, and current-ZMK-safe defaults.
+- `build.yaml` — GitHub Actions build matrix for `nice_nano/nrf52840/zmk` + `corne_left nice_oled` and `corne_right nice_oled`, producing `corne_v3_1_left` and `corne_v3_1_right` artifacts.
 - `config/west.yml` — ZMK manifest used by the GitHub Actions user-config build.
 
-The shared `config/corne.conf` is applied to both split halves. It therefore avoids global USB or ZMK Studio enablement: the `corne_right` artifact is a peripheral and current ZMK rejects USB on non-central split halves. RGB is disabled with supported ZMK underglow configuration only; obsolete `WS2812_STRIP` overrides and user-forced deprecated KSCAN Kconfig settings are intentionally absent so warnings remain build failures instead of being suppressed.
+The shared `config/corne.conf` is applied to both split halves. It therefore avoids global USB or ZMK Studio enablement: the `corne_right` artifact is a peripheral and current ZMK rejects USB on non-central split halves. RGB underglow is enabled with the supported `CONFIG_ZMK_RGB_UNDERGLOW=y` setting only; obsolete `WS2812_STRIP` overrides and user-forced deprecated KSCAN Kconfig settings are intentionally absent so warnings remain build failures instead of being suppressed.
 
 ## Layout notes
 
@@ -26,7 +26,7 @@ Coming from an NJ68/68-key keyboard, the main goal is not to recreate every phys
 - `ESC` stays easy at the top-left corner, and `BACKSPACE` is the top-right base key.
 - QWERTY letters stay in normal positions.
 - The right thumbs are three plain, separate controls: `SPACE`, momentary `LOWER`, and `ENTER`.
-- Holding the right-middle `LOWER` thumb gives access to numbers, `TAB`, arrows, navigation, Delete, function keys, and a left-thumb `CTRL` for `CTRL+number` shortcuts.
+- Holding the right-middle `LOWER` thumb gives access to numbers, `TAB`, arrows, navigation, Delete, and function keys while the thumb row keeps the base `LEFT OPTION`, `RAISE`, `LEFT GUI`, `SPACE`, `LOWER`, and `ENTER` positions available.
 - Symbols stay on `RAISE`, with paired punctuation grouped together; Minus is on Raise rather than the base layer.
 - Caps remains a plain firmware key so the macOS Karabiner Hyper/Escape rule can keep working.
 
@@ -37,6 +37,8 @@ Left:  LALT  RAISE  LGUI      Right: SPACE  LOWER  ENTER
 Base corners: ESC (top-left)                    BACKSPACE (top-right)
 ```
 
+The same six thumb bindings are mirrored on `LWR`, `RSE`, and `ADJ` where possible so `LEFT OPTION`, `LEFT GUI`/Command, and `ENTER` remain reachable off the base layer. This intentionally removes the old Lower left-thumb `LEFT CTRL`/`LEFT SHIFT` special behavior; `CTRL+number` shortcuts are no longer produced via the Lower left thumb.
+
 `Caps Lock` is a plain, dedicated left home-row outer key for pinky access. On the active host, Karabiner-Elements maps `Caps Lock` to Hyper (`command+control+option+shift`) when held and `Escape` when tapped, so the verified host rule remains the single Hyper implementation.
 
 Current displaced-key placement is explicit: Esc is on the top-left base key; Tab is on Lower; Caps is off the left thumb; `LEFT CTRL` is on the right bottom-row outer key; Backspace is on the top-row far-right base key; and Enter is the right-inner thumb.
@@ -44,6 +46,8 @@ Current displaced-key placement is explicit: Esc is on the top-left base key; Ta
 Minus is available only on Raise. The prior right-side `RIGHT SHIFT` base key is absent while left Shift remains.
 
 Holding the right-middle Lower thumb together with the left-middle Raise thumb activates `ADJ` through ZMK conditional layers. Bluetooth profile selection/clear, built-in macOS chords, bootloader, and system reset stay on `ADJ`.
+
+RGB underglow controls are also on the guarded `ADJ` layer so normal typing, `LWR`, and `RSE` behavior remains unchanged: hold `LOWER` + `RAISE`, then press physical `H` for `RGB_EFF`, `J` for `RGB_TOG`, `K` for `RGB_ON`, `L` for `RGB_OFF`, `;` for `RGB_HUI`, or `'` for `RGB_SAI`. RGB underglow requires compatible LEDs and wiring on the actual Corne build and can increase battery drain, especially on wireless controllers.
 
 ### Built-in macOS productivity chords
 
@@ -89,7 +93,7 @@ For the NJ68 transition, common typing and editing coverage is intentionally lim
 
 Compared with the first repository version (`d9ba6f9`), the build/runtime safety assumptions, shields, workflow shape, and Bluetooth/power settings remain conservative. The current keymap intentionally changes transition ergonomics by placing Esc and Backspace at the top-left and top-right base corners, moving Tab to Lower, dedicating the right thumbs to Space, momentary Lower, and Enter, and keeping Minus on Raise. The build matrix uses ZMK's hardware-model-v2 nice!nano target instead of the legacy board identifier and is pinned to the exact upstream revision verified below.
 
-This configuration is a reasonable **go** for building/flashing only when the physical keyboard is actually a Corne v4 split using nice!nano v2-compatible controllers and standard ZMK `corne_left`/`corne_right` shields. It builds separate `corne_v4_left` and `corne_v4_right` artifacts using `nice_nano/nrf52840/zmk`, which upstream ZMK currently defines with default revision `2.0.0`, and keeps bootloader/reset access on the guarded `ADJ` tri-layer. Do **not** flash it if the PCB revision, controller, diode matrix, display/power wiring, or handedness differs from those assumptions; first confirm the exact hardware and use matching ZMK board/shield targets. This repository cannot verify physical soldering, battery polarity, charging safety, display wiring, radio performance, or successful flashing.
+This configuration is a reasonable **go** for building/flashing only when the physical keyboard is actually a standard Corne v3.1 42-key split using nice!nano v2-compatible controllers and 128x32 SSD1306 OLEDs compatible with the `nice_oled` shield. It builds separate `corne_v3_1_left` and `corne_v3_1_right` artifacts using `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`; upstream ZMK currently defines the nice!nano default revision as `2.0.0`. Bootloader/reset access stays on the guarded `ADJ` tri-layer. Do **not** flash it if the PCB revision, controller, diode matrix, display/power wiring, or handedness differs from those assumptions; first confirm the exact hardware and use matching ZMK board/shield targets. This repository cannot verify physical soldering, battery polarity, charging safety, display wiring, radio performance, or successful flashing.
 
 ## Building
 
@@ -98,22 +102,22 @@ The included workflow first validates this repository and then uses ZMK's reusab
 1. Push this repository to GitHub or open a pull request.
 2. Wait for **Build ZMK firmware** to run the `Validate keymap and build metadata` job.
 3. After validation succeeds, the `Build Corne firmware` job builds the configured left and right Corne artifacts.
-4. Download the generated `corne_v4_left` and `corne_v4_right` firmware artifacts.
+4. Download the generated `corne_v3_1_left` and `corne_v3_1_right` firmware artifacts.
 
 The workflow grants the default `GITHUB_TOKEN` read-only repository contents access and checks out the exact event SHA with `git` instead of adding a separate checkout action reference. The firmware job calls ZMK's reusable user-config workflow at the same exact revision pinned by `config/west.yml`.
 
 ### Dependency reproducibility status
 
-`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. Both `corne_left` and `corne_right` compiled successfully at that revision with Zephyr `9df4b12b5af3438a8b9d7a33780dc3b3b2f516c1` (`v4.1.0+zmk-fixes`) and Zephyr SDK `0.17.0`. Update both pins together only after repeating the full two-half build against the proposed revision.
+`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. Both `corne_left` and `corne_right` compiled successfully at that revision with Zephyr `9df4b12b5af3438a8b9d7a33780dc3b3b2f516c1` (`v4.1.0+zmk-fixes`) and Zephyr SDK `0.17.0`. The OLED module `mctechnology17/zmk-nice-oled` is pinned to `46f824abb2bd41f1287c5c68abd14122af6042a3` and supplied through the `nice_oled` shield in both build targets. Update ZMK, zmk-nice-oled, and workflow pins together only after repeating the full two-half build against the proposed revisions.
 
 Local builds require a ZMK/west workspace. If one is available, point `ZMK_CONFIG` at this repository's `config` directory and build each half into a separate directory:
 
 ```sh
-west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
-west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
 
-The verified local outputs are copied to ignored paths `build/corne_v4_left.uf2` and `build/corne_v4_right.uf2`; regenerate them after changing configuration.
+The verified local outputs are copied to ignored paths `build/corne_v3_1_left.uf2` and `build/corne_v3_1_right.uf2`; regenerate them after changing configuration.
 
 ## Flashing and post-flash checklist
 
@@ -121,7 +125,7 @@ Only flash artifacts that were built for the exact half being updated. The left 
 
 Before flashing:
 
-1. Confirm the PCB is a Corne v4 using nice!nano v2-compatible controllers and standard ZMK `corne_left`/`corne_right` shields.
+1. Confirm the PCB is a standard Corne v3.1 42-key split using nice!nano v2-compatible controllers, 128x32 SSD1306 OLEDs, and the `corne_left nice_oled`/`corne_right nice_oled` shields.
 2. Confirm which USB mass-storage volume corresponds to the left or right controller bootloader.
 3. Back up any currently working firmware artifacts if rollback matters.
 4. Disconnect batteries or follow the controller/keyboard vendor's safe flashing instructions if the hardware requires it.
@@ -158,7 +162,7 @@ python3 scripts/check_config.py
 python3 scripts/check_dependencies.py
 ```
 
-These checks validate key binding counts for the four 42-key Corne layers; required plain Caps/Space/Command placement; exact base Backspace/Lower/Enter positions; exact `ADJ` macOS chord, Bluetooth, bootloader, and reset positions; Lower Ctrl+number and macOS/Neovim/ZMK control bindings; practical common-key coverage; the exact `nice_nano/nrf52840/zmk` Corne build matrix and matching README commands; absence of legacy nice!nano board targets; exact active supported Kconfig/BLE settings including the report, kscan, and split-central queue sizes; no active forced BLE 2M PHY; and the documented dependency pinning status. They do not compile firmware, inspect negotiated BLE parameters, exercise a keyboard, or prove that macOS performs each documented action. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow, and physical behavior requires hardware testing.
+These checks validate key binding counts for the four 42-key Corne layers; required plain Caps/Space/Command placement; exact mirrored thumb rows; exact base Backspace/Lower/Enter positions; exact `ADJ` macOS chord, Bluetooth, full RGB underglow, bootloader, and reset positions; macOS/Neovim/ZMK control bindings; practical common-key coverage; the exact `nice_nano/nrf52840/zmk` Corne build matrix and matching README commands; absence of legacy nice!nano board targets; exact active supported Kconfig/BLE settings including the report, kscan, and split-central queue sizes; no active forced BLE 2M PHY; and the documented dependency pinning status. They do not compile firmware, inspect negotiated BLE parameters, exercise a keyboard, or prove that macOS performs each documented action. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow, and physical behavior requires hardware testing.
 
 ### Bluetooth lag isolation after flashing
 

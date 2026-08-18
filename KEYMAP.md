@@ -1,8 +1,10 @@
-# Corne v4 Keyboard Mapping
+# Corne v3.1 Keyboard Mapping
 
-This is an **NJ68-to-Corne transition layout**. It keeps familiar QWERTY typing with dedicated top-left `ESC` and top-right `BACKSPACE`, while assigning separate `SPACE`, momentary `LOWER`, and `ENTER` keys to the right thumb cluster.
+This is an **NJ68-to-Corne transition layout**. It keeps familiar QWERTY typing with dedicated top-left `ESC` and top-right `BACKSPACE`, while assigning separate `SPACE`, momentary `LOWER`, and `ENTER` keys to the right thumb cluster and mirroring the base thumb keys on non-default layers.
 
 This document describes the current ZMK mapping in [`config/corne.keymap`](config/corne.keymap). It is a static documentation snapshot only and does not change firmware behavior.
+
+Target hardware for the generated firmware is a standard Corne v3.1 42-key split with nice!nano v2-compatible controllers and 128x32 SSD1306 OLEDs built with `corne_left nice_oled` and `corne_right nice_oled`.
 
 ## NJ68 transition model
 
@@ -14,7 +16,7 @@ An NJ68 gives you a compact keyboard with a number row, dedicated Escape/Tab/Bac
 | Top-right Backspace reach | Base top-right `BACKSPACE` |
 | Top-left `Tab` | `LOWER` + left home-row outer `TAB` |
 | Enter key | Right-inner thumb `ENTER` |
-| Number row | Hold right-middle thumb `LOWER`, then top row `1`-`0`; add the Lower left-outer thumb for `CTRL+number` |
+| Number row | Hold right-middle thumb `LOWER`, then top row `1`-`0`; the prior Lower left-thumb `CTRL+number` shortcut is removed |
 | Arrow cluster | Hold right-middle thumb `LOWER`, then right home-row `LEFT/DOWN/UP/RIGHT` |
 | Home/End/Page keys | Hold `LOWER`, then right bottom/home positions |
 | Function row | Hold `LOWER`, then left home/bottom rows `F1`-`F12` |
@@ -28,7 +30,7 @@ The layout remains a conventional Corne 3x6+3 QWERTY layout, but the thumbs and 
 - Karabiner-Elements maps `Caps Lock` to **Hyper** (`command+control+option+shift`) when held and `Escape` when tapped.
 - `skhd` binds those host-produced Hyper chords to `yabai` window and space controls.
 - Neovim uses `<Space>` as leader, `<C-h/j/k/l>` for window navigation, and `<C-Arrow>` for window resizing.
-- `ADJ` emits 14 fixed macOS productivity chords directly from ZMK firmware; these do not require Karabiner, skhd/yabai, or Neovim.
+- `ADJ` emits 14 fixed macOS productivity chords directly from ZMK firmware and adds guarded RGB underglow controls; these do not require Karabiner, skhd/yabai, or Neovim.
 
 The firmware sends normal `Caps Lock` on the left home-row pinky key instead of implementing Hyper. Dedicated firmware `Escape` is on the top-left base key; Karabiner can still make Caps tap as Escape on that host. Keeping Caps plain leaves the host Karabiner rule authoritative and makes Hyper chords work with ordinary base keys, Lower numbers, and Lower arrows.
 
@@ -48,9 +50,9 @@ The firmware sends normal `Caps Lock` on the left home-row pinky key instead of 
 | Layer | Number | Name in keymap | Purpose | Activation |
 |---|---:|---|---|---|
 | `DEF` | 0 | `default_layer` | macOS QWERTY with top-corner Esc/Backspace, left-pinky Caps/Hyper, and dedicated thumb controls | Active by default |
-| `LWR` | 1 | `lower_layer` | Numbers, function keys, navigation, `TAB`, Option | Hold right-middle thumb `LOWER` (`&mo 1`) |
-| `RSE` | 2 | `raise_layer` | Symbols, paired punctuation, Ctrl-arrow chords, Option | Hold left-middle thumb `RAISE` (`&mo 2`) |
-| `ADJ` | 3 | `adjust_layer` | Bluetooth, macOS productivity chords, bootloader, reset | Hold right-middle `LOWER` and left-middle `RAISE` together |
+| `LWR` | 1 | `lower_layer` | Numbers, function keys, navigation, `TAB`, Option, mirrored thumbs | Hold right-middle thumb `LOWER` (`&mo 1`) |
+| `RSE` | 2 | `raise_layer` | Symbols, paired punctuation, Ctrl-arrow chords, Option, mirrored thumbs | Hold left-middle thumb `RAISE` (`&mo 2`) |
+| `ADJ` | 3 | `adjust_layer` | Bluetooth, macOS productivity chords, RGB underglow controls, bootloader, reset, mirrored thumbs | Hold right-middle `LOWER` and left-middle `RAISE` together |
 
 The `ADJ` layer is configured with ZMK conditional layers:
 
@@ -75,7 +77,7 @@ The dedicated Caps key is on the left home-row outer key, reachable by the left 
 
 ### Non-default layer thumbs
 
-On `LWR`, the left-outer thumb is `LEFT CTRL` for comfortable `CTRL+number` shortcuts while the right-middle thumb holds Lower; the remaining `LWR` thumb positions are `transparent`. All `RSE` and `ADJ` thumb positions are `transparent`, so they inherit active lower-priority behavior unless another higher-priority layer overrides them.
+On `LWR`, `RSE`, and `ADJ`, the thumb rows intentionally mirror the base layer where possible: left-outer `LEFT OPTION`, left-middle `RAISE`, left-inner `LEFT GUI`/Command, right-outer `SPACE`, right-middle `LOWER`, and right-inner `ENTER`. This keeps `LEFT OPTION`, Command, and `ENTER` available off the base layer. It replaces the old Lower left-thumb `LEFT CTRL`/`LEFT SHIFT` special behavior, so `CTRL+number` shortcuts are no longer produced via the Lower left thumb.
 
 ## Layer 0: `DEF` / default macOS QWERTY
 
@@ -101,14 +103,14 @@ Current displaced-key placement: `Caps Lock` is on the left home-row outer pinky
 
 ## Layer 1: `LWR` / numbers, function keys, navigation, Tab, Option
 
-Source node: `lower_layer`. Activated by holding default-layer `LOWER` (`&mo 1`) on the right-middle thumb. The Lower left-outer thumb is `LEFT CTRL`, intended for comfortable `CTRL+number` shortcuts while the right-middle thumb holds Lower.
+Source node: `lower_layer`. Activated by holding default-layer `LOWER` (`&mo 1`) on the right-middle thumb. The Lower thumb row mirrors the base thumb row, so `LEFT OPTION`, `LEFT GUI`/Command, and `ENTER` remain available while numbers, function keys, navigation, and Tab are active.
 
 | Row | Left 6 keys | Right 6 keys |
 |---|---|---|
 | Top | `` ` `` `1` `2` `3` `4` `5` | `6` `7` `8` `9` `0` `DELETE` |
 | Home | `TAB` `F1` `F2` `F3` `F4` `F5` | `LEFT` `DOWN` `UP` `RIGHT` `PAGE UP` `transparent` |
 | Bottom | `LEFT OPTION` `F6` `F7` `F8` `F9` `F10` | `HOME` `PAGE DOWN` `PAGE UP` `END` `F11` `F12` |
-| Thumbs | `LEFT CTRL` `transparent` `transparent` | `transparent` `transparent` `transparent` |
+| Thumbs | `LEFT OPTION` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
 
 Raw bindings by position:
 
@@ -117,18 +119,18 @@ Raw bindings by position:
 | Top | `&kp GRAVE` `&kp N1` `&kp N2` `&kp N3` `&kp N4` `&kp N5` | `&kp N6` `&kp N7` `&kp N8` `&kp N9` `&kp N0` `&kp DEL` |
 | Home | `&kp TAB` `&kp F1` `&kp F2` `&kp F3` `&kp F4` `&kp F5` | `&kp LEFT` `&kp DOWN` `&kp UP` `&kp RIGHT` `&kp PG_UP` `&trans` |
 | Bottom | `&kp LALT` `&kp F6` `&kp F7` `&kp F8` `&kp F9` `&kp F10` | `&kp HOME` `&kp PG_DN` `&kp PG_UP` `&kp END` `&kp F11` `&kp F12` |
-| Thumbs | `&kp LCTRL` `&trans` `&trans` | `&trans` `&trans` `&trans` |
+| Thumbs | `&kp LALT` `&mo 2` `&kp LGUI` | `&kp SPACE` `&mo 1` `&kp RET` |
 
 ## Layer 2: `RSE` / symbols, paired punctuation, and Ctrl-arrow chords
 
-Source node: `raise_layer`. Activated while holding default-layer `RAISE` (`&mo 2`) on the left-middle thumb. Minus is the second left home-row position on this layer and does not exist on `DEF`.
+Source node: `raise_layer`. Activated while holding default-layer `RAISE` (`&mo 2`) on the left-middle thumb. Minus is the second left home-row position on this layer and does not exist on `DEF`. The Raise thumb row mirrors the base thumb row.
 
 | Row | Left 6 keys | Right 6 keys |
 |---|---|---|
 | Top | `~` `!` `@` `#` `$` `%` | `^` `&` `*` `(` `)` `?` |
 | Home | `ESC` `-` `=` `[` `]` `\\` | `CTRL+LEFT` `CTRL+DOWN` `CTRL+UP` `CTRL+RIGHT` `:` `"` |
 | Bottom | `LEFT OPTION` `_` `+` `{` `}` `|` | `HOME` `PAGE DOWN` `PAGE UP` `END` `<` `>` |
-| Thumbs | `transparent` `transparent` `transparent` | `transparent` `transparent` `transparent` |
+| Thumbs | `LEFT OPTION` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
 
 Raw bindings by position:
 
@@ -137,29 +139,29 @@ Raw bindings by position:
 | Top | `&kp TILDE` `&kp EXCL` `&kp AT` `&kp HASH` `&kp DLLR` `&kp PRCNT` | `&kp CARET` `&kp AMPS` `&kp STAR` `&kp LPAR` `&kp RPAR` `&kp QUESTION` |
 | Home | `&kp ESC` `&kp MINUS` `&kp EQUAL` `&kp LBKT` `&kp RBKT` `&kp BSLH` | `&kp LC(LEFT)` `&kp LC(DOWN)` `&kp LC(UP)` `&kp LC(RIGHT)` `&kp COLON` `&kp DQT` |
 | Bottom | `&kp LALT` `&kp UNDER` `&kp PLUS` `&kp LBRC` `&kp RBRC` `&kp PIPE` | `&kp HOME` `&kp PG_DN` `&kp PG_UP` `&kp END` `&kp LT` `&kp GT` |
-| Thumbs | `&trans` `&trans` `&trans` | `&trans` `&trans` `&trans` |
+| Thumbs | `&kp LALT` `&mo 2` `&kp LGUI` | `&kp SPACE` `&mo 1` `&kp RET` |
 
 ## Layer 3: `ADJ` / Bluetooth, macOS productivity chords, and system
 
-Source node: `adjust_layer`. Activated only while the right-middle `LOWER` and left-middle `RAISE` thumbs are both held. The conditional layer then overrides the positions shown below.
+Source node: `adjust_layer`. Activated only while the right-middle `LOWER` and left-middle `RAISE` thumbs are both held. The conditional layer then overrides the finger positions shown below, while the thumb row mirrors the base thumb row.
 
 Actions are labeled by the key at the same **physical position on `DEF`**. A label such as `Y position` identifies where to press while `ADJ` is active; the binding there emits the chord in the action text rather than the letter `Y`.
 
 | Row | Left 6 physical positions | Right 6 physical positions |
 |---|---|---|
 | Top | `ESC: transparent` `Q: BT profile 1` `W: BT profile 2` `E: BT profile 3` `R: BT profile 4` `T: BT profile 5` | `Y: full screenshot` `U: selected-area screenshot/snipping` `I: Screenshot app` `O: Spotlight` `P: previous-app switch` `top-right BACKSPACE: lock screen` |
-| Home | `CAPS: BT clear` `A: select all` `S: save` `D: transparent` `F: find` `G: transparent` | `H: transparent` `J: transparent` `K: transparent` `L: transparent` `;: transparent` `': transparent` |
+| Home | `CAPS: BT clear` `A: select all` `S: save` `D: transparent` `F: find` `G: transparent` | `H: RGB effect` `J: RGB toggle` `K: RGB on` `L: RGB off` `;: RGB hue increase` `': RGB saturation increase` |
 | Bottom | `SHIFT: transparent` `Z: undo` `X: cut` `C: copy` `V: paste` `B: redo` | `N: transparent` `M: transparent` `,: transparent` `.: transparent` `/: BOOTLOADER` `CTRL: SYSTEM RESET` |
-| Thumbs | `transparent` `transparent` `transparent` | `transparent` `transparent` `transparent` |
+| Thumbs | `LEFT OPTION` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
 
 Exact raw bindings by position:
 
 | Position | Left 6 bindings | Right 6 bindings |
 |---|---|---|
 | Top | `&trans` `&bt BT_SEL 0` `&bt BT_SEL 1` `&bt BT_SEL 2` `&bt BT_SEL 3` `&bt BT_SEL 4` | `&kp LG(LS(N3))` `&kp LG(LS(N4))` `&kp LG(LS(N5))` `&kp LG(SPACE)` `&kp LG(TAB)` `&kp LC(LG(Q))` |
-| Home | `&bt BT_CLR` `&kp LG(A)` `&kp LG(S)` `&trans` `&kp LG(F)` `&trans` | `&trans` `&trans` `&trans` `&trans` `&trans` `&trans` |
+| Home | `&bt BT_CLR` `&kp LG(A)` `&kp LG(S)` `&trans` `&kp LG(F)` `&trans` | `&rgb_ug RGB_EFF` `&rgb_ug RGB_TOG` `&rgb_ug RGB_ON` `&rgb_ug RGB_OFF` `&rgb_ug RGB_HUI` `&rgb_ug RGB_SAI` |
 | Bottom | `&trans` `&kp LG(Z)` `&kp LG(X)` `&kp LG(C)` `&kp LG(V)` `&kp LG(LS(Z))` | `&trans` `&trans` `&trans` `&trans` `&bootloader` `&sys_reset` |
-| Thumbs | `&trans` `&trans` `&trans` | `&trans` `&trans` `&trans` |
+| Thumbs | `&kp LALT` `&mo 2` `&kp LGUI` | `&kp SPACE` `&mo 1` `&kp RET` |
 
 ### macOS chord reference
 
@@ -182,9 +184,24 @@ ZMK `LG` is macOS Command, `LS` is Shift, and `LC` is Control. These are firmwar
 | `V` | `&kp LG(V)` | Command+V | Paste |
 | `B` | `&kp LG(LS(Z))` | Command+Shift+Z | Redo |
 
+### RGB underglow controls
+
+RGB underglow firmware support is enabled with `CONFIG_ZMK_RGB_UNDERGLOW=y` and uses ZMK's `&rgb_ug` behavior. These controls are intentionally placed on currently guarded `ADJ` right-home positions so `DEF`, `LWR`, and `RSE` behavior is unchanged.
+
+| Physical base position on `ADJ` | Exact ZMK binding | Action |
+|---|---|---|
+| `H` | `&rgb_ug RGB_EFF` | Cycle RGB underglow effect |
+| `J` | `&rgb_ug RGB_TOG` | Toggle RGB underglow |
+| `K` | `&rgb_ug RGB_ON` | Turn RGB underglow on |
+| `L` | `&rgb_ug RGB_OFF` | Turn RGB underglow off |
+| `;` | `&rgb_ug RGB_HUI` | Increase RGB underglow hue |
+| `'` | `&rgb_ug RGB_SAI` | Increase RGB underglow saturation |
+
+RGB underglow requires compatible LEDs and wiring on the physical keyboard. It can increase battery drain on wireless builds; turn it off from `ADJ` + `L` when battery life matters.
+
 ## Practical common-key coverage baseline
 
-This NJ68 transition layout is checked for the commonly used keys needed for normal typing, shell/editor work, and the verified macOS workflow: all letters, digits, US punctuation pairs, top-left `Escape`, top-right `Backspace`, Lower `Tab`, `Delete`, separate `Enter` and `Space`, `Caps Lock`, standard left-side modifiers, arrows, `Home`, `End`, `Page Up`, `Page Down`, and `F1` through `F12`.
+This NJ68 transition layout is checked for the commonly used keys needed for normal typing, shell/editor work, and the verified macOS workflow: all letters, digits, US punctuation pairs, top-left `Escape`, top-right `Backspace`, Lower `Tab`, `Delete`, mirrored non-default thumb access to `Enter` and `Space`, `Caps Lock`, standard left-side modifiers, arrows, `Home`, `End`, `Page Up`, `Page Down`, and `F1` through `F12`.
 
 It intentionally does not chase full-size keyboard parity for unconfirmed niche keys such as `Print Screen`, `Scroll Lock`, `Pause`, `Insert`, numpad-only keys, or media controls. Screenshot actions use macOS firmware chords instead of a Print Screen keycode.
 
@@ -209,5 +226,11 @@ The 14 `ADJ` productivity chords above are implemented entirely in ZMK and do no
 |---|---|---|
 | `BT profile 1` through `BT profile 5` | `&bt BT_SEL 0` through `&bt BT_SEL 4` | Select one of five configured ZMK Bluetooth profiles |
 | `BT clear` | `&bt BT_CLR` | Clear Bluetooth pairing information via ZMK Bluetooth behavior |
+| `RGB effect` | `&rgb_ug RGB_EFF` | Cycle ZMK RGB underglow effect |
+| `RGB toggle` | `&rgb_ug RGB_TOG` | Toggle ZMK RGB underglow |
+| `RGB on` | `&rgb_ug RGB_ON` | Turn ZMK RGB underglow on |
+| `RGB off` | `&rgb_ug RGB_OFF` | Turn ZMK RGB underglow off |
+| `RGB hue increase` | `&rgb_ug RGB_HUI` | Increase ZMK RGB underglow hue |
+| `RGB saturation increase` | `&rgb_ug RGB_SAI` | Increase ZMK RGB underglow saturation |
 | `BOOTLOADER` | `&bootloader` | Invoke the ZMK bootloader behavior |
 | `SYSTEM RESET` | `&sys_reset` | Invoke the ZMK system reset behavior |

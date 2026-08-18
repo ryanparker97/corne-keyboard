@@ -56,6 +56,13 @@ required_tokens = [
     "&kp LC(UP)",
     "&kp LC(RIGHT)",
     "&kp QUESTION",
+    "#include <dt-bindings/zmk/rgb.h>",
+    "&rgb_ug RGB_EFF",
+    "&rgb_ug RGB_TOG",
+    "&rgb_ug RGB_ON",
+    "&rgb_ug RGB_OFF",
+    "&rgb_ug RGB_HUI",
+    "&rgb_ug RGB_SAI",
 ]
 for token in required_tokens:
     if token not in text:
@@ -149,6 +156,15 @@ for layer, groups in common_key_baseline_by_layer.items():
             if binding not in actual:
                 errors.append(f"{layer}: missing common {group} binding: {binding}")
 
+MIRRORED_THUMB_POSITIONS = {
+    36: "&kp LALT",
+    37: "&mo 2",
+    38: "&kp LGUI",
+    39: "&kp SPACE",
+    40: "&mo 1",
+    41: "&kp RET",
+}
+
 # Default layer physical placement checks. Keep Command and Space plain thumb keys
 # on opposite hands, use separate Lower and Enter right thumbs, and keep Caps as
 # a plain left pinky base key for the host Karabiner Hyper/Escape rule.
@@ -165,12 +181,7 @@ if default_match:
         11: "&kp BSPC",
         12: "&kp CAPS",
         35: "&kp LCTRL",
-        36: "&kp LALT",
-        37: "&mo 2",
-        38: "&kp LGUI",
-        39: "&kp SPACE",
-        40: "&mo 1",
-        41: "&kp RET",
+        **MIRRORED_THUMB_POSITIONS,
     }
     for index, expected in expected_positions.items():
         if len(normalized) <= index or normalized[index] != expected:
@@ -180,7 +191,7 @@ if default_match:
             )
 
 # ADJ physical placement checks. Validate every position so macOS shortcuts cannot
-# shift the Bluetooth selectors, clear action, or guarded boot/reset controls.
+# shift the Bluetooth selectors, RGB controls, clear action, or guarded boot/reset controls.
 adjust_bindings = layer_bindings.get("adjust_layer", [])
 expected_adjust_bindings = [
     "&trans",
@@ -201,12 +212,12 @@ expected_adjust_bindings = [
     "&trans",
     "&kp LG(F)",
     "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
+    "&rgb_ug RGB_EFF",
+    "&rgb_ug RGB_TOG",
+    "&rgb_ug RGB_ON",
+    "&rgb_ug RGB_OFF",
+    "&rgb_ug RGB_HUI",
+    "&rgb_ug RGB_SAI",
     "&trans",
     "&kp LG(Z)",
     "&kp LG(X)",
@@ -219,12 +230,12 @@ expected_adjust_bindings = [
     "&trans",
     "&bootloader",
     "&sys_reset",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
+    "&kp LALT",
+    "&mo 2",
+    "&kp LGUI",
+    "&kp SPACE",
+    "&mo 1",
+    "&kp RET",
 ]
 for index, expected in enumerate(expected_adjust_bindings):
     if len(adjust_bindings) <= index or adjust_bindings[index] != expected:
@@ -233,15 +244,16 @@ for index, expected in enumerate(expected_adjust_bindings):
             f"adjust_layer position {index}: expected {expected}, found {actual}"
         )
 
-# Lower layer physical placement checks. Holding Lower with the right thumb should
-# expose left-thumb Ctrl for comfortable Ctrl+number shortcuts.
-lower_bindings = layer_bindings.get("lower_layer", [])
-if len(lower_bindings) > 36 and lower_bindings[36] != "&kp LCTRL":
-    errors.append(
-        f"lower_layer position 36: expected &kp LCTRL for Ctrl+number shortcuts, found {lower_bindings[36]}"
-    )
-elif len(lower_bindings) <= 36:
-    errors.append("lower_layer position 36: expected &kp LCTRL, found <missing>")
+# Non-default thumb rows intentionally mirror the base layer so Option, Raise,
+# Command, Space, Lower, and Enter remain available while any layer is active.
+for layer in ("lower_layer", "raise_layer", "adjust_layer"):
+    bindings = layer_bindings.get(layer, [])
+    for index, expected in MIRRORED_THUMB_POSITIONS.items():
+        if len(bindings) <= index or bindings[index] != expected:
+            actual = bindings[index] if len(bindings) > index else "<missing>"
+            errors.append(
+                f"{layer} position {index}: expected mirrored thumb {expected}, found {actual}"
+            )
 
 forbidden_tokens = [
     "zmk,behavior-hold-tap",
@@ -255,5 +267,5 @@ if errors:
     raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
 print(
-    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed Backspace/Space/Lower/Enter positions, exact ADJ macOS shortcuts and BT/boot/reset safety positions, Lower Ctrl+number support, ESC, Ctrl-arrow chords, and practical common-key coverage present."
+    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed mirrored thumb rows, Backspace/Space/Lower/Enter positions, exact ADJ macOS shortcuts, full RGB underglow controls, BT/boot/reset safety positions, ESC, Ctrl-arrow chords, and practical common-key coverage present."
 )

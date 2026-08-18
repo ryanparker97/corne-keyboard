@@ -11,15 +11,21 @@ from pathlib import Path
 EXPECTED_BOARD = "nice_nano/nrf52840/zmk"
 STALE_BOARDS = {"nice_nano_v2"}
 EXPECTED_MATRIX = {
-    (EXPECTED_BOARD, "corne_left", "corne_v4_left"),
-    (EXPECTED_BOARD, "corne_right", "corne_v4_right"),
+    (EXPECTED_BOARD, "corne_left nice_oled", "corne_v3_1_left"),
+    (EXPECTED_BOARD, "corne_right nice_oled", "corne_v3_1_right"),
+}
+STALE_USER_FACING_LABELS = {
+    "Corne " + "v" + "4",
+    "corne_" + "v" + "4",
 }
 README_REQUIRED_SNIPPETS = [
+    "`corne_v3_1_left`",
+    "`corne_v3_1_right`",
     f"`{EXPECTED_BOARD}`",
     f"west build -s zmk/app -d build/corne_left -b {EXPECTED_BOARD} -- "
-    '-DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
     f"west build -s zmk/app -d build/corne_right -b {EXPECTED_BOARD} -- "
-    '-DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
 ]
 
 
@@ -31,6 +37,12 @@ def reject_stale_targets(path: Path, text: str) -> None:
     found = sorted(stale for stale in STALE_BOARDS if stale in text)
     if found:
         fail(f"{path} contains stale board target(s): {', '.join(found)}")
+
+
+def reject_stale_user_facing_labels(path: Path, text: str) -> None:
+    found = sorted(stale for stale in STALE_USER_FACING_LABELS if stale in text)
+    if found:
+        fail(f"{path} contains stale user-facing Corne generation label(s): {', '.join(found)}")
 
 
 def parse_include_entries(text: str) -> list[dict[str, str]]:
@@ -63,8 +75,17 @@ def main() -> None:
     build_text = build_path.read_text(encoding="utf-8")
     readme_text = readme_path.read_text(encoding="utf-8")
 
-    for path, text in ((build_path, build_text), (readme_path, readme_text)):
+    tracked_text_paths = [
+        build_path,
+        readme_path,
+        Path("KEYMAP.md"),
+        Path("CONTRIBUTING.md"),
+        Path(".github/pull_request_template.md"),
+    ]
+    for path in tracked_text_paths:
+        text = path.read_text(encoding="utf-8")
         reject_stale_targets(path, text)
+        reject_stale_user_facing_labels(path, text)
 
     if "include:" not in build_text:
         fail("build.yaml missing include matrix")
@@ -85,7 +106,7 @@ def main() -> None:
 
     print(
         "Build metadata check passed: "
-        f"{EXPECTED_BOARD} corne_left and corne_right targets present; stale targets absent."
+        f"{EXPECTED_BOARD} corne_left/right nice_oled targets present; stale targets and labels absent."
     )
 
 

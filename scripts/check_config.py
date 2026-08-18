@@ -11,8 +11,17 @@ BUILD = Path("build.yaml")
 WORKFLOW = Path(".github/workflows/build.yml")
 
 REQUIRED_CONFIG_SETTINGS = {
-    "CONFIG_ZMK_RGB_UNDERGLOW": "n",
+    "CONFIG_ZMK_RGB_UNDERGLOW": "y",
     "CONFIG_ZMK_DISPLAY": "y",
+    "CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM": "y",
+    "CONFIG_NICE_OLED_ON": "y",
+    "CONFIG_NICE_OLED_WIDGET_STATUS": "y",
+    "CONFIG_NICE_OLED_WIDGET_WPM": "y",
+    "CONFIG_NICE_OLED_WIDGET_WPM_LUNA": "y",
+    "CONFIG_NICE_OLED_WIDGET_WPM_BONGO_CAT": "n",
+    "CONFIG_NICE_OLED_WIDGET_RESPONSIVE_BONGO_CAT": "n",
+    "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL": "y",
+    "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT": "y",
     "CONFIG_ZMK_SLEEP": "y",
     "CONFIG_ZMK_EXT_POWER": "y",
     "CONFIG_ZMK_BLE_EXPERIMENTAL_CONN": "y",
@@ -34,7 +43,7 @@ REQUIRED_CONFIG_SNIPPETS = [
 ]
 
 FORBIDDEN_CONFIG_SNIPPETS = {
-    "CONFIG_WS2812_STRIP": "WS2812_STRIP is not a current ZMK user-config symbol; disable underglow with CONFIG_ZMK_RGB_UNDERGLOW=n.",
+    "CONFIG_WS2812_STRIP": "WS2812_STRIP is not a current ZMK user-config symbol; enable underglow with CONFIG_ZMK_RGB_UNDERGLOW=y only.",
     "CONFIG_ZMK_KSCAN_DEBOUNCE_": "Do not force deprecated KSCAN debounce Kconfig; leave current shield defaults/devicetree in control.",
     "CONFIG_ZMK_KSCAN=": "Do not force deprecated ZMK KSCAN integration from user config.",
     "CONFIG_KSCAN=": "Do not force Zephyr's deprecated KSCAN symbol from user config.",
@@ -187,8 +196,8 @@ def main() -> None:
         fail("Current-ZMK config check failed:\n- " + "\n- ".join(violations))
 
     print(
-        "Config check passed: required active Corne/BLE settings are exact; no active "
-        "undefined WS2812_STRIP, user-forced deprecated KSCAN, forced BLE 2M PHY, "
+        "Config check passed: required active Corne/BLE/nice_oled settings are exact; no active "
+        "obsolete WS2812_STRIP, user-forced deprecated KSCAN, forced BLE 2M PHY, "
         "global USB/Studio, or warning-suppression settings."
     )
 

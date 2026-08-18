@@ -9,6 +9,7 @@ WORKFLOW = Path(".github/workflows/build.yml")
 README = Path("README.md")
 
 VERIFIED_ZMK_REVISION = "6e2ef41e022d555b10f116e395832913f71717b3"
+PINNED_NICE_OLED_REVISION = "46f824abb2bd41f1287c5c68abd14122af6042a3"
 
 
 def fail(message: str) -> None:
@@ -23,6 +24,11 @@ def main() -> None:
     required_west = [
         f"revision: {VERIFIED_ZMK_REVISION}",
         "Pin the exact ZMK revision verified by successful corne_left and",
+        "- name: mctechnology17",
+        "url-base: https://github.com/mctechnology17",
+        "- name: zmk-nice-oled",
+        "remote: mctechnology17",
+        f"revision: {PINNED_NICE_OLED_REVISION}",
     ]
     missing_west = [snippet for snippet in required_west if snippet not in west_text]
     if missing_west:
@@ -40,6 +46,9 @@ def main() -> None:
         "Dependency reproducibility status",
         VERIFIED_ZMK_REVISION,
         "Both `corne_left` and `corne_right` compiled successfully",
+        "mctechnology17/zmk-nice-oled",
+        PINNED_NICE_OLED_REVISION,
+        "`nice_oled` shield",
     ]
     missing_readme = [snippet for snippet in required_readme if snippet not in readme_text]
     if missing_readme:
@@ -47,7 +56,8 @@ def main() -> None:
 
     print(
         "Dependency check passed: west and reusable workflow refs match the documented "
-        f"known-good ZMK revision {VERIFIED_ZMK_REVISION}."
+        f"known-good ZMK revision {VERIFIED_ZMK_REVISION}; zmk-nice-oled is pinned "
+        f"to {PINNED_NICE_OLED_REVISION}."
     )
 
 

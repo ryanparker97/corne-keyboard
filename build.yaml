@@ -17,11 +17,12 @@
 
 ---
 include:
-  # Corne v4 split halves using nice!nano v2 controllers.
+  # Corne v3.1 split halves using nice!nano v2-compatible controllers
+  # and zmk-nice-oled's 128x32 SSD1306 OLED shield.
   # The left half is the central side for normal USB/BLE use.
   - board: nice_nano/nrf52840/zmk
-    shield: corne_left
-    artifact-name: corne_v4_left
+    shield: corne_left nice_oled
+    artifact-name: corne_v3_1_left
   - board: nice_nano/nrf52840/zmk
-    shield: corne_right
-    artifact-name: corne_v4_right
+    shield: corne_right nice_oled
+    artifact-name: corne_v3_1_right
