@@ -1,178 +1,100 @@
-# Corne v3.1 ZMK Configuration
+# Corne v3.1 ZMK user config
 
-This layout is documented as an **NJ68-to-Corne transition layout**: it keeps familiar QWERTY typing, gives you dedicated top-left Escape and top-right Backspace keys, keeps Tab/number/navigation access on a predictable Lower layer, and places Space, Lower, and Enter on separate right-thumb keys so the smaller Corne feels less abrupt.
+Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK, `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`, with safe wired USB support only on the left/central firmware.
 
-This repository is a ZMK user configuration for a standard Corne v3.1 42-key split keyboard using nice!nano v2-compatible controllers and 128x32 SSD1306 OLEDs through `mctechnology17/zmk-nice-oled`. The build matrix uses ZMK's hardware-model-v2 target `nice_nano/nrf52840/zmk`, whose upstream metadata defaults the nice!nano revision to `2.0.0`, with `corne_left nice_oled` and `corne_right nice_oled` shields. ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`.
+## Included files
 
-## What is included
+- `build.yaml` builds normal `corne_v3_1_left` and `corne_v3_1_right` artifacts, plus optional `corne_v3_1_left_studio` and `settings_reset` artifacts.
+- `config/west.yml` pins ZMK and `mctechnology17/zmk-nice-oled`.
+- `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including output-selection controls on `ADJ`.
+- `config/corne.conf` enables BLE, nice_oled, wireless power management, and conservative RGB without enabling USB globally.
+- `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
+- `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
 
-- `config/corne.keymap` — macOS-oriented Corne QWERTY layout with four layers:
-  - `DEF`: conventional 3x6+3 QWERTY base layer with easy top-left Esc, top-right Backspace, left-pinky Caps/Hyper, opposite-hand Space and Command thumbs, and separate Lower and Enter thumbs.
-  - `LWR`: number, function, navigation, `TAB`, Option, and mirrored base thumb access.
-  - `RSE`: symbol, paired punctuation (including Minus), Option, Neovim-informed Ctrl-arrow resize chords, and mirrored base thumb access.
-  - `ADJ`: conditional Lower + Raise tri-layer with Bluetooth profile controls, built-in macOS productivity chords, RGB underglow controls, bootloader, reset, and mirrored base thumb access.
-- `config/corne.conf` — Corne runtime options for Bluetooth latency preferences, zmk-nice-oled display widgets, RGB underglow support, power management, disabled encoder, and current-ZMK-safe defaults.
-- `build.yaml` — GitHub Actions build matrix for `nice_nano/nrf52840/zmk` + `corne_left nice_oled` and `corne_right nice_oled`, producing `corne_v3_1_left` and `corne_v3_1_right` artifacts.
-- `config/west.yml` — ZMK manifest used by the GitHub Actions user-config build.
+## Thumb layout
 
-The shared `config/corne.conf` is applied to both split halves. It therefore avoids global USB or ZMK Studio enablement: the `corne_right` artifact is a peripheral and current ZMK rejects USB on non-central split halves. RGB underglow is enabled with the supported `CONFIG_ZMK_RGB_UNDERGLOW=y` setting only; obsolete `WS2812_STRIP` overrides and user-forced deprecated KSCAN Kconfig settings are intentionally absent so warnings remain build failures instead of being suppressed.
-
-## Layout notes
-
-### NJ68 transition goals
-
-Coming from an NJ68/68-key keyboard, the main goal is not to recreate every physical key. Instead, this layout keeps the habits that matter most during the transition:
-
-- `ESC` stays easy at the top-left corner, and `BACKSPACE` is the top-right base key.
-- QWERTY letters stay in normal positions.
-- The right thumbs are three plain, separate controls: `SPACE`, momentary `LOWER`, and `ENTER`.
-- Holding the right-middle `LOWER` thumb gives access to numbers, `TAB`, arrows, navigation, Delete, and function keys while the thumb row keeps the base `LEFT OPTION`, `RAISE`, `LEFT GUI`, `SPACE`, `LOWER`, and `ENTER` positions available.
-- Symbols stay on `RAISE`, with paired punctuation grouped together; Minus is on Raise rather than the base layer.
-- Caps remains a plain firmware key so the macOS Karabiner Hyper/Escape rule can keep working.
-
-The keymap preserves the standard 3x6+3 Corne key positions. Command and Space are plain, dedicated opposite-hand thumb keys; Lower is a pure momentary layer key, and Enter is a separate key:
+ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-to-inner, then the right thumbs inner-to-outer. Every layer uses the same physical thumb row:
 
 ```text
-Left:  LALT  RAISE  LGUI      Right: SPACE  LOWER  ENTER
-Base corners: ESC (top-left)                    BACKSPACE (top-right)
+Left thumbs, outer -> inner:  LALT  RAISE  SPACE
+Right thumbs, inner -> outer: RGUI  LOWER  ENTER
 ```
 
-The same six thumb bindings are mirrored on `LWR`, `RSE`, and `ADJ` where possible so `LEFT OPTION`, `LEFT GUI`/Command, and `ENTER` remain reachable off the base layer. This intentionally removes the old Lower left-thumb `LEFT CTRL`/`LEFT SHIFT` special behavior; `CTRL+number` shortcuts are no longer produced via the Lower left thumb.
+`SPACE` is therefore on the inner-left thumb. `RGUI` is macOS Command on the inner-right thumb.
 
-`Caps Lock` is a plain, dedicated left home-row outer key for pinky access. On the active host, Karabiner-Elements maps `Caps Lock` to Hyper (`command+control+option+shift`) when held and `Escape` when tapped, so the verified host rule remains the single Hyper implementation.
+## RGB LEDs
 
-Current displaced-key placement is explicit: Esc is on the top-left base key; Tab is on Lower; Caps is off the left thumb; `LEFT CTRL` is on the right bottom-row outer key; Backspace is on the top-row far-right base key; and Enter is the right-inner thumb.
+RGB is enabled conservatively for wireless use:
 
-Minus is available only on Raise. The prior right-side `RIGHT SHIFT` base key is absent while left Shift remains.
+- `CONFIG_ZMK_RGB_UNDERGLOW=y`
+- off on start: `CONFIG_ZMK_RGB_UNDERGLOW_ON_START=n`
+- low brightness: `CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=15`, capped by `CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX=40`
+- idle auto-off: `CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE=y`
+- USB auto-off is intentionally not enabled in shared `config/corne.conf` because it depends on `USB_DEVICE_STACK` and may fail for the right split peripheral.
 
-Holding the right-middle Lower thumb together with the left-middle Raise thumb activates `ADJ` through ZMK conditional layers. Bluetooth profile selection/clear, built-in macOS chords, bootloader, and system reset stay on `ADJ`.
+The pinned/upstream ZMK Corne `nice_nano` overlay defines the `led_strip` node. This keymap only overrides `&led_strip { chain-length = <27>; };` for a fully LED-populated Corne v3.1: 42 per-key SK6812 plus 12 underglow WS2812, or 27 LEDs per half. Change this to `<6>` if only the underglow LEDs are soldered.
 
-RGB underglow controls are also on the guarded `ADJ` layer so normal typing, `LWR`, and `RSE` behavior remains unchanged: hold `LOWER` + `RAISE`, then press physical `H` for `RGB_EFF`, `J` for `RGB_TOG`, `K` for `RGB_ON`, `L` for `RGB_OFF`, `;` for `RGB_HUI`, or `'` for `RGB_SAI`. RGB underglow requires compatible LEDs and wiring on the actual Corne build and can increase battery drain, especially on wireless controllers.
+RGB controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `H/J/K/L/;/’` for effect, toggle, on, off, hue up, and saturation up.
 
-### Built-in macOS productivity chords
+## Wired and wireless output
 
-The following `ADJ` actions are named by their **physical base-layer positions**, not by the keys emitted in the chord. ZMK `LG` is macOS Command, `LS` is Shift, and `LC` is Control.
+The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so the right half remains a normal split peripheral. The `build.yaml` matrix adds wired USB and USB boot support only to the left/central artifacts.
 
-| Physical base position on `ADJ` | Firmware chord | Action |
-|---|---|---|
-| `Y` | Command+Shift+3 | Full screenshot |
-| `U` | Command+Shift+4 | Selected-area screenshot/snipping |
-| `I` | Command+Shift+5 | Screenshot app |
-| `O` | Command+Space | Spotlight |
-| `P` | Command+Tab | Previous-app switch |
-| Top-right `BACKSPACE` position | Control+Command+Q | Lock screen |
-| `A` | Command+A | Select all |
-| `S` | Command+S | Save |
-| `F` | Command+F | Find |
-| `Z` | Command+Z | Undo |
-| `X` | Command+X | Cut |
-| `C` | Command+C | Copy |
-| `V` | Command+V | Paste |
-| `B` | Command+Shift+Z | Redo |
+- For wired use, plug USB into the left half. The right half still talks to the left half over split BLE.
+- For wireless use, pair over BLE as usual; the left half remains the central side.
+- ZMK's default output prefers USB when both USB and BLE are available.
+- Output controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `N/M/,` for `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG`.
 
-These 14 chords are emitted directly by ZMK firmware and do not require Karabiner-Elements. See [`KEYMAP.md`](KEYMAP.md) for exact physical tables and raw bindings.
+## Build targets
 
-## macOS host dependencies
+`build.yaml` uses ZMK's hardware-model-v2 board target `nice_nano/nrf52840/zmk`:
 
-The Caps/Hyper, window-management, and editor workflows below depend on configuration outside this repository; they are distinct from the built-in `ADJ` productivity chords above. These host files were inspected but not changed:
+- `corne_left nice_oled` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left`
+- `corne_right nice_oled` -> `corne_v3_1_right`
+- `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left_studio`
+- `settings_reset` -> `settings_reset`
 
-- `/Users/ryanparker/.config/karabiner/karabiner.json` must keep the Caps Lock rule: Hyper when held, Escape when tapped.
-- `/Users/ryanparker/.config/skhd/skhdrc` binds Hyper chords to yabai, including:
-  - `Hyper+h/j/k/l` window focus.
-  - `Hyper+z/f/b/r` zoom/balance/rotate.
-  - `Hyper+1..5` named spaces and `Hyper+Left/Right` previous/next space.
-  - `Hyper+m` and `Hyper+s` modal move/swap modes, followed by directions or space numbers.
-- `/Users/ryanparker/.config/yabai/yabairc` configures BSP layout, gaps/padding, routing, and float rules used by those skhd commands.
-- `/Users/ryanparker/Documents/personal/code/dotfiles/nvim` uses Space leader, `<C-h/j/k/l>` window navigation, and `<C-Up/Down/Left/Right>` window resizing.
+USB and Studio are only for the left/central half. The right peripheral keeps
+the normal firmware and does not enable USB or ZMK Studio.
 
-Firmware choices remain conservative: the productivity actions are a small fixed set of direct macOS chords rather than application-specific macro sprawl. Hyper is produced only through the host's Caps rule, including when combined with Lower numbers/arrows by holding the right-middle Lower thumb; skhd/yabai consume those Hyper events. Neovim Ctrl-arrow resizing remains on Raise. None of those host-dependent behaviors should be conflated with the self-contained `ADJ` chords.
-
-For the NJ68 transition, common typing and editing coverage is intentionally limited to the practical compact-keyboard baseline in `KEYMAP.md`: letters, digits, US punctuation pairs, easy top-left Escape, top-right Backspace, Lower Tab, Delete, Enter, Space, standard modifiers, arrows, Home/End, Page Up/Down, and F1-F12. Niche full-size keys such as Print Screen, Scroll Lock, Pause, Insert, numpad keys, and media keys are not mapped; screenshots are sent as macOS chords instead of a Print Screen keycode.
-
-## Safety comparison and flashing guidance
-
-Compared with the first repository version (`d9ba6f9`), the build/runtime safety assumptions, shields, workflow shape, and Bluetooth/power settings remain conservative. The current keymap intentionally changes transition ergonomics by placing Esc and Backspace at the top-left and top-right base corners, moving Tab to Lower, dedicating the right thumbs to Space, momentary Lower, and Enter, and keeping Minus on Raise. The build matrix uses ZMK's hardware-model-v2 nice!nano target instead of the legacy board identifier and is pinned to the exact upstream revision verified below.
-
-This configuration is a reasonable **go** for building/flashing only when the physical keyboard is actually a standard Corne v3.1 42-key split using nice!nano v2-compatible controllers and 128x32 SSD1306 OLEDs compatible with the `nice_oled` shield. It builds separate `corne_v3_1_left` and `corne_v3_1_right` artifacts using `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`; upstream ZMK currently defines the nice!nano default revision as `2.0.0`. Bootloader/reset access stays on the guarded `ADJ` tri-layer. Do **not** flash it if the PCB revision, controller, diode matrix, display/power wiring, or handedness differs from those assumptions; first confirm the exact hardware and use matching ZMK board/shield targets. This repository cannot verify physical soldering, battery polarity, charging safety, display wiring, radio performance, or successful flashing.
-
-## Building
-
-The included workflow first validates this repository and then uses ZMK's reusable user-config workflow:
-
-1. Push this repository to GitHub or open a pull request.
-2. Wait for **Build ZMK firmware** to run the `Validate keymap and build metadata` job.
-3. After validation succeeds, the `Build Corne firmware` job builds the configured left and right Corne artifacts.
-4. Download the generated `corne_v3_1_left` and `corne_v3_1_right` firmware artifacts.
-
-The workflow grants the default `GITHUB_TOKEN` read-only repository contents access and checks out the exact event SHA with `git` instead of adding a separate checkout action reference. The firmware job calls ZMK's reusable user-config workflow at the same exact revision pinned by `config/west.yml`.
-
-### Dependency reproducibility status
-
-`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. Both `corne_left` and `corne_right` compiled successfully at that revision with Zephyr `9df4b12b5af3438a8b9d7a33780dc3b3b2f516c1` (`v4.1.0+zmk-fixes`) and Zephyr SDK `0.17.0`. The OLED module `mctechnology17/zmk-nice-oled` is pinned to `46f824abb2bd41f1287c5c68abd14122af6042a3` and supplied through the `nice_oled` shield in both build targets. Update ZMK, zmk-nice-oled, and workflow pins together only after repeating the full two-half build against the proposed revisions.
-
-Local builds require a ZMK/west workspace. If one is available, point `ZMK_CONFIG` at this repository's `config` directory and build each half into a separate directory:
+Local build commands, from a west workspace with this repository as the user config:
 
 ```sh
-west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
 west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_left_studio -b nice_nano/nrf52840/zmk -S studio-rpc-usb-uart -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
+west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
 
-The verified local outputs are copied to ignored paths `build/corne_v3_1_left.uf2` and `build/corne_v3_1_right.uf2`; regenerate them after changing configuration.
+## Flashing notes
 
-## Flashing and post-flash checklist
+1. Build or download both normal artifacts: `corne_v3_1_left` and `corne_v3_1_right`.
+2. Put one nice!nano into bootloader mode.
+3. Copy the matching `.uf2` to that half's mounted bootloader volume.
+4. Repeat with the other half; do not swap left/right firmware.
+5. If Bluetooth pairing is stale, use `ADJ` + `BT_CLR`, then pair again, or flash `settings_reset` once before reflashing the normal firmware.
 
-Only flash artifacts that were built for the exact half being updated. The left and right halves are separate firmware images; flashing the wrong artifact can leave a half with incorrect handedness behavior.
+Use `corne_v3_1_left_studio` only when you want ZMK Studio support on the
+left/central half; keep `corne_v3_1_right` on the right half.
 
-Before flashing:
+When using a cable for typing, connect it to the left half. Connecting the right
+half over USB is only for flashing or charging; it remains the split peripheral
+in normal operation.
 
-1. Confirm the PCB is a standard Corne v3.1 42-key split using nice!nano v2-compatible controllers, 128x32 SSD1306 OLEDs, and the `corne_left nice_oled`/`corne_right nice_oled` shields.
-2. Confirm which USB mass-storage volume corresponds to the left or right controller bootloader.
-3. Back up any currently working firmware artifacts if rollback matters.
-4. Disconnect batteries or follow the controller/keyboard vendor's safe flashing instructions if the hardware requires it.
+Only flash this on a standard Corne v3.1 42-key split with nice!nano-compatible controllers, matching OLED wiring, and matching LED population/chain length.
 
-After flashing each half:
+## Dependency reproducibility status
 
-1. Reboot both halves and test USB/BLE connection on the intended central side.
-2. Verify top-left Escape, top-right Backspace, all six thumbs (especially separate right-middle Lower and right-inner Enter), Raise, and Lower+Raise `ADJ` activation before relying on the keyboard.
-3. Verify all 14 `ADJ` productivity chords by their documented physical positions, especially that the guarded top-right position locks the screen; avoid unsaved work while testing editing shortcuts.
-4. If Bluetooth pairing is stale, use `ADJ` + `BT clear`, then re-pair the host profile intentionally.
-5. Confirm Caps behaves as Hyper/Escape only on hosts with the external Karabiner rule; on other hosts it remains plain Caps Lock. Confirm the `ADJ` firmware chords work independently of that rule.
+`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. The OLED module `mctechnology17/zmk-nice-oled` is pinned to `46f824abb2bd41f1287c5c68abd14122af6042a3` and supplied through the `nice_oled` shield. These pins are chosen for reproducibility and alignment between local west workspaces and CI.
 
-This repository cannot validate physical hardware health, bootloader state, battery safety, or radio performance. No flashing was performed as part of repository validation.
+Local static validation passes with `python3 scripts/validate.py`. A full firmware compilation was not run in this environment because `west` is unavailable here; confirm the pinned build through GitHub Actions or a local ZMK/west workspace before flashing.
 
-## Host portability and Bluetooth rationale
+## Validation
 
-The keymap is portable as a normal USB/BLE keyboard for ordinary keys. The 14 `ADJ` chords emit standard modifier/key events directly from firmware, although their documented actions follow macOS conventions. The Hyper workflow remains host dependent: without the Karabiner-Elements rule, the left pinky key sends plain `Caps Lock`; without skhd/yabai, Hyper shortcuts do nothing; without the Neovim mappings, the Ctrl-arrow chords are just normal Ctrl-arrow key events.
-
-The BLE settings in `config/corne.conf` target stable, responsive macOS typing. The firmware disables forced 2M PHY through ZMK's experimental connection option and requests a 15 ms interval (`MIN_INT=12`, `MAX_INT=12` in 1.25 ms units), peripheral latency `30`, and a 6 s supervision timeout (`TIMEOUT=600` in 10 ms units). This combination follows Apple's BLE accessory constraints; peripheral latency permits idle radio events to be skipped but does not prevent the keyboard from attending the next event when a report is ready. Apple notes that some devices may choose 30 ms when offered 15 ms. The host negotiates the final parameters, so firmware preferences are not guarantees.
-
-The keyboard report queue remains `40` (ZMK defaults to `20`) to absorb short typing bursts. Separately, `CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE=16` and `CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE=16` give matrix and split-central position events more room to avoid possible dropped press/release events before BLE reports are formed; this stuck-key mitigation is distinct from the BLE interval/latency preferences above. `CONFIG_BT_CTLR_TX_PWR_PLUS_8=y` follows ZMK's weak-link troubleshooting guidance; ZMK describes its extra nRF52840 power use as negligible. The explicit data-length settings retain 251-byte packet support, which Apple recommends for performance and radio efficiency. The split peripheral battery-fetch/proxy options are not enabled, so they are not adding split BLE polling traffic.
-
-## Verification performed in this repository
-
-Static checks can be run without a local ZMK checkout:
+Static checks:
 
 ```sh
 python3 scripts/validate.py
-
-# Or run individual checks:
-python3 scripts/check_keymap.py
-python3 scripts/check_build_yaml.py
-python3 scripts/check_config.py
-python3 scripts/check_dependencies.py
 ```
 
-These checks validate key binding counts for the four 42-key Corne layers; required plain Caps/Space/Command placement; exact mirrored thumb rows; exact base Backspace/Lower/Enter positions; exact `ADJ` macOS chord, Bluetooth, full RGB underglow, bootloader, and reset positions; macOS/Neovim/ZMK control bindings; practical common-key coverage; the exact `nice_nano/nrf52840/zmk` Corne build matrix and matching README commands; absence of legacy nice!nano board targets; exact active supported Kconfig/BLE settings including the report, kscan, and split-central queue sizes; no active forced BLE 2M PHY; and the documented dependency pinning status. They do not compile firmware, inspect negotiated BLE parameters, exercise a keyboard, or prove that macOS performs each documented action. Full firmware compilation still requires ZMK dependencies or the GitHub Actions workflow, and physical behavior requires hardware testing.
-
-### Bluetooth lag isolation after flashing
-
-1. Flash both matching halves, reboot both, forget the keyboard on macOS, clear the active ZMK profile with `ADJ` + `BT clear`, and pair again. This distinguishes stale bonds from connection timing.
-2. Compare left-half and right-half keys. Lag only from the right points to split-link RF, power, or pairing; lag from both points to the central-to-host link or host.
-3. Compare BLE with USB output. If USB is also laggy, investigate switches, sockets, matrix wiring, and host remapping software rather than BLE parameters.
-4. Note whether delay occurs only on the first key after five minutes. `CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=300000` intentionally allows deep sleep and reconnection; sustained lag while actively typing has a different cause.
-5. Test close to the host with Wi-Fi temporarily on 5 GHz and without a metal case or USB 3 hub beside either antenna. If only one host/location is affected, keep firmware unchanged and investigate that host's Bluetooth chipset, RF coexistence, and saved bond.
-6. For decisive evidence, capture ZMK USB logs while forcing the output endpoint to BLE and inspect the host's negotiated interval, latency, timeout, RSSI/retransmissions, disconnect reason, and any `Keyboard message queue full` warning. Do not permanently enable logging because it affects power and timing.
-
-## Contributing
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the lightweight GitHub Flow and required validation steps.
+Full firmware compilation still requires GitHub Actions or a local ZMK/west workspace; it was not run in this environment because `west` is unavailable here.

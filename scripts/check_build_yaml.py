@@ -1,57 +1,54 @@
 #!/usr/bin/env python3
-"""Validate the ZMK build matrix and documented board target.
-
-This intentionally avoids third-party YAML packages so it can run in the
-lightweight GitHub Actions validation job before the ZMK build workflow.
-"""
+"""Validate the ZMK build matrix and documented local commands."""
 from __future__ import annotations
 
 from pathlib import Path
 
 EXPECTED_BOARD = "nice_nano/nrf52840/zmk"
-STALE_BOARDS = {"nice_nano_v2"}
-EXPECTED_MATRIX = {
-    (EXPECTED_BOARD, "corne_left nice_oled", "corne_v3_1_left"),
-    (EXPECTED_BOARD, "corne_right nice_oled", "corne_v3_1_right"),
+LEGACY_BOARD = "nice_nano" + "_v2"
+RIGHT_STUDIO_ARTIFACT = "corne_v3_1_right" + "_studio"
+EXPECTED_ENTRIES = {
+    (
+        EXPECTED_BOARD,
+        "corne_left nice_oled",
+        "corne_v3_1_left",
+        "",
+        "-DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
+    ),
+    (EXPECTED_BOARD, "corne_right nice_oled", "corne_v3_1_right", "", ""),
+    (
+        EXPECTED_BOARD,
+        "corne_left nice_oled",
+        "corne_v3_1_left_studio",
+        "studio-rpc-usb-uart",
+        "-DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
+    ),
+    (EXPECTED_BOARD, "settings_reset", "settings_reset", "", ""),
 }
-STALE_USER_FACING_LABELS = {
-    "Corne " + "v" + "4",
-    "corne_" + "v" + "4",
-}
-README_REQUIRED_SNIPPETS = [
+README_SNIPPETS = [
     "`corne_v3_1_left`",
     "`corne_v3_1_right`",
-    f"`{EXPECTED_BOARD}`",
-    f"west build -s zmk/app -d build/corne_left -b {EXPECTED_BOARD} -- "
-    '-DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
-    f"west build -s zmk/app -d build/corne_right -b {EXPECTED_BOARD} -- "
-    '-DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    "`corne_v3_1_left_studio`",
+    "`settings_reset`",
+    "`nice_nano/nrf52840/zmk`",
+    "`studio-rpc-usb-uart`",
+    "`CONFIG_ZMK_STUDIO`",
+    "`CONFIG_ZMK_USB`",
+    "`CONFIG_ZMK_USB_BOOT`",
+    "plug USB into the left half",
+    "right half still talks to the left half over split BLE",
+    'west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y',
+    'west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    'west build -s zmk/app -d build/corne_left_studio -b nice_nano/nrf52840/zmk -S studio-rpc-usb-uart -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y',
+    'west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
 ]
-
-
-def fail(message: str) -> None:
-    raise SystemExit(message)
-
-
-def reject_stale_targets(path: Path, text: str) -> None:
-    found = sorted(stale for stale in STALE_BOARDS if stale in text)
-    if found:
-        fail(f"{path} contains stale board target(s): {', '.join(found)}")
-
-
-def reject_stale_user_facing_labels(path: Path, text: str) -> None:
-    found = sorted(stale for stale in STALE_USER_FACING_LABELS if stale in text)
-    if found:
-        fail(f"{path} contains stale user-facing Corne generation label(s): {', '.join(found)}")
 
 
 def parse_include_entries(text: str) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     current: dict[str, str] | None = None
-
     for raw_line in text.splitlines():
-        line = raw_line.split("#", 1)[0].rstrip()
-        stripped = line.strip()
+        stripped = raw_line.split("#", 1)[0].strip()
         if not stripped:
             continue
         if stripped.startswith("- "):
@@ -59,55 +56,48 @@ def parse_include_entries(text: str) -> list[dict[str, str]]:
                 entries.append(current)
             current = {}
             stripped = stripped[2:].strip()
-        if current is None or ":" not in stripped:
-            continue
-        key, value = stripped.split(":", 1)
-        current[key.strip()] = value.strip().strip('"\'')
-
+        if current is not None and ":" in stripped:
+            key, value = stripped.split(":", 1)
+            current[key.strip()] = value.strip().strip('"\'')
     if current is not None:
         entries.append(current)
     return entries
 
 
-def main() -> None:
-    build_path = Path("build.yaml")
-    readme_path = Path("README.md")
-    build_text = build_path.read_text(encoding="utf-8")
-    readme_text = readme_path.read_text(encoding="utf-8")
-
-    tracked_text_paths = [
-        build_path,
-        readme_path,
-        Path("KEYMAP.md"),
-        Path("CONTRIBUTING.md"),
-        Path(".github/pull_request_template.md"),
-    ]
-    for path in tracked_text_paths:
-        text = path.read_text(encoding="utf-8")
-        reject_stale_targets(path, text)
-        reject_stale_user_facing_labels(path, text)
-
-    if "include:" not in build_text:
-        fail("build.yaml missing include matrix")
-
-    actual_matrix = {
-        (entry.get("board", ""), entry.get("shield", ""), entry.get("artifact-name", ""))
-        for entry in parse_include_entries(build_text)
-        if "board" in entry or "shield" in entry or "artifact-name" in entry
-    }
-    if actual_matrix != EXPECTED_MATRIX:
-        expected = "; ".join(" / ".join(item) for item in sorted(EXPECTED_MATRIX))
-        actual = "; ".join(" / ".join(item) for item in sorted(actual_matrix)) or "<none>"
-        fail(f"build.yaml matrix mismatch. Expected: {expected}. Actual: {actual}")
-
-    missing_readme = [snippet for snippet in README_REQUIRED_SNIPPETS if snippet not in readme_text]
-    if missing_readme:
-        fail("README.md missing expected board documentation: " + ", ".join(missing_readme))
-
-    print(
-        "Build metadata check passed: "
-        f"{EXPECTED_BOARD} corne_left/right nice_oled targets present; stale targets and labels absent."
+def entry_tuple(entry: dict[str, str]) -> tuple[str, str, str, str, str]:
+    return (
+        entry.get("board", ""),
+        entry.get("shield", ""),
+        entry.get("artifact-name", ""),
+        entry.get("snippet", ""),
+        entry.get("cmake-args", ""),
     )
+
+
+def main() -> None:
+    build_text = Path("build.yaml").read_text(encoding="utf-8")
+    readme_text = Path("README.md").read_text(encoding="utf-8")
+    config_text = Path("config/corne.conf").read_text(encoding="utf-8")
+    entries = parse_include_entries(build_text)
+    matrix = {entry_tuple(entry) for entry in entries if entry}
+    errors: list[str] = []
+    if matrix != EXPECTED_ENTRIES:
+        errors.append(f"build.yaml matrix mismatch: {matrix}")
+    if len(entries) != len(EXPECTED_ENTRIES):
+        errors.append(f"build.yaml should contain {len(EXPECTED_ENTRIES)} include entries, found {len(entries)}")
+    if LEGACY_BOARD in build_text + readme_text:
+        errors.append(f"legacy {LEGACY_BOARD} target found")
+    if RIGHT_STUDIO_ARTIFACT in build_text + readme_text:
+        errors.append("right-hand Studio artifact found")
+    for symbol in ("CONFIG_ZMK_STUDIO", "CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
+        if symbol in config_text:
+            errors.append(f"{symbol} must not appear in shared config/corne.conf")
+    for snippet in README_SNIPPETS:
+        if snippet not in readme_text:
+            errors.append(f"README missing snippet: {snippet}")
+    if errors:
+        raise SystemExit("Build metadata check failed:\n- " + "\n- ".join(errors))
+    print("Build metadata check passed: normal Corne, left Studio, and settings_reset artifacts are documented and validated.")
 
 
 if __name__ == "__main__":
