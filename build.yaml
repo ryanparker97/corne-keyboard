@@ -1,41 +1,16 @@
 # This file generates the GitHub Actions matrix.
-# For simple board + shield combinations, add them to the top level board and
-# shield arrays, for more control, add individual board + shield combinations
-# to the `include` property. You can also use the `cmake-args` property to
-# pass flags to the build command, `snippet` to add a Zephyr snippet, and
-# `artifact-name` to assign a name to distinguish build outputs from each other:
-#
-# board: [ "nice_nano/nrf52840/zmk" ]
-# shield: [ "corne_left", "corne_right" ]
-# include:
-#   - board: bdn9_rev2
-#   - board: nice_nano/nrf52840/zmk
-#     shield: reviung41
-#   - board: nice_nano/nrf52840/zmk
-#     shield: reviung41
-#     artifact-name: reviung41_example
-
+# Normal artifacts are native-wireless Corne v4 halves for nice!nano v2-compatible
+# controllers with nice_oled, plus a settings_reset utility artifact. The pinned
+# upstream ZMK revision exposes generic corne_left/right shields rather than a
+# separate corne_v4 shield, so do not invent unsupported custom hardware here.
 ---
 include:
-  # Corne v4 split halves using nice!nano v2-compatible controllers
-  # and zmk-nice-oled's 128x32 SSD1306 OLED shield. The pinned upstream
-  # ZMK exposes the generic Corne shields, so keep corne_left/right here.
-  # The left half is the central side for normal USB/BLE use.
   - board: nice_nano/nrf52840/zmk
     shield: corne_left nice_oled
-    cmake-args: -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
     artifact-name: corne_v4_left
   - board: nice_nano/nrf52840/zmk
     shield: corne_right nice_oled
     artifact-name: corne_v4_right
-  # Optional ZMK Studio build for the left/central half only. Do not enable
-  # Studio in shared config because the right peripheral lacks central USB
-  # dependencies.
-  - board: nice_nano/nrf52840/zmk
-    shield: corne_left nice_oled
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
-    artifact-name: corne_v4_left_studio
   - board: nice_nano/nrf52840/zmk
     shield: settings_reset
     artifact-name: settings_reset

@@ -7,7 +7,6 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
-#include <dt-bindings/zmk/outputs.h>
 
 #define DEF 0
 #define LWR 1
@@ -28,6 +27,8 @@
         compatible = "zmk,keymap";
 
         default_layer {
+            display-name = "DEF";
+
             // LAYER 0: DEF - Windows NJ68-to-Corne transition QWERTY.
             // Binding order after the 36 finger keys is the six physical thumbs:
             // left outer->inner: LALT, RAISE, LWIN; right inner->outer: SPACE, LOWER, ENTER.
@@ -46,6 +47,8 @@
         };
 
         lower_layer {
+            display-name = "LWR";
+
             // LAYER 1: LWR - numbers, function keys, navigation, Tab, Delete, and held Ctrl thumb.
             // The left outer thumb becomes LCTRL; the remaining thumbs are transparent.
             // -----------------------------------------------------------------------------------------
@@ -63,6 +66,8 @@
         };
 
         raise_layer {
+            display-name = "RSE";
+
             // LAYER 2: RSE - symbols, paired punctuation, and Ctrl-arrow editor chords.
             // All thumbs are transparent on this layer.
             // -----------------------------------------------------------------------------------------
@@ -80,22 +85,24 @@
         };
 
         adjust_layer {
-            // LAYER 3: ADJ - Bluetooth, Windows utilities, editing chords, media, output, and system.
+            display-name = "ADJ";
+
+            // LAYER 3: ADJ - Bluetooth, Windows utilities, editing chords, media, bootloader, and reset.
             // Activated by holding Lower + Raise together; all thumbs are transparent.
             // Windows utility top-right order: Y Print Screen, U Win+Shift+S, I Win+V, O Win+S, P Win+Tab, Backspace Win+L.
             // Editing left side: A/S/F and Z/X/C/V/Y use Ctrl chords.
             // Media right home order: H previous, J play/pause, K next, L mute, ; volume down, ' volume up.
-            // Output bottom-right order: N USB, M BLE, , TOG; bootloader/reset stay on / and Ctrl.
+            // No output switching: normal firmware is BLE-only. Bootloader/reset stay on / and Ctrl.
             // -------------------------------------------------------------------------------------------------
             // |      | BT1 | BT2 | BT3 | BT4 | BT5 |   | PRSC | SNIP | CLIP | SRCH | TASK | LOCK |
             // | BTCLR| ALL | SAVE|     | FIND|     |   | PREV | PLAY | NEXT | MUTE | VOLD | VOLU |
-            // |      | UNDO| CUT | COPY| PASTE| REDO|  | USB  | BLE  | TOG  |      | BOOT | RESET|
+            // |      | UNDO| CUT | COPY| PASTE| REDO|  |      |      |      |      | BOOT | RESET|
             //                         |     |     |     |   |     |     |     |
 
             bindings = <
 &trans      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp PSCRN       &kp LG(LS(S))  &kp LG(V)       &kp LG(S)       &kp LG(TAB)    &kp LG(L)
 &bt BT_CLR  &kp LC(A)     &kp LC(S)     &trans        &kp LC(F)     &trans          &kp C_PREV      &kp C_PP        &kp C_NEXT      &kp C_MUTE      &kp C_VOL_DN    &kp C_VOL_UP
-&trans      &kp LC(Z)     &kp LC(X)     &kp LC(C)     &kp LC(V)     &kp LC(Y)       &out OUT_USB    &out OUT_BLE    &out OUT_TOG    &trans          &bootloader     &sys_reset
+&trans      &kp LC(Z)     &kp LC(X)     &kp LC(C)     &kp LC(V)     &kp LC(Y)       &trans          &trans          &trans          &trans          &bootloader     &sys_reset
                                         &trans        &trans        &trans          &trans          &trans          &trans
             >;
         };

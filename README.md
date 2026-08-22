@@ -1,16 +1,16 @@
 # Corne v4 ZMK user config for Windows
 
-Wireless-first 42-key Corne v4 configuration for nice!nano/nRF52840 using ZMK, `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`, with safe wired USB support only on the left/central firmware.
+Native-wireless 42-key Corne v4 configuration for nice!nano/nRF52840 using ZMK, `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`. Normal firmware artifacts type over Bluetooth LE only; USB is mentioned here only for bootloader flashing or charging.
 
 The pinned upstream ZMK revision exposes the generic Corne shields rather than a separate `corne_v4` shield, so this config intentionally keeps `corne_left`/`corne_right` and documents Corne v4 as the target hardware.
 
 ## Included files
 
-- `build.yaml` builds normal `corne_v4_left` and `corne_v4_right` artifacts, plus optional `corne_v4_left_studio` and `settings_reset` artifacts.
+- `build.yaml` builds normal wireless `corne_v4_left` and `corne_v4_right` artifacts, plus `settings_reset`.
 - `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
 - `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, following the Windows NJ68 transition model.
-- `config/corne.conf` enables BLE, nice_oled, Windows-oriented BLE preferences, wireless power management, and no active RGB underglow settings.
-- `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
+- `config/corne.conf` enables BLE with static device name `Corne`, disables ZMK USB typing, enables nice_oled display hardware, preserves the simple layer/BLE/name OLED screen, and sets Windows-oriented BLE and wireless power preferences.
+- `zephyr/module.yml`, `Kconfig`, `CMakeLists.txt`, and `src/display/corne_oled_status_screen.c` expose this repo as a Zephyr module/board root and provide the custom OLED status screen.
 - `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
 
 ## NJ68 transition layout
@@ -60,39 +60,41 @@ Right home-row media keys on `ADJ`:
 H: Previous   J: Play/Pause   K: Next   L: Mute   ;: Volume Down   ': Volume Up
 ```
 
-Bluetooth select/clear controls remain on the left side of `ADJ`.
+Bluetooth select/clear controls remain on the left side of `ADJ`. Bootloader and reset remain on the lower-right side of `ADJ` for maintenance.
 
-## Wired and wireless output
+## Native-wireless Windows output
 
-The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so the right half remains a normal split peripheral. The `build.yaml` matrix adds wired USB and USB boot support only to the left/central artifacts.
+The shared config explicitly enables BLE and disables ZMK USB typing with `CONFIG_ZMK_USB=n`, overriding the nice!nano board default. Normal left and right artifacts therefore use BLE as the only typing output; the split peripheral side also communicates to the central side over split BLE.
 
-- For wired use, plug USB into the left half. The right half still talks to the left half over split BLE.
-- For wireless use, pair over BLE as usual; the left half remains the central side.
+- Pair the left/central half with Windows over Bluetooth LE.
 - Windows BLE compatibility preferences include `CONFIG_BT_CTLR_PHY_2M=n` and `CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n`.
-- ZMK's default output prefers USB when both USB and BLE are available.
-- Output controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `N/M/,` for `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG`.
+- Wireless identity uses `CONFIG_BT_DEVICE_NAME="Corne"`.
+- No normal artifact enables ZMK Studio, a Studio snippet, or USB HID typing.
+- A USB cable may still be used to power, charge, or enter/copy UF2 files to the bootloader volume; that is separate from ZMK USB typing output.
 
 ## OLED
 
-The `nice_oled` shield is enabled on both halves. Windows modifier symbols are selected with `CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS=y`.
+The `nice_oled` shield is enabled on both halves for SSD1306 display hardware, but the animated nice_oled status canvas is disabled with `CONFIG_NICE_OLED_WIDGET_STATUS=n`. This repo supplies `CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN=y`, a small custom ZMK display screen that shows only:
+
+- the configured Bluetooth device name from `CONFIG_BT_DEVICE_NAME="Corne"`;
+- Bluetooth status for the active profile on the left/central half, or split BLE status on the right/peripheral half;
+- the current active layer on the left/central half using the keymap `display-name` values `DEF`, `LWR`, `RSE`, and `ADJ`.
+
+WPM, Luna/Bongo/pet animation, static peripheral art, HID indicators, and modifier widgets are disabled with `CONFIG_NICE_OLED_WIDGET_WPM=n`, `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL=n`, `CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL=n`, `CONFIG_NICE_OLED_WIDGET_HID_INDICATORS=n`, and `CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS=n`. ZMK does not expose per-host Bluetooth names through the inspected display APIs at the pinned revision, so the screen intentionally shows the static configured device name.
 
 ## Build targets
 
 `build.yaml` uses ZMK's hardware-model-v2 board target `nice_nano/nrf52840/zmk`:
 
-- `corne_left nice_oled` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v4_left`
+- `corne_left nice_oled` -> `corne_v4_left`
 - `corne_right nice_oled` -> `corne_v4_right`
-- `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v4_left_studio`
 - `settings_reset` -> `settings_reset`
-
-USB and Studio are only for the left/central half. The right peripheral keeps the normal firmware and does not enable USB or ZMK Studio.
 
 Local build commands, from a west workspace with this repository as the user config:
 
 ```sh
-west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
+west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
-west build -s zmk/app -d build/corne_left_studio -b nice_nano/nrf52840/zmk -S studio-rpc-usb-uart -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
 west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
 
@@ -100,13 +102,11 @@ west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHI
 
 1. Build or download both normal artifacts: `corne_v4_left` and `corne_v4_right`.
 2. Put one nice!nano into bootloader mode.
-3. Copy the matching `.uf2` to that half's mounted bootloader volume.
+3. Copy the matching `.uf2` to that half's mounted bootloader volume over USB.
 4. Repeat with the other half; do not swap left/right firmware.
 5. If Bluetooth pairing is stale, use `ADJ` + `BT_CLR`, then pair again, or flash `settings_reset` once before reflashing the normal firmware.
 
-Use `corne_v4_left_studio` only when you want ZMK Studio support on the left/central half; keep `corne_v4_right` on the right half.
-
-When using a cable for typing, connect it to the left half. Connecting the right half over USB is only for flashing or charging; it remains the split peripheral in normal operation.
+Connecting either half over USB in normal use is for power/charging or bootloader flashing only; the firmware is configured for BLE typing.
 
 Only flash this on a Corne v4 42-key split with nice!nano-compatible controllers and matching 128x32 OLED wiring. Corne v4 physical matrix/OLED compatibility and LED wiring cannot be proven by these static checks or without a full firmware build and hardware confirmation.
 

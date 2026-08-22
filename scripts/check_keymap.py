@@ -112,7 +112,6 @@ def main() -> None:
     }, "raise_layer", errors)
 
     required_text = [
-        '#include <dt-bindings/zmk/outputs.h>',
         'compatible = "zmk,conditional-layers"',
         "if-layers = <LWR RSE>",
         "then-layer = <ADJ>",
@@ -120,7 +119,11 @@ def main() -> None:
         "Windows utility top-right order",
         "Editing left side",
         "Media right home order",
-        "Output bottom-right order",
+        "No output switching: normal firmware is BLE-only",
+        'display-name = "DEF"',
+        'display-name = "LWR"',
+        'display-name = "RSE"',
+        'display-name = "ADJ"',
     ]
     for token in required_text:
         if token not in text:
@@ -132,7 +135,6 @@ def main() -> None:
         "&kp PSCRN", "&kp LG(LS(S))", "&kp LG(V)", "&kp LG(S)", "&kp LG(TAB)", "&kp LG(L)",
         "&kp LC(A)", "&kp LC(S)", "&kp LC(F)", "&kp LC(Z)", "&kp LC(X)", "&kp LC(C)", "&kp LC(V)", "&kp LC(Y)",
         "&kp C_PREV", "&kp C_PP", "&kp C_NEXT", "&kp C_MUTE", "&kp C_VOL_DN", "&kp C_VOL_UP",
-        "&out OUT_USB", "&out OUT_BLE", "&out OUT_TOG",
         "&bootloader", "&sys_reset",
     ]
     for binding in required_adjust_bindings:
@@ -160,9 +162,9 @@ def main() -> None:
         27: "&kp LC(C)",
         28: "&kp LC(V)",
         29: "&kp LC(Y)",
-        30: "&out OUT_USB",
-        31: "&out OUT_BLE",
-        32: "&out OUT_TOG",
+        30: "&trans",
+        31: "&trans",
+        32: "&trans",
         34: "&bootloader",
         35: "&sys_reset",
     }, "adjust_layer", errors)
@@ -172,6 +174,10 @@ def main() -> None:
         "zmk,behavior-hold-tap",
         "CONFIG_WS2812_STRIP",
         "#include <dt-bindings/zmk/rgb.h>",
+        "#include <dt-bindings/zmk/outputs.h>",
+        "&out",
+        "OUT_USB",
+        "OUT_TOG",
         "&rgb_ug",
         "&led_strip",
         "chain-length",
@@ -192,7 +198,7 @@ def main() -> None:
 
     if errors:
         fail(errors)
-    print("Keymap check passed: four 42-binding layers, NJ68 Windows thumbs, converted utility/editing chords, media/output controls, and disabled RGB are present.")
+    print("Keymap check passed: four 42-binding layers, NJ68 Windows thumbs, utility/editing/media chords, BLE-only output, and disabled RGB are present.")
 
 
 if __name__ == "__main__":

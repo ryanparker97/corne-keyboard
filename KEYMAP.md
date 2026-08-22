@@ -1,6 +1,6 @@
 # Corne v4 Windows NJ68 transition keymap
 
-This document mirrors `config/corne.keymap` for a 42-key Corne v4 using nice!nano and nice_oled. The pinned upstream ZMK revision uses generic `corne_left`/`corne_right` shields for this target.
+This document mirrors `config/corne.keymap` for a native-wireless 42-key Corne v4 using nice!nano and nice_oled. The pinned upstream ZMK revision uses generic `corne_left`/`corne_right` shields for this target.
 
 ## NJ68 transition model
 
@@ -24,9 +24,11 @@ The layout keeps familiar compact-board habits while moving missing keys to laye
 - `DEF` (0): Windows QWERTY with corner Escape/Backspace and dedicated thumb controls.
 - `LWR` (1): numbers, F-keys, navigation, Tab, Delete, and a held left-thumb Ctrl.
 - `RSE` (2): symbols, paired punctuation, and Ctrl-arrow editor chords.
-- `ADJ` (3): Bluetooth profiles, Windows utility chords, Ctrl editing chords, media controls, output selection, bootloader, and reset.
+- `ADJ` (3): Bluetooth profiles, Windows utility chords, Ctrl editing chords, media controls, bootloader, and reset.
 
 `ADJ` is a conditional layer when `LWR` and `RSE` are both active.
+
+The keymap sets layer `display-name` values `DEF`, `LWR`, `RSE`, and `ADJ`; the custom OLED status screen uses those names for the current-layer line.
 
 ## Thumb row
 
@@ -74,15 +76,13 @@ LALT  _   +   {   }   |       HOME    PGDN   PGUP   END    <    >
 ```text
 trns  BT1   BT2   BT3   BT4   BT5      PSCRN  WIN+S+S  WIN+V  WIN+S  WIN+TAB  WIN+L
 BTCLR C+A   C+S   trns  C+F   trns     PREV   PLAY     NEXT   MUTE   VOLD     VOLU
-trns  C+Z   C+X   C+C   C+V   C+Y      USB    BLE      TOG    trns   BOOT     RESET
+trns  C+Z   C+X   C+C   C+V   C+Y      trns   trns     trns   trns   BOOT     RESET
               trans trans trans    trans trans trans
 ```
 
 Windows utility chords on the top-right are Print Screen, Win+Shift+S, Win+V, Win+S, Win+Tab, and Win+L. Media controls on the right home row are previous, play/pause, next, mute, volume down, and volume up.
 
-Bluetooth select/clear controls are preserved on `ADJ`. Output controls use ZMK `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG` on the right side of the bottom row while preserving bootloader and reset.
-
-For wired use, plug USB into the left/central half. The right half still communicates to the left over split BLE. When both USB and BLE are available, ZMK prefers USB by default; use the `ADJ` output controls to choose BLE, USB, or toggle between them.
+Bluetooth select/clear controls are preserved on `ADJ`. There are no output-switching bindings because normal firmware is BLE-only for Windows; bootloader and reset are retained for maintenance.
 
 ## RGB and LED chain length
 

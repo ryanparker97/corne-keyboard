@@ -1,48 +1,30 @@
 #!/usr/bin/env python3
-"""Validate the ZMK build matrix and documented local commands."""
+"""Validate the native-wireless ZMK build matrix and documented local commands."""
 from __future__ import annotations
 
 from pathlib import Path
 
 EXPECTED_BOARD = "nice_nano/nrf52840/zmk"
 LEGACY_BOARD = "nice_nano" + "_v2"
-RIGHT_STUDIO_ARTIFACT = "corne_v4_right" + "_studio"
 EXPECTED_ENTRIES = {
-    (
-        EXPECTED_BOARD,
-        "corne_left nice_oled",
-        "corne_v4_left",
-        "",
-        "-DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
-    ),
+    (EXPECTED_BOARD, "corne_left nice_oled", "corne_v4_left", "", ""),
     (EXPECTED_BOARD, "corne_right nice_oled", "corne_v4_right", "", ""),
-    (
-        EXPECTED_BOARD,
-        "corne_left nice_oled",
-        "corne_v4_left_studio",
-        "studio-rpc-usb-uart",
-        "-DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
-    ),
     (EXPECTED_BOARD, "settings_reset", "settings_reset", "", ""),
 }
 README_SNIPPETS = [
     "`corne_v4_left`",
     "`corne_v4_right`",
-    "`corne_v4_left_studio`",
     "`settings_reset`",
     "`nice_nano/nrf52840/zmk`",
     "`corne_left nice_oled`",
     "`corne_right nice_oled`",
     "generic Corne shields rather than a separate `corne_v4` shield",
-    "`studio-rpc-usb-uart`",
-    "`CONFIG_ZMK_STUDIO`",
-    "`CONFIG_ZMK_USB`",
-    "`CONFIG_ZMK_USB_BOOT`",
-    "plug USB into the left half",
-    "right half still talks to the left half over split BLE",
-    'west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y',
+    "Normal firmware artifacts type over Bluetooth LE only",
+    "`CONFIG_ZMK_USB=n`",
+    "No normal artifact enables ZMK Studio",
+    "bootloader volume over USB",
+    'west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
     'west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
-    'west build -s zmk/app -d build/corne_left_studio -b nice_nano/nrf52840/zmk -S studio-rpc-usb-uart -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD" -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y',
     'west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
 ]
 
@@ -90,11 +72,16 @@ def main() -> None:
         errors.append(f"build.yaml should contain {len(EXPECTED_ENTRIES)} include entries, found {len(entries)}")
     if LEGACY_BOARD in build_text + readme_text:
         errors.append(f"legacy {LEGACY_BOARD} target found")
-    if RIGHT_STUDIO_ARTIFACT in build_text + readme_text:
-        errors.append("right-hand Studio artifact found")
-    for symbol in ("CONFIG_ZMK_STUDIO", "CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
-        if symbol in config_text:
-            errors.append(f"{symbol} must not appear in shared config/corne.conf")
+    for stale in ("corne_v4_left_studio", "corne_v4_right_studio", "studio-rpc-usb-uart"):
+        if stale in build_text + readme_text:
+            errors.append(f"Studio artifact/snippet found: {stale}")
+    for symbol in ("CONFIG_ZMK_STUDIO=y", "CONFIG_ZMK_USB=y", "CONFIG_ZMK_USB_BOOT=y"):
+        if symbol in build_text + config_text:
+            errors.append(f"normal config/build must not enable {symbol}")
+    if "CONFIG_ZMK_USB=n" not in config_text:
+        errors.append("shared config/corne.conf must explicitly disable CONFIG_ZMK_USB")
+    if "cmake-args" in build_text or "snippet:" in build_text:
+        errors.append("normal build matrix must not contain cmake-args or snippets")
     for stale in ("corne_v3_1_left", "corne_v3_1_right", "corne_v3_1_left_studio"):
         if stale in build_text + readme_text:
             errors.append(f"stale artifact name found: {stale}")
@@ -103,7 +90,7 @@ def main() -> None:
             errors.append(f"README missing snippet: {snippet}")
     if errors:
         raise SystemExit("Build metadata check failed:\n- " + "\n- ".join(errors))
-    print("Build metadata check passed: Corne v4 left, right, left Studio, and settings_reset artifacts are documented and validated.")
+    print("Build metadata check passed: Corne v4 left/right BLE-only artifacts and settings_reset are documented and validated.")
 
 
 if __name__ == "__main__":

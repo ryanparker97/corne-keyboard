@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate dependency pins used by west and GitHub Actions."""
+"""Validate dependency pins and native-wireless documentation."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,6 +20,8 @@ def main() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
     keymap_doc = Path("KEYMAP.md").read_text(encoding="utf-8")
     corne_conf = Path("config/corne.conf").read_text(encoding="utf-8")
+    keymap = Path("config/corne.keymap").read_text(encoding="utf-8")
+    build = Path("build.yaml").read_text(encoding="utf-8")
     errors: list[str] = []
 
     for snippet in (
@@ -72,6 +74,7 @@ def main() -> None:
 
     readme_required = (
         "generic Corne shields rather than a separate `corne_v4` shield",
+        "Normal firmware artifacts type over Bluetooth LE only",
         "Left thumbs, outer -> inner:  LALT  RAISE  LWIN",
         "Right thumbs, inner -> outer: SPACE  LOWER  ENTER",
         "Raw default thumb bindings are `&kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET`",
@@ -82,13 +85,19 @@ def main() -> None:
         "Win+Shift+S",
         "Ctrl+Y",
         "Previous",
+        "CONFIG_ZMK_USB=n",
         "CONFIG_BT_CTLR_PHY_2M=n",
         "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n",
-        "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS=y",
-        "ZMK's default output prefers USB",
-        "&out OUT_USB",
-        "&out OUT_BLE",
-        "&out OUT_TOG",
+        "CONFIG_BT_DEVICE_NAME=\"Corne\"",
+        "CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN=y",
+        "CONFIG_NICE_OLED_WIDGET_STATUS=n",
+        "CONFIG_NICE_OLED_WIDGET_WPM=n",
+        "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL=n",
+        "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS=n",
+        "No normal artifact enables ZMK Studio",
+        "USB cable may still be used to power, charge, or enter/copy UF2 files to the bootloader volume",
+        "configured Bluetooth device name",
+        "static configured device name",
     )
     for snippet in readme_required:
         if snippet not in readme:
@@ -96,6 +105,7 @@ def main() -> None:
 
     keymap_required = (
         "generic `corne_left`/`corne_right` shields",
+        "native-wireless 42-key Corne v4",
         "Left thumbs, outer -> inner:  LALT  RAISE  LWIN",
         "Right thumbs, inner -> outer: SPACE  LOWER  ENTER",
         "Raw bindings: &kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET",
@@ -103,11 +113,9 @@ def main() -> None:
         "On `RSE` and `ADJ`, all thumbs are transparent",
         "Windows utility chords",
         "Media controls",
+        "There are no output-switching bindings because normal firmware is BLE-only for Windows",
         "no `&rgb_ug` bindings and no `&led_strip` chain-length override",
-        "&out OUT_USB",
-        "&out OUT_BLE",
-        "&out OUT_TOG",
-        "ZMK prefers USB by default",
+        "display-name` values `DEF`, `LWR`, `RSE`, and `ADJ`",
     )
     for snippet in keymap_required:
         if snippet not in keymap_doc:
@@ -115,7 +123,15 @@ def main() -> None:
 
     forbidden_visible = (
         "corne_v3_1",
+        "corne_v4_left_studio",
+        "corne_v4_right_studio",
+        "studio-rpc-usb-uart",
         "RGB controls",
+        "&out OUT_USB",
+        "&out OUT_TOG",
+        "ZMK prefers USB",
+        "For wired use",
+        "plug USB into the left half",
         joined("m", "acOS"),
         joined("M", "ac"),
         joined("Kara", "biner"),
@@ -126,14 +142,19 @@ def main() -> None:
         joined("R", "GUI"),
         joined("m", "acos"),
     )
-    tracked_text = "\n".join((readme, keymap_doc, corne_conf, west, workflow))
+    tracked_text = "\n".join((readme, keymap_doc, corne_conf, west, workflow, build, keymap))
     for stale in forbidden_visible:
         if stale in tracked_text:
             errors.append(f"stale or prohibited wording remains: {stale}")
 
+    if "CONFIG_ZMK_USB=y" in tracked_text or "CONFIG_ZMK_STUDIO=y" in tracked_text:
+        errors.append("normal tracked config/docs must not enable USB typing or Studio")
+    if "#include <dt-bindings/zmk/outputs.h>" in keymap or "&out" in keymap:
+        errors.append("keymap must not include output-switching behavior")
+
     if errors:
         raise SystemExit("Dependency check failed:\n- " + "\n- ".join(errors))
-    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, KEYMAP, and corne.conf are aligned for Windows NJ68 transition use.")
+    print("Dependency check passed: pins, generic Corne v4 docs, BLE-only Windows output, and layer/BLE/name OLED config are aligned.")
 
 
 if __name__ == "__main__":

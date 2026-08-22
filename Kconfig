@@ -1,0 +1,11 @@
+menu "Corne user configuration"
+
+config CORNE_SIMPLE_OLED_STATUS_SCREEN
+    bool "Simple Corne OLED status screen"
+    depends on ZMK_DISPLAY && ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
+    select LV_USE_LABEL
+    help
+      Replace the nice_oled animated/status canvas with a minimal status screen
+      showing the active layer, Bluetooth status, and CONFIG_BT_DEVICE_NAME.
+
+endmenu
