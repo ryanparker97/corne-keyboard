@@ -2,7 +2,11 @@ name: Build ZMK firmware
 
 on:
   push:
+    branches:
+      - '**'
   pull_request:
+    branches:
+      - '**'
   workflow_dispatch:
 
 permissions:
