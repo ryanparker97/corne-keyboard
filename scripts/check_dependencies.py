@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate dependency pins and native-wireless documentation."""
+"""Validate dependency pins and current Corne documentation anchors."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -43,8 +43,6 @@ def main() -> None:
         NICE_OLED_REPOSITORY,
         NICE_OLED_REVISION,
         "LVGL9-compatible",
-        "image descriptors for the pinned ZMK/LVGL 9 stack",
-        "nice_oled",
         "pins are chosen for reproducibility",
         "Local static validation passes with `python3 scripts/validate.py`",
         "full firmware compilation was not run in this environment",
@@ -52,52 +50,45 @@ def main() -> None:
         "`west` is unavailable here",
     ):
         if snippet not in readme:
-            errors.append(f"README missing {snippet}")
+            errors.append(f"README missing dependency note: {snippet}")
 
-    for stale in (
-        "verified by successful corne_left",
-        "compiled successfully at the pinned ZMK revision",
-        "Repository HEAD documented that both",
-    ):
-        if stale in readme or stale in west:
-            errors.append(f"stale compile verification wording remains: {stale}")
-    for stale in (
-        "mctechnology17/zmk-nice-oled",
-        "46f824abb2bd41f1287c5c68abd14122af6042a3",
-    ):
-        if stale in readme or stale in west or stale in corne_conf:
-            errors.append(f"stale zmk-nice-oled dependency remains: {stale}")
-
-    for snippet in ("LVGL9-compatible chyuuu/zmk-nice-oled fork",):
-        if snippet not in corne_conf:
-            errors.append(f"config/corne.conf missing dependency note: {snippet}")
+    stale_readme_claims = (
+        "CONFIG_ZMK_USB=n",
+        "CONFIG_BT_CTLR_PHY_2M=n",
+        "CONFIG_BT_DEVICE_NAME",
+        "CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN",
+        "CONFIG_NICE_OLED_WIDGET_STATUS",
+        "CONFIG_NICE_OLED_WIDGET_WPM",
+        "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL",
+        "CONFIG_NICE_OLED_WIDGET_STATIC_IMAGE_PERIPHERAL",
+        "CONFIG_NICE_OLED_WIDGET_HID_INDICATORS",
+        "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS",
+        "disables ZMK USB",
+        "only typing output",
+        "Bluetooth LE only",
+        "static configured device name",
+        "simple layer/BLE/name OLED",
+    )
+    for claim in stale_readme_claims:
+        if claim in readme:
+            errors.append(f"README contains stale inactive config claim: {claim}")
 
     readme_required = (
         "generic Corne shields rather than a separate `corne_v4` shield",
-        "Normal firmware artifacts type over Bluetooth LE only",
+        "`nice_nano/nrf52840/zmk`",
+        "`corne_left`",
+        "`corne_right`",
+        "`corne_v4_left`",
+        "`corne_v4_right`",
         "Left thumbs, outer -> inner:  LALT  RAISE  LWIN",
         "Right thumbs, inner -> outer: SPACE  LOWER  ENTER",
         "Raw default thumb bindings are `&kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET`",
-        "the left outer thumb becomes `LCTRL` and the remaining thumbs are transparent",
         "RGB underglow/per-key LED support is disabled",
         "no active `CONFIG_ZMK_RGB_UNDERGLOW*` settings",
         "does not add an `&led_strip` chain-length override",
         "Win+Shift+S",
         "Ctrl+Y",
         "Previous",
-        "CONFIG_ZMK_USB=n",
-        "CONFIG_BT_CTLR_PHY_2M=n",
-        "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n",
-        "CONFIG_BT_DEVICE_NAME=\"Corne\"",
-        "CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN=y",
-        "CONFIG_NICE_OLED_WIDGET_STATUS=n",
-        "CONFIG_NICE_OLED_WIDGET_WPM=n",
-        "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL=n",
-        "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS=n",
-        "No normal artifact enables ZMK Studio",
-        "USB cable may still be used to power, charge, or enter/copy UF2 files to the bootloader volume",
-        "configured Bluetooth device name",
-        "static configured device name",
     )
     for snippet in readme_required:
         if snippet not in readme:
@@ -113,7 +104,6 @@ def main() -> None:
         "On `RSE` and `ADJ`, all thumbs are transparent",
         "Windows utility chords",
         "Media controls",
-        "There are no output-switching bindings because normal firmware is BLE-only for Windows",
         "no `&rgb_ug` bindings and no `&led_strip` chain-length override",
         "display-name` values `DEF`, `LWR`, `RSE`, and `ADJ`",
     )
@@ -129,9 +119,6 @@ def main() -> None:
         "RGB controls",
         "&out OUT_USB",
         "&out OUT_TOG",
-        "ZMK prefers USB",
-        "For wired use",
-        "plug USB into the left half",
         joined("m", "acOS"),
         joined("M", "ac"),
         joined("Kara", "biner"),
@@ -147,14 +134,14 @@ def main() -> None:
         if stale in tracked_text:
             errors.append(f"stale or prohibited wording remains: {stale}")
 
-    if "CONFIG_ZMK_USB=y" in tracked_text or "CONFIG_ZMK_STUDIO=y" in tracked_text:
-        errors.append("normal tracked config/docs must not enable USB typing or Studio")
+    if "CONFIG_ZMK_STUDIO=y" in tracked_text:
+        errors.append("normal tracked config/docs must not enable Studio")
     if "#include <dt-bindings/zmk/outputs.h>" in keymap or "&out" in keymap:
         errors.append("keymap must not include output-switching behavior")
 
     if errors:
         raise SystemExit("Dependency check failed:\n- " + "\n- ".join(errors))
-    print("Dependency check passed: pins, generic Corne v4 docs, BLE-only Windows output, and layer/BLE/name OLED config are aligned.")
+    print("Dependency check passed: pins, generic Corne v4 docs, and current Windows keymap documentation are aligned.")
 
 
 if __name__ == "__main__":
