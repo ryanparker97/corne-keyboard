@@ -1,13 +1,15 @@
-# Corne v3.1 ZMK user config
+# Corne v4 ZMK user config for Windows
 
-Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK, `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`, with safe wired USB support only on the left/central firmware.
+Wireless-first 42-key Corne v4 configuration for nice!nano/nRF52840 using ZMK, `nice_nano/nrf52840/zmk`, `corne_left nice_oled`, and `corne_right nice_oled`, with safe wired USB support only on the left/central firmware.
+
+The pinned upstream ZMK revision exposes the generic Corne shields rather than a separate `corne_v4` shield, so this config intentionally keeps `corne_left`/`corne_right` and documents Corne v4 as the target hardware.
 
 ## Included files
 
-- `build.yaml` builds normal `corne_v3_1_left` and `corne_v3_1_right` artifacts, plus optional `corne_v3_1_left_studio` and `settings_reset` artifacts.
+- `build.yaml` builds normal `corne_v4_left` and `corne_v4_right` artifacts, plus optional `corne_v4_left_studio` and `settings_reset` artifacts.
 - `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
-- `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including output-selection controls on `ADJ`.
-- `config/corne.conf` enables BLE, nice_oled, wireless power management, and conservative RGB without enabling USB globally.
+- `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including Windows utility, media, and output-selection controls on `ADJ`.
+- `config/corne.conf` enables BLE, nice_oled, Windows-oriented BLE preferences, wireless power management, and no active RGB underglow settings.
 - `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
 - `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
 
@@ -17,24 +19,38 @@ ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-
 
 ```text
 Left thumbs, outer -> inner:  LALT  RAISE  SPACE
-Right thumbs, inner -> outer: RGUI  LOWER  ENTER
+Right thumbs, inner -> outer: RWIN  LOWER  ENTER
 ```
 
-`SPACE` is therefore on the inner-left thumb. `RGUI` is macOS Command on the inner-right thumb.
+`SPACE` is therefore on the inner-left thumb. `RWIN` is the Windows key on the inner-right thumb.
 
 ## RGB LEDs
 
-RGB is enabled conservatively for wireless use:
+RGB underglow/per-key LED support is disabled because the selected Corne v4 target has unknown per-half LED count and pinout.
 
-- `CONFIG_ZMK_RGB_UNDERGLOW=y`
-- off on start: `CONFIG_ZMK_RGB_UNDERGLOW_ON_START=n`
-- low brightness: `CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=15`, capped by `CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX=40`
-- idle auto-off: `CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE=y`
-- USB auto-off is intentionally not enabled in shared `config/corne.conf` because it depends on `USB_DEVICE_STACK` and may fail for the right split peripheral.
+- `config/corne.conf` has no active `CONFIG_ZMK_RGB_UNDERGLOW*` settings.
+- `config/corne.keymap` does not bind `&rgb_ug` controls.
+- `config/corne.keymap` does not add an `&led_strip` chain-length override.
 
-The pinned/upstream ZMK Corne `nice_nano` overlay defines the `led_strip` node. This keymap only overrides `&led_strip { chain-length = <27>; };` for a fully LED-populated Corne v3.1: 42 per-key SK6812 plus 12 underglow WS2812, or 27 LEDs per half. Change this to `<6>` if only the underglow LEDs are soldered.
+Do not enable RGB or add a chain-length override until the exact Corne v4 LED hardware is confirmed.
 
-RGB controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `H/J/K/L/;/’` for effect, toggle, on, off, hue up, and saturation up.
+## Windows utilities and media controls
+
+`ADJ` is activated by holding `LOWER` + `RAISE` together.
+
+Top-right Windows utility keys on `ADJ`:
+
+```text
+Y: Print Screen   U: Win+Shift+S   I: Win+V   O: Win+S   P: Win+Tab   Backspace: Win+L
+```
+
+Right home-row media keys on `ADJ`:
+
+```text
+H: Previous   J: Play/Pause   K: Next   L: Mute   ;: Volume Down   ': Volume Up
+```
+
+Bluetooth select/clear controls remain on the left side of `ADJ`.
 
 ## Wired and wireless output
 
@@ -42,20 +58,24 @@ The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so 
 
 - For wired use, plug USB into the left half. The right half still talks to the left half over split BLE.
 - For wireless use, pair over BLE as usual; the left half remains the central side.
+- Windows BLE compatibility preferences include `CONFIG_BT_CTLR_PHY_2M=n` and `CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n`.
 - ZMK's default output prefers USB when both USB and BLE are available.
 - Output controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `N/M/,` for `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG`.
+
+## OLED
+
+The `nice_oled` shield is enabled on both halves. Windows modifier symbols are selected with `CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS=y`.
 
 ## Build targets
 
 `build.yaml` uses ZMK's hardware-model-v2 board target `nice_nano/nrf52840/zmk`:
 
-- `corne_left nice_oled` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left`
-- `corne_right nice_oled` -> `corne_v3_1_right`
-- `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left_studio`
+- `corne_left nice_oled` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v4_left`
+- `corne_right nice_oled` -> `corne_v4_right`
+- `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v4_left_studio`
 - `settings_reset` -> `settings_reset`
 
-USB and Studio are only for the left/central half. The right peripheral keeps
-the normal firmware and does not enable USB or ZMK Studio.
+USB and Studio are only for the left/central half. The right peripheral keeps the normal firmware and does not enable USB or ZMK Studio.
 
 Local build commands, from a west workspace with this repository as the user config:
 
@@ -68,20 +88,17 @@ west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHI
 
 ## Flashing notes
 
-1. Build or download both normal artifacts: `corne_v3_1_left` and `corne_v3_1_right`.
+1. Build or download both normal artifacts: `corne_v4_left` and `corne_v4_right`.
 2. Put one nice!nano into bootloader mode.
 3. Copy the matching `.uf2` to that half's mounted bootloader volume.
 4. Repeat with the other half; do not swap left/right firmware.
 5. If Bluetooth pairing is stale, use `ADJ` + `BT_CLR`, then pair again, or flash `settings_reset` once before reflashing the normal firmware.
 
-Use `corne_v3_1_left_studio` only when you want ZMK Studio support on the
-left/central half; keep `corne_v3_1_right` on the right half.
+Use `corne_v4_left_studio` only when you want ZMK Studio support on the left/central half; keep `corne_v4_right` on the right half.
 
-When using a cable for typing, connect it to the left half. Connecting the right
-half over USB is only for flashing or charging; it remains the split peripheral
-in normal operation.
+When using a cable for typing, connect it to the left half. Connecting the right half over USB is only for flashing or charging; it remains the split peripheral in normal operation.
 
-Only flash this on a standard Corne v3.1 42-key split with nice!nano-compatible controllers, matching OLED wiring, and matching LED population/chain length.
+Only flash this on a Corne v4 42-key split with nice!nano-compatible controllers and matching 128x32 OLED wiring. Corne v4 physical matrix/OLED compatibility and LED wiring cannot be proven by these static checks or without a full firmware build and hardware confirmation.
 
 ## Dependency reproducibility status
 
@@ -95,6 +112,7 @@ Static checks:
 
 ```sh
 python3 scripts/validate.py
+git diff --check
 ```
 
 Full firmware compilation still requires GitHub Actions or a local ZMK/west workspace; it was not run in this environment because `west` is unavailable here.

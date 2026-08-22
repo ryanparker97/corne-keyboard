@@ -7,7 +7,7 @@ from pathlib import Path
 
 KEYMAP = Path("config/corne.keymap")
 EXPECTED_LAYERS = ("default_layer", "lower_layer", "raise_layer", "adjust_layer")
-EXPECTED_THUMBS = ["&kp LALT", "&mo RSE", "&kp SPACE", "&kp RGUI", "&mo LWR", "&kp RET"]
+EXPECTED_THUMBS = ["&kp LALT", "&mo RSE", "&kp SPACE", "&kp RWIN", "&mo LWR", "&kp RET"]
 
 
 def fail(errors: list[str]) -> None:
@@ -59,7 +59,7 @@ def main() -> None:
         36: "&kp LALT",
         37: "&mo RSE",
         38: "&kp SPACE",
-        39: "&kp RGUI",
+        39: "&kp RWIN",
         40: "&mo LWR",
         41: "&kp RET",
     }
@@ -70,15 +70,13 @@ def main() -> None:
 
     required_text = [
         '#include <dt-bindings/zmk/outputs.h>',
-        '#include <dt-bindings/zmk/rgb.h>',
         'compatible = "zmk,conditional-layers"',
         "if-layers = <LWR RSE>",
         "then-layer = <ADJ>",
-        "left outer->inner: LALT, RAISE, SPACE; right inner->outer: RGUI, LOWER, ENTER.",
-        "inner-right thumb",
-        "pinned/upstream ZMK Corne nice_nano overlay defines &led_strip",
-        "&led_strip",
-        "chain-length = <27>",
+        "left outer->inner: LALT, RAISE, SPACE; right inner->outer: RWIN, LOWER, ENTER.",
+        "Windows key (RWIN) on the inner-right thumb",
+        "Windows utility top-right order",
+        "Media right home order",
     ]
     for token in required_text:
         if token not in text:
@@ -87,7 +85,8 @@ def main() -> None:
     adjust = parsed.get("adjust_layer", [])
     required_adjust_bindings = [
         "&bt BT_SEL 0", "&bt BT_SEL 1", "&bt BT_SEL 2", "&bt BT_SEL 3", "&bt BT_SEL 4", "&bt BT_CLR",
-        "&rgb_ug RGB_EFF", "&rgb_ug RGB_TOG", "&rgb_ug RGB_ON", "&rgb_ug RGB_OFF", "&rgb_ug RGB_HUI", "&rgb_ug RGB_SAI",
+        "&kp PSCRN", "&kp LG(LS(S))", "&kp LG(V)", "&kp LG(S)", "&kp LG(TAB)", "&kp LG(L)",
+        "&kp C_PREV", "&kp C_PP", "&kp C_NEXT", "&kp C_MUTE", "&kp C_VOL_DN", "&kp C_VOL_UP",
         "&out OUT_USB", "&out OUT_BLE", "&out OUT_TOG",
         "&bootloader", "&sys_reset",
     ]
@@ -96,6 +95,18 @@ def main() -> None:
             errors.append(f"adjust_layer missing {binding}")
 
     expected_adjust_positions = {
+        6: "&kp PSCRN",
+        7: "&kp LG(LS(S))",
+        8: "&kp LG(V)",
+        9: "&kp LG(S)",
+        10: "&kp LG(TAB)",
+        11: "&kp LG(L)",
+        18: "&kp C_PREV",
+        19: "&kp C_PP",
+        20: "&kp C_NEXT",
+        21: "&kp C_MUTE",
+        22: "&kp C_VOL_DN",
+        23: "&kp C_VOL_UP",
         30: "&out OUT_USB",
         31: "&out OUT_BLE",
         32: "&out OUT_TOG",
@@ -108,13 +119,25 @@ def main() -> None:
             errors.append(f"adjust_layer position {index}: expected {expected}, found {actual}")
 
     obsolete_thumb_phrases = ("outer-" "right thumb", "right outer" "->inner")
-    for token in ("zmk,behavior-hold-tap", "CONFIG_WS2812_STRIP", "&kp LGUI", *obsolete_thumb_phrases):
+    for token in (
+        "zmk,behavior-hold-tap",
+        "CONFIG_WS2812_STRIP",
+        "#include <dt-bindings/zmk/rgb.h>",
+        "&rgb_ug",
+        "&led_strip",
+        "chain-length",
+        "&kp RGUI",
+        "RGUI",
+        "macOS",
+        "Command",
+        *obsolete_thumb_phrases,
+    ):
         if token in text:
             errors.append(f"obsolete/forbidden token remains: {token}")
 
     if errors:
         fail(errors)
-    print("Keymap check passed: four 42-binding layers, required thumb rows, ADJ BT/RGB/output controls, and LED chain-length 27 are present.")
+    print("Keymap check passed: four 42-binding layers, RWIN thumbs, Windows ADJ utilities/media, output controls, and no RGB/LED override are present.")
 
 
 if __name__ == "__main__":

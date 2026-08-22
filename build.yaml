@@ -17,16 +17,17 @@
 
 ---
 include:
-  # Corne v3.1 split halves using nice!nano v2-compatible controllers
-  # and zmk-nice-oled's 128x32 SSD1306 OLED shield.
+  # Corne v4 split halves using nice!nano v2-compatible controllers
+  # and zmk-nice-oled's 128x32 SSD1306 OLED shield. The pinned upstream
+  # ZMK exposes the generic Corne shields, so keep corne_left/right here.
   # The left half is the central side for normal USB/BLE use.
   - board: nice_nano/nrf52840/zmk
     shield: corne_left nice_oled
     cmake-args: -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
-    artifact-name: corne_v3_1_left
+    artifact-name: corne_v4_left
   - board: nice_nano/nrf52840/zmk
     shield: corne_right nice_oled
-    artifact-name: corne_v3_1_right
+    artifact-name: corne_v4_right
   # Optional ZMK Studio build for the left/central half only. Do not enable
   # Studio in shared config because the right peripheral lacks central USB
   # dependencies.
@@ -34,7 +35,7 @@ include:
     shield: corne_left nice_oled
     snippet: studio-rpc-usb-uart
     cmake-args: -DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y
-    artifact-name: corne_v3_1_left_studio
+    artifact-name: corne_v4_left_studio
   - board: nice_nano/nrf52840/zmk
     shield: settings_reset
     artifact-name: settings_reset

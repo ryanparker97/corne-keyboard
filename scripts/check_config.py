@@ -8,11 +8,6 @@ from pathlib import Path
 CONFIG = Path("config/corne.conf")
 
 REQUIRED = {
-    "CONFIG_ZMK_RGB_UNDERGLOW": "y",
-    "CONFIG_ZMK_RGB_UNDERGLOW_ON_START": "n",
-    "CONFIG_ZMK_RGB_UNDERGLOW_BRT_START": "15",
-    "CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX": "40",
-    "CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE": "y",
     "CONFIG_ZMK_DISPLAY": "y",
     "CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM": "y",
     "CONFIG_NICE_OLED_ON": "y",
@@ -23,6 +18,7 @@ REQUIRED = {
     "CONFIG_NICE_OLED_WIDGET_RESPONSIVE_BONGO_CAT": "n",
     "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL": "y",
     "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS": "y",
     "CONFIG_ZMK_SLEEP": "y",
     "CONFIG_ZMK_EXT_POWER": "y",
     "CONFIG_ZMK_BLE": "y",
@@ -34,11 +30,14 @@ REQUIRED = {
     "CONFIG_ZMK_BLE_KEYBOARD_REPORT_QUEUE_SIZE": "40",
     "CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE": "16",
     "CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE": "16",
+    "CONFIG_BT_CTLR_PHY_2M": "n",
+    "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION": "n",
 }
 
 FORBIDDEN_PREFIXES = (
     "CONFIG_WS2812_STRIP",
     "CONFIG_ZMK_KSCAN_DEBOUNCE_",
+    "CONFIG_ZMK_RGB_UNDERGLOW",
 )
 FORBIDDEN_EXACT = {
     "CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB": "y",
@@ -85,9 +84,17 @@ def main() -> None:
         if re.search(rf"\b{re.escape(symbol)}\b", text):
             errors.append(f"{symbol} must not appear in shared {CONFIG}")
 
+    for snippet in (
+        "Corne v4 + nice!nano wireless settings for Windows hosts",
+        "RGB underglow/per-key LEDs are intentionally disabled",
+        "LVGL9-compatible chyuuu/zmk-nice-oled fork",
+    ):
+        if snippet not in text:
+            errors.append(f"config/corne.conf missing comment: {snippet}")
+
     if errors:
         raise SystemExit("Config check failed:\n- " + "\n- ".join(errors))
-    print("Config check passed: conservative RGB, BLE, power, and nice_oled settings are active without forbidden legacy/global settings.")
+    print("Config check passed: Windows BLE, power, and nice_oled settings are active while RGB underglow remains disabled.")
 
 
 if __name__ == "__main__":

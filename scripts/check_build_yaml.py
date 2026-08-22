@@ -6,31 +6,34 @@ from pathlib import Path
 
 EXPECTED_BOARD = "nice_nano/nrf52840/zmk"
 LEGACY_BOARD = "nice_nano" + "_v2"
-RIGHT_STUDIO_ARTIFACT = "corne_v3_1_right" + "_studio"
+RIGHT_STUDIO_ARTIFACT = "corne_v4_right" + "_studio"
 EXPECTED_ENTRIES = {
     (
         EXPECTED_BOARD,
         "corne_left nice_oled",
-        "corne_v3_1_left",
+        "corne_v4_left",
         "",
         "-DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
     ),
-    (EXPECTED_BOARD, "corne_right nice_oled", "corne_v3_1_right", "", ""),
+    (EXPECTED_BOARD, "corne_right nice_oled", "corne_v4_right", "", ""),
     (
         EXPECTED_BOARD,
         "corne_left nice_oled",
-        "corne_v3_1_left_studio",
+        "corne_v4_left_studio",
         "studio-rpc-usb-uart",
         "-DCONFIG_ZMK_STUDIO=y -DCONFIG_ZMK_USB=y -DCONFIG_ZMK_USB_BOOT=y",
     ),
     (EXPECTED_BOARD, "settings_reset", "settings_reset", "", ""),
 }
 README_SNIPPETS = [
-    "`corne_v3_1_left`",
-    "`corne_v3_1_right`",
-    "`corne_v3_1_left_studio`",
+    "`corne_v4_left`",
+    "`corne_v4_right`",
+    "`corne_v4_left_studio`",
     "`settings_reset`",
     "`nice_nano/nrf52840/zmk`",
+    "`corne_left nice_oled`",
+    "`corne_right nice_oled`",
+    "generic Corne shields rather than a separate `corne_v4` shield",
     "`studio-rpc-usb-uart`",
     "`CONFIG_ZMK_STUDIO`",
     "`CONFIG_ZMK_USB`",
@@ -92,12 +95,15 @@ def main() -> None:
     for symbol in ("CONFIG_ZMK_STUDIO", "CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
         if symbol in config_text:
             errors.append(f"{symbol} must not appear in shared config/corne.conf")
+    for stale in ("corne_v3_1_left", "corne_v3_1_right", "corne_v3_1_left_studio"):
+        if stale in build_text + readme_text:
+            errors.append(f"stale artifact name found: {stale}")
     for snippet in README_SNIPPETS:
         if snippet not in readme_text:
             errors.append(f"README missing snippet: {snippet}")
     if errors:
         raise SystemExit("Build metadata check failed:\n- " + "\n- ".join(errors))
-    print("Build metadata check passed: normal Corne, left Studio, and settings_reset artifacts are documented and validated.")
+    print("Build metadata check passed: Corne v4 left, right, left Studio, and settings_reset artifacts are documented and validated.")
 
 
 if __name__ == "__main__":

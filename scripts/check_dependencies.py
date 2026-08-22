@@ -65,13 +65,18 @@ def main() -> None:
         if snippet not in corne_conf:
             errors.append(f"config/corne.conf missing dependency note: {snippet}")
     for snippet in (
-        "right thumbs inner-to-outer",
+        "generic Corne shields rather than a separate `corne_v4` shield",
+        "Right thumbs, inner -> outer: RWIN  LOWER  ENTER",
         "inner-right thumb",
-        "pinned/upstream ZMK Corne `nice_nano` overlay defines the `led_strip` node",
-        "&led_strip { chain-length = <27>; };",
-        "CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX=40",
-        "USB_DEVICE_STACK",
-        "default output prefers USB",
+        "RGB underglow/per-key LED support is disabled",
+        "no active `CONFIG_ZMK_RGB_UNDERGLOW*` settings",
+        "does not add an `&led_strip` chain-length override",
+        "Win+Shift+S",
+        "Previous",
+        "CONFIG_BT_CTLR_PHY_2M=n",
+        "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n",
+        "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS=y",
+        "ZMK's default output prefers USB",
         "&out OUT_USB",
         "&out OUT_BLE",
         "&out OUT_TOG",
@@ -79,10 +84,12 @@ def main() -> None:
         if snippet not in readme:
             errors.append(f"README missing updated hardware/config note: {snippet}")
     for snippet in (
-        "right thumbs inner-to-outer",
+        "generic `corne_left`/`corne_right` shields",
+        "Right thumbs, inner -> outer: RWIN  LOWER  ENTER",
         "inner-right thumb",
-        "pinned/upstream ZMK Corne `nice_nano` overlay defines the `led_strip` node",
-        "&led_strip { chain-length = <27>; };",
+        "Windows utility chords",
+        "Media controls",
+        "no `&rgb_ug` bindings and no `&led_strip` chain-length override",
         "&out OUT_USB",
         "&out OUT_BLE",
         "&out OUT_TOG",
@@ -90,10 +97,13 @@ def main() -> None:
     ):
         if snippet not in keymap_doc:
             errors.append(f"KEYMAP missing updated hardware/keymap note: {snippet}")
+    for stale in ("corne_v3_1", "macOS Command", "RGB controls"):
+        if stale in readme or stale in keymap_doc:
+            errors.append(f"stale documentation wording remains: {stale}")
 
     if errors:
         raise SystemExit("Dependency check failed:\n- " + "\n- ".join(errors))
-    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, and corne.conf pins are aligned.")
+    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, KEYMAP, and corne.conf are aligned.")
 
 
 if __name__ == "__main__":
