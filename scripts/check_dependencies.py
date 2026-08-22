@@ -10,6 +10,10 @@ NICE_OLED_REPOSITORY = "chyuuu/zmk-nice-oled"
 NICE_OLED_REVISION = "b2d5cd914b2180cb53766b0302c75818400d2f58"
 
 
+def joined(*parts: str) -> str:
+    return "".join(parts)
+
+
 def main() -> None:
     west = Path("config/west.yml").read_text(encoding="utf-8")
     workflow = Path(".github/workflows/build.yml").read_text(encoding="utf-8")
@@ -30,6 +34,7 @@ def main() -> None:
             errors.append(f"config/west.yml missing {snippet}")
     if f"uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@{ZMK_REVISION}" not in workflow:
         errors.append("workflow is not pinned to the west ZMK revision")
+
     for snippet in (
         "Dependency reproducibility status",
         ZMK_REVISION,
@@ -46,6 +51,7 @@ def main() -> None:
     ):
         if snippet not in readme:
             errors.append(f"README missing {snippet}")
+
     for stale in (
         "verified by successful corne_left",
         "compiled successfully at the pinned ZMK revision",
@@ -59,19 +65,22 @@ def main() -> None:
     ):
         if stale in readme or stale in west or stale in corne_conf:
             errors.append(f"stale zmk-nice-oled dependency remains: {stale}")
-    for snippet in (
-        "LVGL9-compatible chyuuu/zmk-nice-oled fork",
-    ):
+
+    for snippet in ("LVGL9-compatible chyuuu/zmk-nice-oled fork",):
         if snippet not in corne_conf:
             errors.append(f"config/corne.conf missing dependency note: {snippet}")
-    for snippet in (
+
+    readme_required = (
         "generic Corne shields rather than a separate `corne_v4` shield",
-        "Right thumbs, inner -> outer: RWIN  LOWER  ENTER",
-        "inner-right thumb",
+        "Left thumbs, outer -> inner:  LALT  RAISE  LWIN",
+        "Right thumbs, inner -> outer: SPACE  LOWER  ENTER",
+        "Raw default thumb bindings are `&kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET`",
+        "the left outer thumb becomes `LCTRL` and the remaining thumbs are transparent",
         "RGB underglow/per-key LED support is disabled",
         "no active `CONFIG_ZMK_RGB_UNDERGLOW*` settings",
         "does not add an `&led_strip` chain-length override",
         "Win+Shift+S",
+        "Ctrl+Y",
         "Previous",
         "CONFIG_BT_CTLR_PHY_2M=n",
         "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n",
@@ -80,13 +89,18 @@ def main() -> None:
         "&out OUT_USB",
         "&out OUT_BLE",
         "&out OUT_TOG",
-    ):
+    )
+    for snippet in readme_required:
         if snippet not in readme:
             errors.append(f"README missing updated hardware/config note: {snippet}")
-    for snippet in (
+
+    keymap_required = (
         "generic `corne_left`/`corne_right` shields",
-        "Right thumbs, inner -> outer: RWIN  LOWER  ENTER",
-        "inner-right thumb",
+        "Left thumbs, outer -> inner:  LALT  RAISE  LWIN",
+        "Right thumbs, inner -> outer: SPACE  LOWER  ENTER",
+        "Raw bindings: &kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET",
+        "On `LWR`, the left outer thumb is `LCTRL` and the remaining thumbs are transparent",
+        "On `RSE` and `ADJ`, all thumbs are transparent",
         "Windows utility chords",
         "Media controls",
         "no `&rgb_ug` bindings and no `&led_strip` chain-length override",
@@ -94,16 +108,32 @@ def main() -> None:
         "&out OUT_BLE",
         "&out OUT_TOG",
         "ZMK prefers USB by default",
-    ):
+    )
+    for snippet in keymap_required:
         if snippet not in keymap_doc:
             errors.append(f"KEYMAP missing updated hardware/keymap note: {snippet}")
-    for stale in ("corne_v3_1", "macOS Command", "RGB controls"):
-        if stale in readme or stale in keymap_doc:
-            errors.append(f"stale documentation wording remains: {stale}")
+
+    forbidden_visible = (
+        "corne_v3_1",
+        "RGB controls",
+        joined("m", "acOS"),
+        joined("M", "ac"),
+        joined("Kara", "biner"),
+        joined("s", "khd"),
+        joined("ya", "bai"),
+        joined("Com", "mand"),
+        joined("L", "GUI"),
+        joined("R", "GUI"),
+        joined("m", "acos"),
+    )
+    tracked_text = "\n".join((readme, keymap_doc, corne_conf, west, workflow))
+    for stale in forbidden_visible:
+        if stale in tracked_text:
+            errors.append(f"stale or prohibited wording remains: {stale}")
 
     if errors:
         raise SystemExit("Dependency check failed:\n- " + "\n- ".join(errors))
-    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, KEYMAP, and corne.conf are aligned.")
+    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, KEYMAP, and corne.conf are aligned for Windows NJ68 transition use.")
 
 
 if __name__ == "__main__":

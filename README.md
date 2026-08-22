@@ -8,21 +8,25 @@ The pinned upstream ZMK revision exposes the generic Corne shields rather than a
 
 - `build.yaml` builds normal `corne_v4_left` and `corne_v4_right` artifacts, plus optional `corne_v4_left_studio` and `settings_reset` artifacts.
 - `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
-- `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including Windows utility, media, and output-selection controls on `ADJ`.
+- `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, following the Windows NJ68 transition model.
 - `config/corne.conf` enables BLE, nice_oled, Windows-oriented BLE preferences, wireless power management, and no active RGB underglow settings.
 - `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
 - `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
 
-## Thumb layout
+## NJ68 transition layout
 
-ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-to-inner, then the right thumbs inner-to-outer. Every layer uses the same physical thumb row:
+This layout keeps compact-keyboard muscle memory on a Corne: base corner `ESC`/`BACKSPACE`, `TAB` on `LOWER`, numbers and navigation on `LOWER`, symbols on `RAISE`, and utilities on `ADJ`.
+
+ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-to-inner, then the right thumbs inner-to-outer. The default layer uses:
 
 ```text
-Left thumbs, outer -> inner:  LALT  RAISE  SPACE
-Right thumbs, inner -> outer: RWIN  LOWER  ENTER
+Left thumbs, outer -> inner:  LALT  RAISE  LWIN
+Right thumbs, inner -> outer: SPACE  LOWER  ENTER
 ```
 
-`SPACE` is therefore on the inner-left thumb. `RWIN` is the Windows key on the inner-right thumb.
+Raw default thumb bindings are `&kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET`.
+
+On `LWR`, the left outer thumb becomes `LCTRL` and the remaining thumbs are transparent so `LOWER` + left outer thumb + number gives Ctrl+number. `RSE` and `ADJ` use transparent thumbs.
 
 ## RGB LEDs
 
@@ -34,7 +38,7 @@ RGB underglow/per-key LED support is disabled because the selected Corne v4 targ
 
 Do not enable RGB or add a chain-length override until the exact Corne v4 LED hardware is confirmed.
 
-## Windows utilities and media controls
+## Windows utilities, editing, and media controls
 
 `ADJ` is activated by holding `LOWER` + `RAISE` together.
 
@@ -42,6 +46,12 @@ Top-right Windows utility keys on `ADJ`:
 
 ```text
 Y: Print Screen   U: Win+Shift+S   I: Win+V   O: Win+S   P: Win+Tab   Backspace: Win+L
+```
+
+Left-side editing chords on `ADJ`:
+
+```text
+A: Ctrl+A   S: Ctrl+S   F: Ctrl+F   Z: Ctrl+Z   X: Ctrl+X   C: Ctrl+C   V: Ctrl+V   B: Ctrl+Y
 ```
 
 Right home-row media keys on `ADJ`:
