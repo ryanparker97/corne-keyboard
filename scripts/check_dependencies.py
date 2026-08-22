@@ -5,7 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 ZMK_REVISION = "6e2ef41e022d555b10f116e395832913f71717b3"
-NICE_OLED_REVISION = "46f824abb2bd41f1287c5c68abd14122af6042a3"
+NICE_OLED_REMOTE = "chyuuu"
+NICE_OLED_REPOSITORY = "chyuuu/zmk-nice-oled"
+NICE_OLED_REVISION = "b2d5cd914b2180cb53766b0302c75818400d2f58"
 
 
 def main() -> None:
@@ -13,12 +15,15 @@ def main() -> None:
     workflow = Path(".github/workflows/build.yml").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
     keymap_doc = Path("KEYMAP.md").read_text(encoding="utf-8")
+    corne_conf = Path("config/corne.conf").read_text(encoding="utf-8")
     errors: list[str] = []
 
     for snippet in (
         f"revision: {ZMK_REVISION}",
+        f"- name: {NICE_OLED_REMOTE}",
+        "url-base: https://github.com/chyuuu",
         "- name: zmk-nice-oled",
-        "remote: mctechnology17",
+        f"remote: {NICE_OLED_REMOTE}",
         f"revision: {NICE_OLED_REVISION}",
     ):
         if snippet not in west:
@@ -28,8 +33,10 @@ def main() -> None:
     for snippet in (
         "Dependency reproducibility status",
         ZMK_REVISION,
-        "mctechnology17/zmk-nice-oled",
+        NICE_OLED_REPOSITORY,
         NICE_OLED_REVISION,
+        "LVGL9-compatible",
+        "image descriptors for the pinned ZMK/LVGL 9 stack",
         "nice_oled",
         "pins are chosen for reproducibility",
         "Local static validation passes with `python3 scripts/validate.py`",
@@ -46,6 +53,17 @@ def main() -> None:
     ):
         if stale in readme or stale in west:
             errors.append(f"stale compile verification wording remains: {stale}")
+    for stale in (
+        "mctechnology17/zmk-nice-oled",
+        "46f824abb2bd41f1287c5c68abd14122af6042a3",
+    ):
+        if stale in readme or stale in west or stale in corne_conf:
+            errors.append(f"stale zmk-nice-oled dependency remains: {stale}")
+    for snippet in (
+        "LVGL9-compatible chyuuu/zmk-nice-oled fork",
+    ):
+        if snippet not in corne_conf:
+            errors.append(f"config/corne.conf missing dependency note: {snippet}")
     for snippet in (
         "right thumbs inner-to-outer",
         "inner-right thumb",
@@ -75,7 +93,7 @@ def main() -> None:
 
     if errors:
         raise SystemExit("Dependency check failed:\n- " + "\n- ".join(errors))
-    print("Dependency check passed: west, workflow, zmk-nice-oled, and README pins are aligned.")
+    print("Dependency check passed: west, workflow, LVGL9-compatible zmk-nice-oled fork, README, and corne.conf pins are aligned.")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK,
 ## Included files
 
 - `build.yaml` builds normal `corne_v3_1_left` and `corne_v3_1_right` artifacts, plus optional `corne_v3_1_left_studio` and `settings_reset` artifacts.
-- `config/west.yml` pins ZMK and `mctechnology17/zmk-nice-oled`.
+- `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
 - `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including output-selection controls on `ADJ`.
 - `config/corne.conf` enables BLE, nice_oled, wireless power management, and conservative RGB without enabling USB globally.
 - `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
@@ -85,7 +85,7 @@ Only flash this on a standard Corne v3.1 42-key split with nice!nano-compatible 
 
 ## Dependency reproducibility status
 
-`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. The OLED module `mctechnology17/zmk-nice-oled` is pinned to `46f824abb2bd41f1287c5c68abd14122af6042a3` and supplied through the `nice_oled` shield. These pins are chosen for reproducibility and alignment between local west workspaces and CI.
+`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. The OLED module uses the LVGL9-compatible `chyuuu/zmk-nice-oled` fork pinned to `b2d5cd914b2180cb53766b0302c75818400d2f58` and supplied through the `nice_oled` shield. This fork revision updates the image descriptors for the pinned ZMK/LVGL 9 stack. These pins are chosen for reproducibility and alignment between local west workspaces and CI.
 
 Local static validation passes with `python3 scripts/validate.py`. A full firmware compilation was not run in this environment because `west` is unavailable here; confirm the pinned build through GitHub Actions or a local ZMK/west workspace before flashing.
 
