@@ -1,22 +1,10 @@
 name: Build ZMK firmware
-
 on:
-  push:
-    branches:
-      - '**'
-  pull_request:
-    branches:
-      - '**'
   workflow_dispatch:
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  push:
+    paths:
+      - "config/**"
 
 jobs:
   build:
-    name: Build Corne firmware
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@6e2ef41e022d555b10f116e395832913f71717b3
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
