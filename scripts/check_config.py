@@ -53,6 +53,44 @@ def optional_text(path: str) -> str | None:
     return file.read_text(encoding="utf-8")
 
 
+def module_build_entries(path: str = "zephyr/module.yml") -> dict[str, str]:
+    """Return simple build.cmake/build.kconfig entries from zephyr/module.yml."""
+    module_file = Path(path)
+    if not module_file.exists():
+        return {}
+
+    entries: dict[str, str] = {}
+    in_build = False
+    for raw in module_file.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        if not line.startswith(" ") and line.endswith(":"):
+            in_build = line[:-1].strip() == "build"
+            continue
+        if in_build and line.startswith("  ") and ":" in line:
+            key, value = line.strip().split(":", 1)
+            if key in {"cmake", "kconfig"}:
+                entries[key] = value.strip().strip('"\'')
+    return entries
+
+
+def validate_module_build_files(errors: list[str]) -> None:
+    entries = module_build_entries()
+    module_root = Path(".")
+
+    kconfig = entries.get("kconfig")
+    if kconfig and not (module_root / kconfig).is_file():
+        errors.append(f"zephyr/module.yml build.kconfig points to missing file: {kconfig}")
+
+    cmake = entries.get("cmake")
+    if cmake:
+        cmake_path = module_root / cmake
+        cmake_file = cmake_path / "CMakeLists.txt" if cmake_path.is_dir() else cmake_path
+        if not cmake_file.is_file():
+            errors.append(f"zephyr/module.yml build.cmake points to missing CMakeLists.txt: {cmake}")
+
+
 def main() -> None:
     text = CONFIG.read_text(encoding="utf-8")
     assignments = active_assignments(text)
@@ -80,9 +118,10 @@ def main() -> None:
             if stale in oled_source:
                 errors.append(f"OLED source must not use unsupported/stale widget API: {stale}")
 
-    # Root module files are optional in this user-config repository. If present,
-    # validate their internal wiring, but do not require missing Kconfig or CMake
-    # files just because zephyr/module.yml exists.
+    validate_module_build_files(errors)
+
+    # Root module files referenced by zephyr/module.yml must exist. Also validate
+    # their internal wiring so the custom OLED source stays opt-in.
     optional_module_checks = {
         "Kconfig": ("config CORNE_SIMPLE_OLED_STATUS_SCREEN", "select LV_USE_LABEL"),
         "CMakeLists.txt": ("CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN", "src/display/corne_oled_status_screen.c"),
