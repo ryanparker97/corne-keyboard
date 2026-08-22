@@ -2,13 +2,16 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
-    # Additional modules containing boards/shields/custom code can be listed here as well
-    # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
+    - name: chyuuu
+      url-base: https://github.com/chyuuu
   projects:
     - name: zmk
       remote: zmkfirmware
       # Keep this aligned with .github/workflows/build.yml's reusable workflow ref.
       revision: 6e2ef41e022d555b10f116e395832913f71717b3
       import: app/west.yml
+    - name: zmk-nice-oled
+      remote: chyuuu
+      revision: b2d5cd914b2180cb53766b0302c75818400d2f58
   self:
     path: config

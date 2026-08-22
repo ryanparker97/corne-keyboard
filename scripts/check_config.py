@@ -1,58 +1,46 @@
 #!/usr/bin/env python3
-"""Validate supported ZMK Kconfig choices for this wireless Corne."""
+"""Validate supported ZMK/nice_oled Kconfig choices for this Corne."""
 from __future__ import annotations
 
 import re
 from pathlib import Path
 
-CONFIG = Path("config/corne.conf")
+SHARED_CONFIG = Path("config/corne.conf")
+LEFT_CONFIG = Path("config/corne_left.conf")
+RIGHT_CONFIG = Path("config/corne_right.conf")
+BUILD_YAML = Path("build.yaml")
 
-REQUIRED = {
-    "CONFIG_ZMK_RGB_UNDERGLOW": "y",
-    "CONFIG_ZMK_RGB_UNDERGLOW_ON_START": "n",
-    "CONFIG_ZMK_RGB_UNDERGLOW_BRT_START": "15",
-    "CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX": "40",
-    "CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE": "y",
+SHARED_REQUIRED = {
     "CONFIG_ZMK_DISPLAY": "y",
     "CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM": "y",
     "CONFIG_NICE_OLED_ON": "y",
     "CONFIG_NICE_OLED_WIDGET_STATUS": "y",
-    "CONFIG_NICE_OLED_WIDGET_WPM": "y",
-    "CONFIG_NICE_OLED_WIDGET_WPM_LUNA": "y",
-    "CONFIG_NICE_OLED_WIDGET_WPM_BONGO_CAT": "n",
-    "CONFIG_NICE_OLED_WIDGET_RESPONSIVE_BONGO_CAT": "n",
     "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL": "y",
     "CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT": "y",
-    "CONFIG_ZMK_SLEEP": "y",
-    "CONFIG_ZMK_EXT_POWER": "y",
-    "CONFIG_ZMK_BLE": "y",
-    "CONFIG_ZMK_BLE_EXPERIMENTAL_FEATURES": "y",
-    "CONFIG_ZMK_BLE_EXPERIMENTAL_CONN": "y",
-    "CONFIG_BT_PERIPHERAL_PREF_MIN_INT": "12",
-    "CONFIG_BT_PERIPHERAL_PREF_MAX_INT": "12",
-    "CONFIG_BT_PERIPHERAL_PREF_LATENCY": "30",
-    "CONFIG_BT_PERIPHERAL_PREF_TIMEOUT": "600",
-    "CONFIG_ZMK_BLE_KEYBOARD_REPORT_QUEUE_SIZE": "40",
-    "CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE": "16",
-    "CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE": "16",
-    "CONFIG_BT_CTLR_TX_PWR_PLUS_8": "y",
-    "CONFIG_ZMK_KSCAN_DEBOUNCE_PRESS_MS": "1",
-    "CONFIG_ZMK_KSCAN_DEBOUNCE_RELEASE_MS": "5",
-    "CONFIG_ZMK_HID_CONSUMER_REPORT_USAGES_BASIC": "y",
     "CONFIG_ZMK_STUDIO": "y",
     "CONFIG_ZMK_STUDIO_LOCKING": "n",
     "CONFIG_ZMK_STUDIO_LOCK_ON_DISCONNECT": "n",
 }
 
-FORBIDDEN_PREFIXES = (
-    "CONFIG_WS2812_STRIP",
-)
+LEFT_REQUIRED = {
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_MACOS": "y",
+    "CONFIG_NICE_OLED_WIDGET_HID_INDICATORS": "y",
+    "CONFIG_ZMK_HID_INDICATORS": "y",
+    "CONFIG_NICE_OLED_WIDGET_HID_INDICATORS_BONGO_CAT": "y",
+    "CONFIG_NICE_OLED_WIDGET_HID_INDICATORS_BONGO_CAT_ONLY_CAPSLOCK": "y",
+}
+
+CENTRAL_ONLY_SYMBOLS = set(LEFT_REQUIRED)
+
 FORBIDDEN_EXACT = {
-    "CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB": "y",
     "CONFIG_ZMK_USB": "y",
     "CONFIG_ZMK_USB_BOOT": "y",
-    "CONFIG_KCONFIG_WARNINGS_AS_ERRORS": "n",
-    "CONFIG_BT_CTLR_PHY_2M": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_LETTER": "y",
+    "CONFIG_NICE_OLED_WIDGET_MODIFIERS_INDICATORS_FIXED_SYMBOL_WINDOWS": "y",
+    "CONFIG_NICE_OLED_WIDGET_HID_INDICATORS_LUNA": "y",
 }
 ASSIGNMENT = re.compile(r"^(CONFIG_[A-Za-z0-9_]+)\s*=\s*(.*?)\s*$")
 
@@ -69,31 +57,61 @@ def active_assignments(text: str) -> dict[str, list[str]]:
     return result
 
 
-def main() -> None:
-    text = CONFIG.read_text(encoding="utf-8")
-    assignments = active_assignments(text)
+def require_values(path: Path, assignments: dict[str, list[str]], required: dict[str, str]) -> list[str]:
     errors: list[str] = []
-
-    for symbol, expected in REQUIRED.items():
+    for symbol, expected in required.items():
         values = assignments.get(symbol, [])
         if not values:
-            errors.append(f"missing {symbol}={expected}")
+            errors.append(f"{path}: missing {symbol}={expected}")
         elif any(value != expected for value in values):
-            errors.append(f"{symbol} must be {expected}; found {values}")
+            errors.append(f"{path}: {symbol} must be {expected}; found {values}")
+    return errors
 
-    for symbol, values in assignments.items():
-        if any(symbol.startswith(prefix) for prefix in FORBIDDEN_PREFIXES):
-            errors.append(f"forbidden active symbol: {symbol}")
-        if symbol in FORBIDDEN_EXACT and FORBIDDEN_EXACT[symbol] in values:
-            errors.append(f"forbidden active assignment: {symbol}={FORBIDDEN_EXACT[symbol]}")
+
+def forbid_values(path: Path, assignments: dict[str, list[str]], forbidden: dict[str, str]) -> list[str]:
+    errors: list[str] = []
+    for symbol, forbidden_value in forbidden.items():
+        if forbidden_value in assignments.get(symbol, []):
+            errors.append(f"{path}: forbidden active assignment: {symbol}={forbidden_value}")
+    return errors
+
+
+def main() -> None:
+    shared_text = SHARED_CONFIG.read_text(encoding="utf-8")
+    shared_assignments = active_assignments(shared_text)
+    errors: list[str] = []
+
+    errors.extend(require_values(SHARED_CONFIG, shared_assignments, SHARED_REQUIRED))
+    errors.extend(forbid_values(SHARED_CONFIG, shared_assignments, FORBIDDEN_EXACT))
+
+    for symbol in CENTRAL_ONLY_SYMBOLS:
+        if symbol in shared_assignments:
+            errors.append(f"{SHARED_CONFIG}: central-only {symbol} must move to {LEFT_CONFIG}")
 
     for symbol in ("CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
-        if re.search(rf"\b{re.escape(symbol)}\b", text):
-            errors.append(f"{symbol} must not appear in shared {CONFIG}")
+        if re.search(rf"\b{re.escape(symbol)}\b", shared_text):
+            errors.append(f"{symbol} must not appear in shared {SHARED_CONFIG}; build.yaml adds it only to left-side artifacts")
+
+    if not LEFT_CONFIG.exists():
+        errors.append(f"missing left/central-only config: {LEFT_CONFIG}")
+    else:
+        left_assignments = active_assignments(LEFT_CONFIG.read_text(encoding="utf-8"))
+        errors.extend(require_values(LEFT_CONFIG, left_assignments, LEFT_REQUIRED))
+        errors.extend(forbid_values(LEFT_CONFIG, left_assignments, FORBIDDEN_EXACT))
+
+    if RIGHT_CONFIG.exists():
+        right_assignments = active_assignments(RIGHT_CONFIG.read_text(encoding="utf-8"))
+        for symbol in CENTRAL_ONLY_SYMBOLS:
+            if symbol in right_assignments:
+                errors.append(f"{RIGHT_CONFIG}: central-only {symbol} must not be assigned for the right/peripheral half")
+
+    build_text = BUILD_YAML.read_text(encoding="utf-8")
+    if "EXTRA_CONF_FILE" in build_text:
+        errors.append("build.yaml must not use EXTRA_CONF_FILE for side-specific config; ZMK_CONFIG shield config discovery handles this")
 
     if errors:
         raise SystemExit("Config check failed:\n- " + "\n- ".join(errors))
-    print("Config check passed: RGB, BLE, power, nice_oled, debounce, HID, and unlocked Studio settings are active without forbidden USB settings.")
+    print("Config check passed: shared OLED/cat settings are peripheral-safe; left-only config enables Mac modifier icons and CapsLock bongo indicator without shared USB settings.")
 
 
 if __name__ == "__main__":

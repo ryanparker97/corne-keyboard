@@ -7,9 +7,10 @@ Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK,
 - `build.yaml` builds normal `corne_v3_1_left` and `corne_v3_1_right` artifacts, plus optional `corne_v3_1_left_studio` and `settings_reset` artifacts.
 - `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
 - `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including output-selection controls on `ADJ`.
-- `config/corne.conf` enables BLE, nice_oled, ZMK Studio unlocked, wireless power management, low debounce, HID compatibility, and conservative RGB without enabling USB globally.
+- `config/corne.conf` enables the nice_oled custom status screen, peripheral-safe cat animation, and unlocked ZMK Studio without enabling USB globally.
+- `config/corne_left.conf` enables left/central-only Mac modifier icons and the CapsLock HID indicator.
 - `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
-- `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
+- `.github/workflows/build.yml` runs the pinned ZMK user-config build. No separate GitHub validation job is configured.
 
 ## Thumb layout
 
@@ -17,20 +18,29 @@ ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-
 
 ```text
 Left thumbs, outer -> inner:  LALT  RAISE  CMD
-Right thumbs, inner -> outer: SPACE LOWER  ENTER
+Right thumbs, inner -> outer: SPACE  LOWER  ENTER
 ```
 
 `LGUI` is therefore macOS Command on the inner-left thumb. `SPACE` is on the inner-right thumb.
 
+## OLED status screen
+
+The `nice_oled` shield is supplied by the pinned `chyuuu/zmk-nice-oled` module. ZMK discovers `config/corne.conf` for both Corne halves and also applies `config/corne_left.conf` to `corne_left` builds.
+
+- ZMK's custom display status screen and `CONFIG_NICE_OLED_ON`.
+- The nice_oled status widget.
+- Peripheral cat animation with `CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT=y`.
+
+`config/corne_left.conf` enables left/central-only OLED widgets:
+
+- Fixed-symbol Mac modifier icons for Control, Shift, Option, and Command.
+- CapsLock HID indicator using the supported bongo cat animation, limited to CapsLock.
+
+CapsLock is represented through the module's HID-indicator animation support rather than a standalone caps icon asset.
+
 ## RGB LEDs
 
-RGB is enabled conservatively for wireless use:
-
-- `CONFIG_ZMK_RGB_UNDERGLOW=y`
-- off on start: `CONFIG_ZMK_RGB_UNDERGLOW_ON_START=n`
-- low brightness: `CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=15`, capped by `CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX=40`
-- idle auto-off: `CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_IDLE=y`
-- USB auto-off is intentionally not enabled in shared `config/corne.conf` because it depends on `USB_DEVICE_STACK` and may fail for the right split peripheral.
+RGB key bindings are present on `ADJ`, but RGB underglow is not enabled in shared `config/corne.conf` by this OLED-focused config. If you enable RGB later, keep wireless power use in mind and verify the LED driver symbols for the pinned ZMK revision.
 
 The pinned/upstream ZMK Corne `nice_nano` overlay defines the `led_strip` node. This keymap only overrides `&led_strip { chain-length = <27>; };` for a fully LED-populated Corne v3.1: 42 per-key SK6812 plus 12 underglow WS2812, or 27 LEDs per half. Change this to `<6>` if only the underglow LEDs are soldered.
 
@@ -38,7 +48,7 @@ RGB controls are on `ADJ`: hold `LOWER` + `RAISE`, then use physical `H/J/K/L/;/
 
 ## Wired and wireless output
 
-The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so the right half remains a normal split peripheral. The `build.yaml` matrix adds wired USB and USB boot support only to the left/central artifacts.
+The shared config keeps USB and central-only OLED HID/modifier widgets out of `config/corne.conf` so the right half remains a normal split peripheral. The `build.yaml` matrix adds wired USB and USB boot support only to the left/central artifacts, while `config/corne_left.conf` supplies left/central-only OLED indicators.
 
 - For wired use, plug USB into the left half. The right half still talks to the left half over split BLE.
 - For wireless use, pair over BLE as usual; the left half remains the central side.
@@ -54,7 +64,7 @@ The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so 
 - `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left_studio`
 - `settings_reset` -> `settings_reset`
 
-USB and the Studio RPC snippet are only for the left/central Studio artifact. The shared config enables unlocked ZMK Studio, while the right peripheral still does not enable USB.
+USB and the Studio RPC snippet are only for the left/central Studio artifact. The shared config enables unlocked ZMK Studio, while the right peripheral still does not enable USB or central-only modifier/HID indicator widgets.
 
 Local build commands, from a west workspace with this repository as the user config:
 
@@ -83,7 +93,7 @@ Only flash this on a standard Corne v3.1 42-key split with nice!nano-compatible 
 
 ## Dependency reproducibility status
 
-`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. The OLED module uses the LVGL9-compatible `chyuuu/zmk-nice-oled` fork pinned to `b2d5cd914b2180cb53766b0302c75818400d2f58` and supplied through the `nice_oled` shield. This fork revision updates the image descriptors for the pinned ZMK/LVGL 9 stack. These pins are chosen for reproducibility and alignment between local west workspaces and CI.
+`config/west.yml` and the reusable GitHub Actions workflow are pinned to ZMK `6e2ef41e022d555b10f116e395832913f71717b3`. The OLED module uses the LVGL9-compatible `chyuuu/zmk-nice-oled` fork pinned to `b2d5cd914b2180cb53766b0302c75818400d2f58` and supplied through the `nice_oled` shield. This fork revision provides the cat animation, Mac modifier icons, and image descriptors for the pinned ZMK/LVGL 9 stack; the Mac/CapsLock widgets are kept in `config/corne_left.conf` so the right peripheral build avoids central-only Kconfig warnings. These pins are chosen for reproducibility and alignment between local west workspaces and CI.
 
 Local static validation passes with `python3 scripts/validate.py`. A full firmware compilation was not run in this environment because `west` is unavailable here; confirm the pinned build through GitHub Actions or a local ZMK/west workspace before flashing.
 
