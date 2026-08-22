@@ -1,16 +1,27 @@
 # This file generates the GitHub Actions matrix.
-# Normal artifacts are native-wireless Corne v4 halves for nice!nano v2-compatible
-# controllers with nice_oled, plus a settings_reset utility artifact. The pinned
-# upstream ZMK revision exposes generic corne_left/right shields rather than a
-# separate corne_v4 shield, so do not invent unsupported custom hardware here.
+# For simple board + shield combinations, add them to the top level board and
+# shield arrays, for more control, add individual board + shield combinations
+# to the `include` property. You can also use the `cmake-args` property to
+# pass flags to the build command, `snippet` to add a Zephyr snippet, and
+# `artifact-name` to assign a name to distinguish build outputs from each other:
+#
+# board: [ "nice_nano/nrf52840/zmk" ]
+# shield: [ "corne_left", "corne_right" ]
+# include:
+#   - board: bdn9_rev2
+#   - board: nice_nano/nrf52840/zmk
+#     shield: reviung41
+#   - board: nice_nano/nrf52840/zmk
+#     shield: reviung41
+#     artifact-name: reviung41_example
+
 ---
 include:
+  # Corne v4 split halves using nice!nano v2 controllers.
+  # The left half is the central side for normal USB/BLE use.
   - board: nice_nano/nrf52840/zmk
-    shield: corne_left nice_oled
+    shield: corne_left
     artifact-name: corne_v4_left
   - board: nice_nano/nrf52840/zmk
-    shield: corne_right nice_oled
+    shield: corne_right
     artifact-name: corne_v4_right
-  - board: nice_nano/nrf52840/zmk
-    shield: settings_reset
-    artifact-name: settings_reset
