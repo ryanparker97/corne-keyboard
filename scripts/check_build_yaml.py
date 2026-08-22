@@ -89,7 +89,7 @@ def main() -> None:
         errors.append(f"legacy {LEGACY_BOARD} target found")
     if RIGHT_STUDIO_ARTIFACT in build_text + readme_text:
         errors.append("right-hand Studio artifact found")
-    for symbol in ("CONFIG_ZMK_STUDIO", "CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
+    for symbol in ("CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
         if symbol in config_text:
             errors.append(f"{symbol} must not appear in shared config/corne.conf")
     for snippet in README_SNIPPETS:

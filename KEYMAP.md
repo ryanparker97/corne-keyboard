@@ -16,12 +16,12 @@ This document mirrors `config/corne.keymap` for a wireless/wired 42-key Corne v3
 ZMK Corne binding order is 36 finger keys, then left thumbs outer-to-inner, then right thumbs inner-to-outer. All layers use:
 
 ```text
-Left thumbs, outer -> inner:  LALT  RAISE  SPACE
-Right thumbs, inner -> outer: RGUI  LOWER  ENTER
-Raw bindings: &kp LALT  &mo RSE  &kp SPACE    &kp RGUI  &mo LWR  &kp RET
+Left thumbs, outer -> inner:  LALT  RAISE  CMD
+Right thumbs, inner -> outer: SPACE  LOWER  ENTER
+Raw bindings: &kp LALT  &mo RSE  &kp LGUI    &kp SPACE  &mo LWR  &kp RET
 ```
 
-Space is on the inner-left thumb. `RGUI` is macOS Command on the inner-right thumb.
+macOS Command is on the inner-left thumb as `LGUI`. Space is on the inner-right thumb.
 
 ## DEF
 
@@ -29,7 +29,7 @@ Space is on the inner-left thumb. `RGUI` is macOS Command on the inner-right thu
 ESC   Q  W  E  R  T        Y  U  I  O  P  BSPC
 CAPS  A  S  D  F  G        H  J  K  L  ;  '
 LSFT  Z  X  C  V  B        N  M  ,  .  /  LCTRL
-              LALT RSE SPACE    RGUI LWR RET
+              LALT RSE CMD    SPACE LWR RET
 ```
 
 ## LWR
@@ -38,7 +38,7 @@ LSFT  Z  X  C  V  B        N  M  ,  .  /  LCTRL
 `    1   2   3   4   5       6     7      8      9     0    DEL
 TAB  F1  F2  F3  F4  F5      LEFT  DOWN   UP     RGHT  PGDN trans
 trns F6  F7  F8  F9  F10     HOME  PGDN   PGUP   END   F11  F12
-              LALT RSE SPACE    RGUI LWR RET
+              LALT RSE CMD    SPACE LWR RET
 ```
 
 ## RSE
@@ -47,7 +47,7 @@ trns F6  F7  F8  F9  F10     HOME  PGDN   PGUP   END   F11  F12
 ~     !   @   #   $   %       ^       &      *      (      )    ?
 ESC   -   =   [   ]   \\      C-LEFT  C-DOWN C-UP   C-RGHT :    "
 trns  _   +   {   }   |       HOME    PGDN   PGUP   END    <    >
-              LALT RSE SPACE    RGUI LWR RET
+              LALT RSE CMD    SPACE LWR RET
 ```
 
 ## ADJ
@@ -56,7 +56,7 @@ trns  _   +   {   }   |       HOME    PGDN   PGUP   END    <    >
 trns  BT1   BT2   BT3   BT4   BT5      SCRN   AREA   CAP    SPOT   APP    LOCK
 BTCLR trns  trns  trns  trns  trns     RGBEF  RGBT   RGBON  RGBOF  RGBHU  RGBSA
 trns  trns  trns  trns  trns  trns     USB    BLE    TOG    trns   BOOT   RESET
-              LALT RSE SPACE    RGUI LWR RET
+              LALT RSE CMD    SPACE LWR RET
 ```
 
 RGB controls are guarded on `ADJ`; Bluetooth select/clear controls are preserved there as well. Output controls use ZMK `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG` on the right side of the bottom row while preserving bootloader and reset.

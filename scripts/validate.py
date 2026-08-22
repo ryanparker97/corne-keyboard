@@ -8,6 +8,7 @@ from pathlib import Path
 
 CHECKS = [
     "scripts/check_keymap.py",
+    "scripts/check_keymap_doc.py",
     "scripts/check_build_yaml.py",
     "scripts/check_config.py",
     "scripts/check_dependencies.py",

@@ -7,7 +7,7 @@ Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK,
 - `build.yaml` builds normal `corne_v3_1_left` and `corne_v3_1_right` artifacts, plus optional `corne_v3_1_left_studio` and `settings_reset` artifacts.
 - `config/west.yml` pins ZMK and the LVGL9-compatible `chyuuu/zmk-nice-oled` fork.
 - `config/corne.keymap` contains four 42-binding layers: `DEF`, `LWR`, `RSE`, and `ADJ`, including output-selection controls on `ADJ`.
-- `config/corne.conf` enables BLE, nice_oled, wireless power management, and conservative RGB without enabling USB globally.
+- `config/corne.conf` enables BLE, nice_oled, ZMK Studio unlocked, wireless power management, low debounce, HID compatibility, and conservative RGB without enabling USB globally.
 - `zephyr/module.yml` exposes this repo as a Zephyr module/board root.
 - `.github/workflows/build.yml` validates the repo and runs the ZMK user-config build.
 
@@ -16,11 +16,11 @@ Wireless-first 42-key Corne v3.1 configuration for nice!nano/nRF52840 using ZMK,
 ZMK Corne binding order is the 36 finger keys followed by the left thumbs outer-to-inner, then the right thumbs inner-to-outer. Every layer uses the same physical thumb row:
 
 ```text
-Left thumbs, outer -> inner:  LALT  RAISE  SPACE
-Right thumbs, inner -> outer: RGUI  LOWER  ENTER
+Left thumbs, outer -> inner:  LALT  RAISE  CMD
+Right thumbs, inner -> outer: SPACE LOWER  ENTER
 ```
 
-`SPACE` is therefore on the inner-left thumb. `RGUI` is macOS Command on the inner-right thumb.
+`LGUI` is therefore macOS Command on the inner-left thumb. `SPACE` is on the inner-right thumb.
 
 ## RGB LEDs
 
@@ -54,8 +54,7 @@ The shared config keeps BLE enabled and keeps USB out of `config/corne.conf` so 
 - `corne_left nice_oled` + `studio-rpc-usb-uart` + `CONFIG_ZMK_STUDIO` + `CONFIG_ZMK_USB` + `CONFIG_ZMK_USB_BOOT` -> `corne_v3_1_left_studio`
 - `settings_reset` -> `settings_reset`
 
-USB and Studio are only for the left/central half. The right peripheral keeps
-the normal firmware and does not enable USB or ZMK Studio.
+USB and the Studio RPC snippet are only for the left/central Studio artifact. The shared config enables unlocked ZMK Studio, while the right peripheral still does not enable USB.
 
 Local build commands, from a west workspace with this repository as the user config:
 
@@ -74,8 +73,7 @@ west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHI
 4. Repeat with the other half; do not swap left/right firmware.
 5. If Bluetooth pairing is stale, use `ADJ` + `BT_CLR`, then pair again, or flash `settings_reset` once before reflashing the normal firmware.
 
-Use `corne_v3_1_left_studio` only when you want ZMK Studio support on the
-left/central half; keep `corne_v3_1_right` on the right half.
+Use `corne_v3_1_left_studio` when you want USB/UART-backed ZMK Studio on the left/central half; keep `corne_v3_1_right` on the right half.
 
 When using a cable for typing, connect it to the left half. Connecting the right
 half over USB is only for flashing or charging; it remains the split peripheral

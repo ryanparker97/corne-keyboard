@@ -7,7 +7,7 @@ from pathlib import Path
 
 KEYMAP = Path("config/corne.keymap")
 EXPECTED_LAYERS = ("default_layer", "lower_layer", "raise_layer", "adjust_layer")
-EXPECTED_THUMBS = ["&kp LALT", "&mo RSE", "&kp SPACE", "&kp RGUI", "&mo LWR", "&kp RET"]
+EXPECTED_THUMBS = ["&kp LALT", "&mo RSE", "&kp LGUI", "&kp SPACE", "&mo LWR", "&kp RET"]
 
 
 def fail(errors: list[str]) -> None:
@@ -58,8 +58,8 @@ def main() -> None:
         35: "&kp LCTRL",
         36: "&kp LALT",
         37: "&mo RSE",
-        38: "&kp SPACE",
-        39: "&kp RGUI",
+        38: "&kp LGUI",
+        39: "&kp SPACE",
         40: "&mo LWR",
         41: "&kp RET",
     }
@@ -74,8 +74,9 @@ def main() -> None:
         'compatible = "zmk,conditional-layers"',
         "if-layers = <LWR RSE>",
         "then-layer = <ADJ>",
-        "left outer->inner: LALT, RAISE, SPACE; right inner->outer: RGUI, LOWER, ENTER.",
-        "inner-right thumb",
+        "left outer->inner: LALT, RAISE, CMD; right inner->outer: SPACE, LOWER, ENTER.",
+        "inner-left thumb",
+        "Space on the inner-right thumb",
         "pinned/upstream ZMK Corne nice_nano overlay defines &led_strip",
         "&led_strip",
         "chain-length = <27>",
@@ -108,7 +109,7 @@ def main() -> None:
             errors.append(f"adjust_layer position {index}: expected {expected}, found {actual}")
 
     obsolete_thumb_phrases = ("outer-" "right thumb", "right outer" "->inner")
-    for token in ("zmk,behavior-hold-tap", "CONFIG_WS2812_STRIP", "&kp LGUI", *obsolete_thumb_phrases):
+    for token in ("zmk,behavior-hold-tap", "CONFIG_WS2812_STRIP", "&kp RGUI", *obsolete_thumb_phrases):
         if token in text:
             errors.append(f"obsolete/forbidden token remains: {token}")
 

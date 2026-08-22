@@ -26,6 +26,7 @@ REQUIRED = {
     "CONFIG_ZMK_SLEEP": "y",
     "CONFIG_ZMK_EXT_POWER": "y",
     "CONFIG_ZMK_BLE": "y",
+    "CONFIG_ZMK_BLE_EXPERIMENTAL_FEATURES": "y",
     "CONFIG_ZMK_BLE_EXPERIMENTAL_CONN": "y",
     "CONFIG_BT_PERIPHERAL_PREF_MIN_INT": "12",
     "CONFIG_BT_PERIPHERAL_PREF_MAX_INT": "12",
@@ -34,15 +35,20 @@ REQUIRED = {
     "CONFIG_ZMK_BLE_KEYBOARD_REPORT_QUEUE_SIZE": "40",
     "CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE": "16",
     "CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE": "16",
+    "CONFIG_BT_CTLR_TX_PWR_PLUS_8": "y",
+    "CONFIG_ZMK_KSCAN_DEBOUNCE_PRESS_MS": "1",
+    "CONFIG_ZMK_KSCAN_DEBOUNCE_RELEASE_MS": "5",
+    "CONFIG_ZMK_HID_CONSUMER_REPORT_USAGES_BASIC": "y",
+    "CONFIG_ZMK_STUDIO": "y",
+    "CONFIG_ZMK_STUDIO_LOCKING": "n",
+    "CONFIG_ZMK_STUDIO_LOCK_ON_DISCONNECT": "n",
 }
 
 FORBIDDEN_PREFIXES = (
     "CONFIG_WS2812_STRIP",
-    "CONFIG_ZMK_KSCAN_DEBOUNCE_",
 )
 FORBIDDEN_EXACT = {
     "CONFIG_ZMK_RGB_UNDERGLOW_AUTO_OFF_USB": "y",
-    "CONFIG_ZMK_STUDIO": "y",
     "CONFIG_ZMK_USB": "y",
     "CONFIG_ZMK_USB_BOOT": "y",
     "CONFIG_KCONFIG_WARNINGS_AS_ERRORS": "n",
@@ -81,13 +87,13 @@ def main() -> None:
         if symbol in FORBIDDEN_EXACT and FORBIDDEN_EXACT[symbol] in values:
             errors.append(f"forbidden active assignment: {symbol}={FORBIDDEN_EXACT[symbol]}")
 
-    for symbol in ("CONFIG_ZMK_STUDIO", "CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
+    for symbol in ("CONFIG_ZMK_USB", "CONFIG_ZMK_USB_BOOT"):
         if re.search(rf"\b{re.escape(symbol)}\b", text):
             errors.append(f"{symbol} must not appear in shared {CONFIG}")
 
     if errors:
         raise SystemExit("Config check failed:\n- " + "\n- ".join(errors))
-    print("Config check passed: conservative RGB, BLE, power, and nice_oled settings are active without forbidden legacy/global settings.")
+    print("Config check passed: RGB, BLE, power, nice_oled, debounce, HID, and unlocked Studio settings are active without forbidden USB settings.")
 
 
 if __name__ == "__main__":
