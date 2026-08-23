@@ -4,10 +4,17 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: petejohanson
       url-base: https://github.com/petejohanson
+    - name: mctechnology17
+      url-base: https://github.com/mctechnology17
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      # zmk-nice-oled v0.0.2 is tested against ZMK v0.3.0.
+      revision: edf5c0814fd3ea202e43aad2d68fd32e882a518c
       import: app/west.yml
+    - name: zmk-nice-oled
+      remote: mctechnology17
+      # v0.0.2
+      revision: dc2d10de6ee0f235e3ce39da8a7411c27a41b6b9
   self:
     path: config
