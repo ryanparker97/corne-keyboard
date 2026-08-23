@@ -14,38 +14,6 @@
 #define ADJ 3
 
 / {
-    behaviors {
-        // Bilateral home-row modifiers: 120+ WPM prose profile. A 250 ms prior-idle
-        // gate resolves active letter rolls as taps; balanced opposite-hand release
-        // keeps deliberate chords usable. The 300 ms term requires a deliberate hold;
-        // 175 ms quick-tap keeps repeated letter taps responsive.
-        hm_l: home_row_mod_left {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            require-prior-idle-ms = <250>;
-            tapping-term-ms = <300>;
-            quick-tap-ms = <175>;
-            bindings = <&kp>, <&kp>;
-            // Right half: rows 0-2 (6-11, 18-23, 30-35), then thumbs (39-41).
-            hold-trigger-key-positions = <6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35 39 40 41>;
-            hold-trigger-on-release;
-        };
-
-        hm_r: home_row_mod_right {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            require-prior-idle-ms = <250>;
-            tapping-term-ms = <300>;
-            quick-tap-ms = <175>;
-            bindings = <&kp>, <&kp>;
-            // Left half: rows 0-2 (0-5, 12-17, 24-29), then thumbs (36-38).
-            hold-trigger-key-positions = <0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29 36 37 38>;
-            hold-trigger-on-release;
-        };
-    };
-
     conditional_layers {
         compatible = "zmk,conditional-layers";
 

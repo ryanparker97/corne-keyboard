@@ -191,14 +191,14 @@ if default_match:
             )
 
     expected_home_row_mod_bindings = {
-        13: "&hm_l LCTRL A",
-        14: "&hm_l LALT S",
-        15: "&hm_l LGUI D",
-        16: "&hm_l LSHFT F",
-        19: "&hm_r RSHFT J",
-        20: "&hm_r RGUI K",
-        21: "&hm_r RALT L",
-        22: "&hm_r RCTRL SEMI",
+        13: "&kp A",
+        14: "&kp S",
+        15: "&kp D",
+        16: "&kp F",
+        19: "&kp J",
+        20: "&kp K",
+        21: "&kp L",
+        22: "&kp SEMI",
     }
     for index, expected in expected_home_row_mod_bindings.items():
         if len(normalized) <= index or normalized[index] != expected:
