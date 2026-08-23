@@ -18,7 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
+          auth_header="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)"
+          git -c http.extraheader="AUTHORIZATION: basic $auth_header" \
+            fetch --no-tags --prune --depth=1 origin "+$GITHUB_REF:refs/remotes/origin/checkout"
+          git checkout --detach "$GITHUB_SHA"
 
       - name: Run repository validation
         run: python3 scripts/validate.py

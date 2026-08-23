@@ -20,11 +20,8 @@ include:
   # Corne v4 split halves using nice!nano v2 controllers.
   # The left half is the central side for normal USB/BLE use.
   - board: nice_nano/nrf52840/zmk
-    shield: corne_left nice_oled
+    shield: corne_left
     artifact-name: corne_v4_left
   - board: nice_nano/nrf52840/zmk
-    shield: corne_right nice_oled
+    shield: corne_right
     artifact-name: corne_v4_right
-  - board: nice_nano/nrf52840/zmk
-    shield: settings_reset
-    artifact-name: settings_reset

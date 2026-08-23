@@ -1,142 +1,196 @@
 #!/usr/bin/env python3
-"""Validate supported ZMK Kconfig choices for the current Corne config."""
+"""Validate ZMK Kconfig choices that must remain compatible with current ZMK."""
 from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import NamedTuple
 
 CONFIG = Path("config/corne.conf")
+BUILD = Path("build.yaml")
+WORKFLOW = Path(".github/workflows/build.yml")
 
-REQUIRED = {
-    "CONFIG_EC11": "n",
-    "CONFIG_EC11_TRIGGER_GLOBAL_THREAD": "n",
-    "CONFIG_BT_PERIPHERAL_PREF_MIN_INT": "6",
+REQUIRED_CONFIG_SETTINGS = {
+    "CONFIG_ZMK_RGB_UNDERGLOW": "n",
+    "CONFIG_ZMK_DISPLAY": "y",
+    "CONFIG_ZMK_SLEEP": "y",
+    "CONFIG_ZMK_EXT_POWER": "y",
+    "CONFIG_ZMK_BLE_EXPERIMENTAL_CONN": "y",
+    "CONFIG_BT_PERIPHERAL_PREF_MIN_INT": "12",
     "CONFIG_BT_PERIPHERAL_PREF_MAX_INT": "12",
-    "CONFIG_BT_PERIPHERAL_PREF_LATENCY": "0",
-    "CONFIG_BT_CTLR_PHY_2M": "y",
+    "CONFIG_BT_PERIPHERAL_PREF_LATENCY": "30",
+    "CONFIG_BT_PERIPHERAL_PREF_TIMEOUT": "600",
+    "CONFIG_ZMK_BLE_KEYBOARD_REPORT_QUEUE_SIZE": "40",
+    "CONFIG_ZMK_KSCAN_EVENT_QUEUE_SIZE": "16",
+    "CONFIG_ZMK_SPLIT_BLE_CENTRAL_POSITION_QUEUE_SIZE": "16",
     "CONFIG_BT_CTLR_TX_PWR_PLUS_8": "y",
     "CONFIG_BT_BUF_ACL_RX_SIZE": "512",
     "CONFIG_BT_CTLR_DATA_LENGTH_MAX": "251",
     "CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION": "n",
-    "CONFIG_ZMK_RGB_UNDERGLOW": "n",
-    "CONFIG_ZMK_DISPLAY": "y",
-    "CONFIG_ZMK_DISPLAY_WORK_QUEUE_DEDICATED": "y",
-    "CONFIG_ZMK_IDLE_TIMEOUT": "60000",
-    "CONFIG_ZMK_SLEEP": "y",
-    "CONFIG_ZMK_IDLE_SLEEP_TIMEOUT": "300000",
-    "CONFIG_ZMK_EXT_POWER": "y",
 }
-FORBIDDEN_ENABLED = {
-    "CONFIG_ZMK_STUDIO",
-    "CONFIG_ZMK_USB_BOOT",
-    "CONFIG_KCONFIG_WARNINGS_AS_ERRORS",
+
+REQUIRED_CONFIG_SNIPPETS = [
+    f"{symbol}={value}" for symbol, value in REQUIRED_CONFIG_SETTINGS.items()
+]
+
+FORBIDDEN_CONFIG_SNIPPETS = {
+    "CONFIG_WS2812_STRIP": "WS2812_STRIP is not a current ZMK user-config symbol; disable underglow with CONFIG_ZMK_RGB_UNDERGLOW=n.",
+    "CONFIG_ZMK_KSCAN_DEBOUNCE_": "Do not force deprecated KSCAN debounce Kconfig; leave current shield defaults/devicetree in control.",
+    "CONFIG_ZMK_KSCAN=": "Do not force deprecated ZMK KSCAN integration from user config.",
+    "CONFIG_KSCAN=": "Do not force Zephyr's deprecated KSCAN symbol from user config.",
+    "CONFIG_ZMK_STUDIO=y": "Studio must not be enabled globally because corne_right is a split peripheral.",
+    "CONFIG_ZMK_USB=y": "USB must not be enabled globally because corne_right is a split peripheral.",
+    "CONFIG_KCONFIG_WARNINGS_AS_ERRORS=n": "Do not suppress Kconfig warnings.",
+    "KCONFIG_WARNINGS_AS_ERRORS=OFF": "Do not suppress Kconfig warnings.",
+    "CONFIG_BT_CTLR_PHY_2M=y": "Do not force BLE 2M PHY; keep PHY host/controller negotiated for Windows compatibility and range.",
 }
-ASSIGNMENT = re.compile(r"^(CONFIG_[A-Za-z0-9_]+)\s*=\s*(.*?)\s*$")
+
+KCONFIG_ASSIGNMENT_RE = re.compile(r"^(CONFIG_[A-Za-z0-9_]+)\s*=\s*(.*?)\s*$")
 
 
-def active_assignments(text: str) -> dict[str, list[str]]:
-    result: dict[str, list[str]] = {}
-    for raw in text.splitlines():
-        line = raw.split("#", 1)[0].strip()
-        if not line:
+class KconfigAssignment(NamedTuple):
+    path: Path
+    line_number: int
+    symbol: str
+    value: str
+
+    @property
+    def snippet(self) -> str:
+        return f"{self.symbol}={self.value}"
+
+
+def fail(message: str) -> None:
+    raise SystemExit(message)
+
+
+def strip_inline_comment(line: str) -> str:
+    """Remove unquoted comments while preserving quoted Kconfig string values."""
+    quote: str | None = None
+    escaped = False
+    for index, char in enumerate(line):
+        if escaped:
+            escaped = False
             continue
-        match = ASSIGNMENT.match(line)
+        if char == "\\":
+            escaped = True
+            continue
+        if quote:
+            if char == quote:
+                quote = None
+            continue
+        if char in {'"', "'"}:
+            quote = char
+            continue
+        if char == "#":
+            return line[:index]
+    return line
+
+
+def active_lines(text: str) -> list[tuple[int, str]]:
+    """Return non-empty, non-comment logical lines with inline comments removed."""
+    lines: list[tuple[int, str]] = []
+    for line_number, raw_line in enumerate(text.splitlines(), start=1):
+        line = strip_inline_comment(raw_line).strip()
+        if line:
+            lines.append((line_number, line))
+    return lines
+
+
+def parse_kconfig_assignments(path: Path, text: str) -> list[KconfigAssignment]:
+    """Parse active Kconfig assignments, ignoring commented-out examples."""
+    assignments: list[KconfigAssignment] = []
+    for line_number, line in active_lines(text):
+        match = KCONFIG_ASSIGNMENT_RE.match(line)
         if match:
-            result.setdefault(match.group(1), []).append(match.group(2).strip())
-    return result
+            symbol, value = match.groups()
+            assignments.append(KconfigAssignment(path, line_number, symbol, value.strip()))
+    return assignments
 
 
-def optional_text(path: str) -> str | None:
-    file = Path(path)
-    if not file.exists():
-        return None
-    return file.read_text(encoding="utf-8")
+def format_location(assignment: KconfigAssignment) -> str:
+    return f"{assignment.path}:{assignment.line_number}: {assignment.snippet}"
 
 
-def module_build_entries(path: str = "zephyr/module.yml") -> dict[str, str]:
-    """Return simple build.cmake/build.kconfig entries from zephyr/module.yml."""
-    module_file = Path(path)
-    if not module_file.exists():
-        return {}
-
-    entries: dict[str, str] = {}
-    in_build = False
-    for raw in module_file.read_text(encoding="utf-8").splitlines():
-        line = raw.split("#", 1)[0].rstrip()
-        if not line.strip():
+def find_required_config_issues(assignments: list[KconfigAssignment]) -> list[str]:
+    issues: list[str] = []
+    for symbol, expected_value in REQUIRED_CONFIG_SETTINGS.items():
+        active_values = [assignment.value for assignment in assignments if assignment.symbol == symbol]
+        if not active_values:
+            issues.append(f"{symbol}={expected_value} is not active")
             continue
-        if not line.startswith(" ") and line.endswith(":"):
-            in_build = line[:-1].strip() == "build"
-            continue
-        if in_build and line.startswith("  ") and ":" in line:
-            key, value = line.strip().split(":", 1)
-            if key in {"cmake", "kconfig"}:
-                entries[key] = value.strip().strip('"\'')
-    return entries
+        unexpected_values = sorted({value for value in active_values if value != expected_value})
+        if unexpected_values:
+            issues.append(
+                f"{symbol} must be exactly {expected_value}; active value(s): "
+                + ", ".join(active_values)
+            )
+    return issues
 
 
-def validate_module_build_files(errors: list[str]) -> None:
-    entries = module_build_entries()
-    module_root = Path(".")
+def forbidden_snippet_matches(
+    snippet: str,
+    assignments: list[KconfigAssignment],
+    active_text_by_path: dict[Path, str],
+) -> list[str]:
+    if snippet.startswith("CONFIG_") and "=" in snippet:
+        symbol, expected_value = snippet.split("=", 1)
+        matches = [
+            format_location(assignment)
+            for assignment in assignments
+            if assignment.symbol == symbol and assignment.value == expected_value
+        ]
+        if matches:
+            return matches
+    elif snippet.startswith("CONFIG_"):
+        matches = [
+            format_location(assignment)
+            for assignment in assignments
+            if assignment.symbol.startswith(snippet)
+        ]
+        if matches:
+            return matches
 
-    kconfig = entries.get("kconfig")
-    if kconfig and not (module_root / kconfig).is_file():
-        errors.append(f"zephyr/module.yml build.kconfig points to missing file: {kconfig}")
-
-    cmake = entries.get("cmake")
-    if cmake:
-        cmake_path = module_root / cmake
-        cmake_file = cmake_path / "CMakeLists.txt" if cmake_path.is_dir() else cmake_path
-        if not cmake_file.is_file():
-            errors.append(f"zephyr/module.yml build.cmake points to missing CMakeLists.txt: {cmake}")
+    return [
+        f"{path}: active non-comment text contains {snippet!r}"
+        for path, active_text in active_text_by_path.items()
+        if snippet in active_text
+    ]
 
 
 def main() -> None:
-    text = CONFIG.read_text(encoding="utf-8")
-    assignments = active_assignments(text)
-    errors: list[str] = []
-
-    for symbol, expected in REQUIRED.items():
-        values = assignments.get(symbol, [])
-        if not values:
-            errors.append(f"missing {symbol}={expected}")
-        elif any(value != expected for value in values):
-            errors.append(f"{symbol} must be {expected}; found {values}")
-
-    for symbol in FORBIDDEN_ENABLED:
-        if "y" in assignments.get(symbol, []):
-            errors.append(f"forbidden active assignment: {symbol}=y")
-
-    for symbol, values in assignments.items():
-        if symbol.startswith("CONFIG_ZMK_RGB_UNDERGLOW") and symbol != "CONFIG_ZMK_RGB_UNDERGLOW":
-            if any(value == "y" for value in values):
-                errors.append(f"forbidden active RGB underglow option: {symbol}=y")
-
-    oled_source = optional_text("src/display/corne_oled_status_screen.c")
-    if oled_source is not None:
-        for stale in ("zmk_ble_active_profile_name", "CONFIG_ZMK_WIDGET_WPM_STATUS"):
-            if stale in oled_source:
-                errors.append(f"OLED source must not use unsupported/stale widget API: {stale}")
-
-    validate_module_build_files(errors)
-
-    # Root module files referenced by zephyr/module.yml must exist. Also validate
-    # their internal wiring so the custom OLED source stays opt-in.
-    optional_module_checks = {
-        "Kconfig": ("config CORNE_SIMPLE_OLED_STATUS_SCREEN", "select LV_USE_LABEL"),
-        "CMakeLists.txt": ("CONFIG_CORNE_SIMPLE_OLED_STATUS_SCREEN", "src/display/corne_oled_status_screen.c"),
+    text_by_path = {
+        path: path.read_text(encoding="utf-8") for path in (CONFIG, BUILD, WORKFLOW)
     }
-    for path, snippets in optional_module_checks.items():
-        haystack = optional_text(path)
-        if haystack is None:
-            continue
-        for snippet in snippets:
-            if snippet not in haystack:
-                errors.append(f"{path} missing {snippet}")
+    config_assignments = parse_kconfig_assignments(CONFIG, text_by_path[CONFIG])
+    all_assignments = [
+        assignment
+        for path, text in text_by_path.items()
+        for assignment in parse_kconfig_assignments(path, text)
+    ]
+    active_text_by_path = {
+        path: "\n".join(line for _, line in active_lines(text))
+        for path, text in text_by_path.items()
+    }
 
-    if errors:
-        raise SystemExit("Config check failed:\n- " + "\n- ".join(errors))
-    print("Config check passed: current encoder-off, low-latency BLE, RGB-disabled, display, sleep, and external-power settings are active.")
+    required_issues = find_required_config_issues(config_assignments)
+    if required_issues:
+        fail(
+            "config/corne.conf missing required active supported settings:\n- "
+            + "\n- ".join(required_issues)
+        )
+
+    violations = []
+    for snippet, reason in FORBIDDEN_CONFIG_SNIPPETS.items():
+        for match in forbidden_snippet_matches(snippet, all_assignments, active_text_by_path):
+            violations.append(f"{match}: {reason}")
+    if violations:
+        fail("Current-ZMK config check failed:\n- " + "\n- ".join(violations))
+
+    print(
+        "Config check passed: required active Corne/BLE settings are exact; no active "
+        "undefined WS2812_STRIP, user-forced deprecated KSCAN, forced BLE 2M PHY, "
+        "global USB/Studio, or warning-suppression settings."
+    )
 
 
 if __name__ == "__main__":
