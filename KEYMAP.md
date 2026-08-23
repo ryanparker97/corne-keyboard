@@ -37,22 +37,22 @@ Actions are labeled by physical base-layer position. The exact bindings below ar
 | Physical position | Exact ZMK binding | Windows action |
 |---|---|---|
 | `Y` | `&kp PSCRN` | Print Screen |
-| `U` | `&kp LG(LS(S))` | Win+Shift+S screen snip |
-| `I` | `&kp LG(V)` | Win+V Clipboard history |
-| `O` | `&kp LG(S)` | Win+S Search |
-| `P` | `&kp LG(TAB)` | Win+Tab Task View |
-| Top-right `BACKSPACE` | `&kp LG(L)` | Win+L lock Windows |
-| `A` | `&kp LC(A)` | Ctrl+A select all |
-| `S` | `&kp LC(S)` | Ctrl+S save |
-| `D` | `&kp LG(R)` | Win+R Run |
-| `F` | `&kp LC(F)` | Ctrl+F find |
-| `G` | `&kp LG(LEFT)` | Win+Left snap left |
-| `H` | `&kp LG(RIGHT)` | Win+Right snap right |
-| `Z` | `&kp LC(Z)` | Ctrl+Z undo |
-| `X` | `&kp LC(X)` | Ctrl+X cut |
-| `C` | `&kp LC(C)` | Ctrl+C copy |
-| `V` | `&kp LC(V)` | Ctrl+V paste |
-| `B` | `&kp LC(LS(Z))` | Ctrl+Shift+Z redo |
+| `U` | `&kp LG(LS(S))` | Win+Shift+S: screen snip |
+| `I` | `&kp LG(V)` | Win+V: Clipboard history |
+| `O` | `&kp LG(S)` | Win+S: Search |
+| `P` | `&kp LG(TAB)` | Win+Tab: Task View |
+| Top-right `BACKSPACE` | `&kp LG(L)` | Win+L: lock Windows |
+| `A` | `&kp LC(A)` | Ctrl+A: select all |
+| `S` | `&kp LC(S)` | Ctrl+S: save |
+| `D` | `&kp LG(R)` | Win+R: Run |
+| `F` | `&kp LC(F)` | Ctrl+F: find |
+| `G` | `&kp LG(LEFT)` | Win+Left: snap window left |
+| `H` | `&kp LG(RIGHT)` | Win+Right: snap window right |
+| `Z` | `&kp LC(Z)` | Ctrl+Z: undo |
+| `X` | `&kp LC(X)` | Ctrl+X: cut |
+| `C` | `&kp LC(C)` | Ctrl+C: copy |
+| `V` | `&kp LC(V)` | Ctrl+V: paste |
+| `B` | `&kp LC(LS(Z))` | Ctrl+Shift+Z: redo |
 
 The remaining `ADJ` positions retain Bluetooth and maintenance controls:
 

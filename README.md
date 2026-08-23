@@ -2,7 +2,7 @@
 
 This repository is a ZMK configuration for a 42-key Corne v4 split keyboard using nice!nano controllers. It is a Windows-focused NJ68-to-Corne transition layout: QWERTY stays familiar, `ESC` and `BACKSPACE` occupy the top corners, and layers replace the missing number row and navigation cluster.
 
-ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`. The build matrix uses `nice_nano/nrf52840/zmk` with the standard `corne_left` and `corne_right` shields.
+ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717b3`. The build matrix uses `nice_nano/nrf52840/zmk` with `corne_left nice_oled`, `corne_right nice_oled`, and `settings_reset` targets.
 
 ## Layout overview
 
@@ -31,7 +31,11 @@ The position names below are physical positions from the base layer, not the key
 | `F` | `&kp LC(F)` | Ctrl+F: find |
 | `G` | `&kp LG(LEFT)` | Win+Left: snap window left |
 | `H` | `&kp LG(RIGHT)` | Win+Right: snap window right |
-| `Z` / `X` / `C` / `V` / `B` | `&kp LC(Z)` / `&kp LC(X)` / `&kp LC(C)` / `&kp LC(V)` / `&kp LC(LS(Z))` | Undo, cut, copy, paste, redo |
+| `Z` | `&kp LC(Z)` | Ctrl+Z: undo |
+| `X` | `&kp LC(X)` | Ctrl+X: cut |
+| `C` | `&kp LC(C)` | Ctrl+C: copy |
+| `V` | `&kp LC(V)` | Ctrl+V: paste |
+| `B` | `&kp LC(LS(Z))` | Ctrl+Shift+Z: redo |
 
 Bluetooth profile selection is on `Q` through `T`; `CAPS` clears Bluetooth pairing. Bootloader and system reset remain at the bottom-right `/` and `CTRL` positions on `ADJ`. See [KEYMAP.md](KEYMAP.md) for all 42 positions and raw bindings.
 
@@ -39,20 +43,25 @@ Bluetooth profile selection is on `Q` through `T`; `CAPS` clears Bluetooth pairi
 
 `config/corne.conf` provides display support, sleep/external-power support, disabled RGB underglow, and conservative Bluetooth latency preferences. The shared config does not globally enable USB or ZMK Studio because the right half is a split peripheral. The configuration cannot verify physical wiring, battery safety, radio conditions, or successful flashing.
 
-Only flash this configuration to a Corne v4 split with nice!nano v2-compatible controllers and standard `corne_left`/`corne_right` shields. The left and right firmware artifacts are distinct; use the artifact for the half being flashed. Test base keys, thumbs, `LOWER` + `RAISE`, Bluetooth pairing, and guarded boot/reset positions before relying on the keyboard.
+Only flash this configuration to a Corne v4 split with nice!nano v2-compatible controllers. The build uses generic Corne shields rather than a separate `corne_v4` shield: `corne_left nice_oled` and `corne_right nice_oled`. The `corne_v4_left` and `corne_v4_right` artifacts are distinct; use the artifact for the half being flashed. Test base keys, thumbs, `LOWER` + `RAISE`, Bluetooth pairing, and guarded boot/reset positions before relying on the keyboard.
 
 ## Building
 
-The GitHub Actions workflow first runs repository validation, then builds the two Corne halves. A local ZMK/west workspace can build them with:
+The GitHub Actions workflow first runs repository validation, then builds the two Corne halves and a settings-reset image. A local ZMK/west workspace can build the same matrix with:
 
 ```sh
-west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
-west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_left -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
+west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
+
+The first two commands produce `corne_v4_left` and `corne_v4_right`. The third produces `settings_reset`, which clears stored ZMK settings, including Bluetooth pairing, when flashed; reflash the normal half firmware afterward.
 
 ## Dependency reproducibility status
 
-`config/west.yml` and the reusable workflow pin ZMK to `6e2ef41e022d555b10f116e395832913f71717b3`. Both `corne_left` and `corne_right` compiled successfully at that revision with the matching Zephyr toolchain. Update both pins together only after rebuilding both halves.
+`config/west.yml` and the reusable workflow pin ZMK to `6e2ef41e022d555b10f116e395832913f71717b3`. The `chyuuu/zmk-nice-oled` module is pinned to `b2d5cd914b2180cb53766b0302c75818400d2f58`, an LVGL9-compatible revision. These pins are chosen for reproducibility; update them together only after rebuilding both halves.
+
+Local static validation passes with `python3 scripts/validate.py`; full firmware compilation was not run in this environment. Use GitHub Actions or a local ZMK/west workspace for a firmware build. If `west` is unavailable here, install it in that workspace before running the build commands.
 
 ## Validation
 
