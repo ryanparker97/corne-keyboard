@@ -60,7 +60,7 @@
         };
 
         raise_layer {
-            // LAYER 2: RSE - symbols, paired punctuation, and editor window-resize chords
+            // LAYER 2: RSE - symbols, paired punctuation, and Ctrl-arrow editing/navigation chords
             // -----------------------------------------------------------------------------------------
             // |  ~   |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &   |  *   |  (  |  )  |  ?   |
             // | ESC  |  -  |  =  |  [  |  ]  |  \\  |   | C-L | C-D  | C-U  | C-R |  :  |  "   |

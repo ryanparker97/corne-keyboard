@@ -43,7 +43,7 @@ Bluetooth profile selection is on `Q` through `T`; `CAPS` clears Bluetooth pairi
 
 `config/corne.conf` provides display support, sleep/external-power support, disabled RGB underglow, and conservative Bluetooth latency preferences. The shared config does not globally enable USB or ZMK Studio because the right half is a split peripheral. The configuration cannot verify physical wiring, battery safety, radio conditions, or successful flashing.
 
-Only flash this configuration to a Corne v4 split with nice!nano v2-compatible controllers. The build uses generic Corne shields rather than a separate `corne_v4` shield: `corne_left nice_oled` and `corne_right nice_oled`. The `corne_v4_left` and `corne_v4_right` artifacts are distinct; use the artifact for the half being flashed. Test base keys, thumbs, `LOWER` + `RAISE`, Bluetooth pairing, and guarded boot/reset positions before relying on the keyboard.
+Only flash this configuration to a Corne v4 split with nice!nano v2-compatible controllers. The build uses generic Corne shields rather than a separate `corne_v4` shield: `corne_left nice_oled` and `corne_right nice_oled`. GitHub Actions labels its uploaded half-firmware artifacts `corne_v4_left` and `corne_v4_right`; use the artifact for the half being flashed. Test base keys, thumbs, `LOWER` + `RAISE`, Bluetooth pairing, and guarded boot/reset positions before relying on the keyboard.
 
 ## Building
 
@@ -55,7 +55,7 @@ west build -s zmk/app -d build/corne_right -b nice_nano/nrf52840/zmk -- -DSHIELD
 west build -s zmk/app -d build/settings_reset -b nice_nano/nrf52840/zmk -- -DSHIELD="settings_reset" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"
 ```
 
-The first two commands produce `corne_v4_left` and `corne_v4_right`. The third produces `settings_reset`, which clears stored ZMK settings, including Bluetooth pairing, when flashed; reflash the normal half firmware afterward.
+Each local command writes its firmware to `zephyr/zmk.uf2` inside its build directory: `build/corne_left/zephyr/zmk.uf2`, `build/corne_right/zephyr/zmk.uf2`, or `build/settings_reset/zephyr/zmk.uf2`. The GitHub Actions matrix labels the uploaded half-firmware artifacts `corne_v4_left` and `corne_v4_right`; those are CI artifact labels, not local output filenames. The settings-reset firmware clears stored ZMK settings, including Bluetooth pairing, when flashed; reflash the normal half firmware afterward.
 
 ## Dependency reproducibility status
 
