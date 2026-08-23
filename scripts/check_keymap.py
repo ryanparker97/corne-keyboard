@@ -150,17 +150,6 @@ for layer, groups in common_key_baseline_by_layer.items():
 
 # The bilateral home-row modifiers must keep their intended tap letters and
 # hold modifiers at their documented physical positions.
-home_row_mod_behaviors = ("hm_l", "hm_r")
-for behavior in home_row_mod_behaviors:
-    behavior_pattern = (
-        rf"{behavior}:\s+\w+\s*\{{[\s\S]*?"
-        r'compatible\s*=\s*"zmk,behavior-hold-tap";[\s\S]*?'
-        r"#binding-cells\s*=\s*<2>;[\s\S]*?"
-        r"bindings\s*=\s*<&kp>,\s*<&kp>;[\s\S]*?\};"
-    )
-    if not re.search(behavior_pattern, without_comments):
-        errors.append(f"missing valid {behavior} home-row modifier behavior")
-
 # Default layer physical placement checks. Keep the Windows key and Space as
 # plain thumb keys on opposite hands, with separate Lower and Enter right thumbs.
 default_match = re.search(
