@@ -17,9 +17,9 @@ EXPECTED_MATRIX = {
 README_REQUIRED_SNIPPETS = [
     f"`{EXPECTED_BOARD}`",
     f"west build -s zmk/app -d build/corne_left -b {EXPECTED_BOARD} -- "
-    '-DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
     f"west build -s zmk/app -d build/corne_right -b {EXPECTED_BOARD} -- "
-    '-DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
 ]
 
 

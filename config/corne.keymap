@@ -14,6 +14,38 @@
 #define ADJ 3
 
 / {
+    behaviors {
+        // Bilateral home-row modifiers: 120+ WPM prose profile. A 250 ms prior-idle
+        // gate resolves active letter rolls as taps; balanced opposite-hand release
+        // keeps deliberate chords usable. The 300 ms term requires a deliberate hold;
+        // 175 ms quick-tap keeps repeated letter taps responsive.
+        hm_l: home_row_mod_left {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            require-prior-idle-ms = <250>;
+            tapping-term-ms = <300>;
+            quick-tap-ms = <175>;
+            bindings = <&kp>, <&kp>;
+            // Right half: rows 0-2 (6-11, 18-23, 30-35), then thumbs (39-41).
+            hold-trigger-key-positions = <6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35 39 40 41>;
+            hold-trigger-on-release;
+        };
+
+        hm_r: home_row_mod_right {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            require-prior-idle-ms = <250>;
+            tapping-term-ms = <300>;
+            quick-tap-ms = <175>;
+            bindings = <&kp>, <&kp>;
+            // Left half: rows 0-2 (0-5, 12-17, 24-29), then thumbs (36-38).
+            hold-trigger-key-positions = <0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29 36 37 38>;
+            hold-trigger-on-release;
+        };
+    };
+
     conditional_layers {
         compatible = "zmk,conditional-layers";
 
@@ -27,17 +59,18 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            // LAYER 0: DEF - Windows Corne QWERTY
-            // Caps Lock is a plain key; no host remapper is required.
+            // LAYER 0: DEF - Windows Corne QWERTY with bilateral home-row modifiers.
+            // Caps Lock is a plain key; no host remapper is required. Tap/hold: A Ctrl,
+            // S Alt, D Win, F Shift; J Shift, K Win, L Alt, ; Ctrl.
             // -----------------------------------------------------------------------------------------
             // | ESC  |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  | BSPC |
-            // | CAPS |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |  '   |
+            // | CAPS |A/Ctrl|S/Alt|D/Win|F/Shft| G  |   |  H  |J/Shft|K/Win|L/Alt|;/Ctrl|  '   |
             // | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  | CTRL |
             //                    | ALT | RSE | WIN |   | SPC | LWR | RET |
 
             bindings = <
 &kp ESC    &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
-&kp CAPS   &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
+&kp CAPS   &hm_l LCTRL A  &hm_l LALT S  &hm_l LGUI D  &hm_l LSHFT F  &kp G      &kp H  &hm_r RSHFT J  &hm_r RGUI K      &hm_r RALT L    &hm_r RCTRL SEMI  &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
                          &kp LALT  &mo 2  &kp LGUI    &kp SPACE  &mo 1  &kp RET
             >;

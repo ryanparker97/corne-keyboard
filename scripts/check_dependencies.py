@@ -39,7 +39,7 @@ def main() -> None:
     required_readme = [
         "Dependency reproducibility status",
         VERIFIED_ZMK_REVISION,
-        "Both `corne_left` and `corne_right` compiled successfully",
+        "full firmware compilation was not run in this environment.",
     ]
     missing_readme = [snippet for snippet in required_readme if snippet not in readme_text]
     if missing_readme:
