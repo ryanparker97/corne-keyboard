@@ -19,13 +19,16 @@ matching half.
 ## RGB driver requirement
 
 The Corne Devicetree selects `&led_strip` as `zmk,underglow` and defines its
-27-LED `worldsemi,ws2812-spi` chain. On pinned ZMK v0.3.0, that node is only
-instantiated when `CONFIG_WS2812_STRIP=y` selects the WS2812 SPI backend.
-`config/boards/shields/corne/corne.conf` enables that driver alongside
-`CONFIG_ZMK_RGB_UNDERGLOW=y`, so both the left and right Corne shield builds
-link the selected device. Without it, `rgb_underglow.c` references the chosen
-Devicetree ordinal but the WS2812 driver object is absent, producing an
-`undefined reference to __device_dts_ord_*` linker error.
+27-LED `worldsemi,ws2812-spi` chain. The user-config build loads the shared
+`config/corne.conf` for both `corne_left` and `corne_right`; it enables
+`CONFIG_ZMK_RGB_UNDERGLOW=y` and `CONFIG_WS2812_STRIP=y` together. On pinned
+Zephyr v3.5, the latter opens the `WS2812_STRIP_DRIVER` choice, whose default
+is `CONFIG_WS2812_STRIP_SPI=y`; that backend compiles the
+`worldsemi,ws2812-spi` driver. The shield-local declaration is retained but
+is not the configuration scope relied upon by the user-config build. Without
+the root setting, `rgb_underglow.c` references the chosen Devicetree ordinal
+but the WS2812 driver object is absent, producing an `undefined reference to
+__device_dts_ord_*` linker error.
 
 ## Migration
 
