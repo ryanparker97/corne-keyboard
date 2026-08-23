@@ -16,6 +16,17 @@ Build the left and right matrix entries in `build.yaml`; each includes
 `nice_oled` after its Corne shield. Flash each resulting firmware to its
 matching half.
 
+## RGB driver requirement
+
+The Corne Devicetree selects `&led_strip` as `zmk,underglow` and defines its
+27-LED `worldsemi,ws2812-spi` chain. On pinned ZMK v0.3.0, that node is only
+instantiated when `CONFIG_WS2812_STRIP=y` selects the WS2812 SPI backend.
+`config/boards/shields/corne/corne.conf` enables that driver alongside
+`CONFIG_ZMK_RGB_UNDERGLOW=y`, so both the left and right Corne shield builds
+link the selected device. Without it, `rgb_underglow.c` references the chosen
+Devicetree ordinal but the WS2812 driver object is absent, producing an
+`undefined reference to __device_dts_ord_*` linker error.
+
 ## Migration
 
 ZMK v0.3.0 uses the `nice_nano_v2` board name. The previous main-branch
