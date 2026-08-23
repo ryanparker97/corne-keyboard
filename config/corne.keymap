@@ -27,11 +27,8 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            display-name = "DEF";
-
-            // LAYER 0: DEF - Windows NJ68-to-Corne transition QWERTY.
-            // Binding order after the 36 finger keys is the six physical thumbs:
-            // left outer->inner: LALT, RAISE, LWIN; right inner->outer: SPACE, LOWER, ENTER.
+            // LAYER 0: DEF - Windows Corne QWERTY
+            // Caps Lock is a plain key; no host remapper is required.
             // -----------------------------------------------------------------------------------------
             // | ESC  |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  | BSPC |
             // | CAPS |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |  '   |
@@ -42,19 +39,16 @@
 &kp ESC    &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
 &kp CAPS   &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
-                         &kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET
+                         &kp LALT  &mo 2  &kp LGUI    &kp SPACE  &mo 1  &kp RET
             >;
         };
 
         lower_layer {
-            display-name = "LWR";
-
-            // LAYER 1: LWR - numbers, function keys, navigation, Tab, Delete, and held Ctrl thumb.
-            // The left outer thumb becomes LCTRL; the remaining thumbs are transparent.
+            // LAYER 1: LWR - numbers, function keys, navigation, and Alt.
             // -----------------------------------------------------------------------------------------
             // |  `   |  1  |  2  |  3  |  4  |  5  |   |  6  |  7   |  8   |  9  |  0  | DEL  |
             // | TAB  | F1  | F2  | F3  | F4  | F5  |   | LFT | DWN  |  UP  | RGT | PGU |      |
-            // | ALT  | F6  | F7  | F8  | F9  | F10 |   | HOM | PGDN | PGUP | END | F11 | F12  |
+            // | OPT  | F6  | F7  | F8  | F9  | F10 |   | HOM | PGDN | PGUP | END | F11 | F12  |
             //                    | CTRL|     |     |   |     |     |     |
 
             bindings = <
@@ -66,14 +60,11 @@
         };
 
         raise_layer {
-            display-name = "RSE";
-
-            // LAYER 2: RSE - symbols, paired punctuation, and Ctrl-arrow editor chords.
-            // All thumbs are transparent on this layer.
+            // LAYER 2: RSE - symbols, paired punctuation, and editor window-resize chords
             // -----------------------------------------------------------------------------------------
             // |  ~   |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &   |  *   |  (  |  )  |  ?   |
             // | ESC  |  -  |  =  |  [  |  ]  |  \\  |   | C-L | C-D  | C-U  | C-R |  :  |  "   |
-            // | ALT  |  _  |  +  |  {  |  }  |  |  |   | HOM | PGDN | PGUP | END |  <  |  >   |
+            // | OPT  |  _  |  +  |  {  |  }  |  |  |   | HOM | PGDN | PGUP | END |  <  |  >   |
             //                    |     |     |     |   |     |     |     |
 
             bindings = <
@@ -85,25 +76,20 @@
         };
 
         adjust_layer {
-            display-name = "ADJ";
-
-            // LAYER 3: ADJ - Bluetooth, Windows utilities, editing chords, media, bootloader, and reset.
-            // Activated by holding Lower + Raise together; all thumbs are transparent.
-            // Windows utility top-right order: Y Print Screen, U Win+Shift+S, I Win+V, O Win+S, P Win+Tab, Backspace Win+L.
-            // Editing left side: A/S/F and Z/X/C/V/Y use Ctrl chords.
-            // Media right home order: H previous, J play/pause, K next, L mute, ; volume down, ' volume up.
-            // No output switching: normal firmware is BLE-only. Bootloader/reset stay on / and Ctrl.
-            // -------------------------------------------------------------------------------------------------
-            // |      | BT1 | BT2 | BT3 | BT4 | BT5 |   | PRSC | SNIP | CLIP | SRCH | TASK | LOCK |
-            // | BTCLR| ALL | SAVE|     | FIND|     |   | PREV | PLAY | NEXT | MUTE | VOLD | VOLU |
-            // |      | UNDO| CUT | COPY| PASTE| REDO|  |      |      |      |      | BOOT | RESET|
+            // LAYER 3: ADJ - Bluetooth, Windows shortcuts, and system controls
+            // Activated by holding Lower + Raise together.
+            // Windows: Print Screen, Snipping Tool, clipboard history, search, task view, and lock.
+            // --------------------------------------------------------------------------------------
+            // |      | BT1 | BT2 | BT3 | BT4 | BT5 |   | PSCRN| SNIP | CLIP| SRCH | TASK| LOCK |
+            // | BTCLR| ALL | SAVE| RUN | FIND| SNAP-L|SNAP-R|     |     |     |      |     |      |
+            // |      | UNDO| CUT | COPY| PASTE| REDO|  |      |      |     |      | BOOT| RESET|
             //                         |     |     |     |   |     |     |     |
 
             bindings = <
-&trans      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp PSCRN       &kp LG(LS(S))  &kp LG(V)       &kp LG(S)       &kp LG(TAB)    &kp LG(L)
-&bt BT_CLR  &kp LC(A)     &kp LC(S)     &trans        &kp LC(F)     &trans          &kp C_PREV      &kp C_PP        &kp C_NEXT      &kp C_MUTE      &kp C_VOL_DN    &kp C_VOL_UP
-&trans      &kp LC(Z)     &kp LC(X)     &kp LC(C)     &kp LC(V)     &kp LC(Y)       &trans          &trans          &trans          &trans          &bootloader     &sys_reset
-                                        &trans        &trans        &trans          &trans          &trans          &trans
+&trans      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp PSCRN       &kp LG(LS(S))   &kp LG(V)       &kp LG(S)      &kp LG(TAB)  &kp LG(L)
+&bt BT_CLR  &kp LC(A)     &kp LC(S)     &kp LG(R)     &kp LC(F)     &kp LG(LEFT)    &kp LG(RIGHT)   &trans           &trans           &trans          &trans        &trans
+&trans      &kp LC(Z)     &kp LC(X)     &kp LC(C)     &kp LC(V)     &kp LC(LS(Z))   &trans           &trans           &trans           &trans          &bootloader  &sys_reset
+                                        &trans        &trans        &trans          &trans           &trans           &trans
             >;
         };
     };

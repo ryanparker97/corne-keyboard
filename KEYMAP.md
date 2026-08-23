@@ -1,89 +1,75 @@
-# Corne v4 Windows NJ68 transition keymap
+# Corne v4 Windows Keymap
 
-This document mirrors `config/corne.keymap` for a native-wireless 42-key Corne v4 using nice!nano and nice_oled. The pinned upstream ZMK revision uses generic `corne_left`/`corne_right` shields for this target.
+This document mirrors [`config/corne.keymap`](config/corne.keymap), a 42-key Corne v4 QWERTY layout for Windows. It preserves NJ68 transition priorities: corner `ESC`/`BACKSPACE`, a separate right-thumb `SPACE`/`LOWER`/`ENTER` cluster, and predictable number, symbol, navigation, and utility layers.
 
-## NJ68 transition model
+## Layers and activation
 
-The layout keeps familiar compact-board habits while moving missing keys to layers:
+| Layer | Purpose | Activation |
+|---|---|---|
+| `DEF` | Windows QWERTY base layer | Default |
+| `LWR` | Numbers, function keys, navigation, `TAB`, and `CTRL` thumb | Hold right-middle `LOWER` (`&mo 1`) |
+| `RSE` | Symbols, paired punctuation, and Ctrl-arrow chords | Hold left-middle `RAISE` (`&mo 2`) |
+| `ADJ` | Bluetooth, Windows shortcuts, bootloader, and reset | Hold `LOWER` and `RAISE` together |
 
-| Habit | Corne placement |
-|---|---|
-| Top-left Escape | Base top-left `ESC` |
-| Top-right Backspace | Base top-right `BACKSPACE` |
-| Tab | `LOWER` + left home-row outer key |
-| Enter | Right outer thumb `ENTER` |
-| Number row | Hold `LOWER`, then top row `1`-`0` |
-| Ctrl+number | Hold `LOWER` plus the Lower left outer thumb `LCTRL` |
-| Arrows | Hold `LOWER`, then right home-row `LEFT/DOWN/UP/RIGHT` |
-| Home/End/Page keys | Hold `LOWER` or `RAISE`, then the right bottom positions |
-| Symbols | Hold `RAISE` |
-| Utilities | Hold `LOWER` + `RAISE` for `ADJ` |
+`ADJ` is a ZMK conditional layer: `if-layers = <LWR RSE>; then-layer = <ADJ>;`. `&trans` falls through to a lower-priority active layer. `LG`, `LS`, and `LC` in a binding mean Left GUI (Windows key), Left Shift, and Left Control.
 
-## Layers
+## Default layer (`DEF`)
 
-- `DEF` (0): Windows QWERTY with corner Escape/Backspace and dedicated thumb controls.
-- `LWR` (1): numbers, F-keys, navigation, Tab, Delete, and a held left-thumb Ctrl.
-- `RSE` (2): symbols, paired punctuation, and Ctrl-arrow editor chords.
-- `ADJ` (3): Bluetooth profiles, Windows utility chords, Ctrl editing chords, media controls, bootloader, and reset.
+| Row | Left six positions | Right six positions |
+|---|---|---|
+| Top | `ESC` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |
+| Home | `CAPS LOCK` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |
+| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `LEFT CTRL` |
+| Thumbs | `LEFT ALT` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
 
-`ADJ` is a conditional layer when `LWR` and `RSE` are both active.
+`CAPS LOCK` is a plain firmware key; no external host remapper is required. The left GUI thumb sends the Windows key. `LOWER` is momentary and `ENTER` is its own right-inner thumb key.
 
-The keymap sets layer `display-name` values `DEF`, `LWR`, `RSE`, and `ADJ`; the custom OLED status screen uses those names for the current-layer line.
+## Lower (`LWR`) and Raise (`RSE`)
 
-## Thumb row
+`LWR` top row supplies `` ` 1 2 3 4 5`` and `6 7 8 9 0 DELETE`. Its home row supplies `TAB`, `F1`-`F5`, arrows, and `PAGE UP`; its bottom row supplies `LEFT ALT`, `F6`-`F12`, `HOME`, `PAGE DOWN`, `PAGE UP`, and `END`. The left-outer thumb becomes `LEFT CTRL`, enabling held `LOWER` + thumb + number shortcuts.
 
-ZMK Corne binding order is 36 finger keys, then left thumbs outer-to-inner, then right thumbs inner-to-outer.
+`RSE` supplies paired symbols. Its right home row emits `CTRL+LEFT`, `CTRL+DOWN`, `CTRL+UP`, and `CTRL+RIGHT`; these are normal Windows Ctrl-arrow events. Minus is on the second left home-row position of `RSE`.
 
-Default-layer thumbs:
+## Adjust (`ADJ`) Windows workflow
 
-```text
-Left thumbs, outer -> inner:  LALT  RAISE  LWIN
-Right thumbs, inner -> outer: SPACE  LOWER  ENTER
-Raw bindings: &kp LALT  &mo RSE  &kp LWIN    &kp SPACE  &mo LWR  &kp RET
+Actions are labeled by physical base-layer position. The exact bindings below are the firmware behavior; no host automation is assumed.
+
+| Physical position | Exact ZMK binding | Windows action |
+|---|---|---|
+| `Y` | `&kp PSCRN` | Print Screen |
+| `U` | `&kp LG(LS(S))` | Win+Shift+S screen snip |
+| `I` | `&kp LG(V)` | Win+V Clipboard history |
+| `O` | `&kp LG(S)` | Win+S Search |
+| `P` | `&kp LG(TAB)` | Win+Tab Task View |
+| Top-right `BACKSPACE` | `&kp LG(L)` | Win+L lock Windows |
+| `A` | `&kp LC(A)` | Ctrl+A select all |
+| `S` | `&kp LC(S)` | Ctrl+S save |
+| `D` | `&kp LG(R)` | Win+R Run |
+| `F` | `&kp LC(F)` | Ctrl+F find |
+| `G` | `&kp LG(LEFT)` | Win+Left snap left |
+| `H` | `&kp LG(RIGHT)` | Win+Right snap right |
+| `Z` | `&kp LC(Z)` | Ctrl+Z undo |
+| `X` | `&kp LC(X)` | Ctrl+X cut |
+| `C` | `&kp LC(C)` | Ctrl+C copy |
+| `V` | `&kp LC(V)` | Ctrl+V paste |
+| `B` | `&kp LC(LS(Z))` | Ctrl+Shift+Z redo |
+
+The remaining `ADJ` positions retain Bluetooth and maintenance controls:
+
+| Physical positions | Exact binding | Behavior |
+|---|---|---|
+| `Q` through `T` | `&bt BT_SEL 0` through `&bt BT_SEL 4` | Select Bluetooth profiles 1 through 5 |
+| `CAPS` | `&bt BT_CLR` | Clear Bluetooth pairing information |
+| `/` | `&bootloader` | Enter bootloader |
+| Bottom-right `CTRL` | `&sys_reset` | System reset |
+
+All other ADJ finger and thumb positions are transparent. This preserves the 42-key layer shape and avoids moving Bluetooth, bootloader, or reset controls.
+
+## Validation
+
+```sh
+python3 scripts/validate.py
+git diff --check
 ```
 
-On `LWR`, the left outer thumb is `LCTRL` and the remaining thumbs are transparent for the NJ68 Ctrl+number transition. On `RSE` and `ADJ`, all thumbs are transparent.
-
-## DEF
-
-```text
-ESC   Q  W  E  R  T        Y  U  I  O  P  BSPC
-CAPS  A  S  D  F  G        H  J  K  L  ;  '
-LSFT  Z  X  C  V  B        N  M  ,  .  /  LCTRL
-              LALT RSE LWIN    SPACE LWR RET
-```
-
-## LWR
-
-```text
-`     1   2   3   4   5       6     7      8      9     0    DEL
-TAB   F1  F2  F3  F4  F5      LEFT  DOWN   UP     RGHT  PGUP trans
-LALT  F6  F7  F8  F9  F10     HOME  PGDN   PGUP   END   F11  F12
-              LCTRL trans trans    trans trans trans
-```
-
-## RSE
-
-```text
-~     !   @   #   $   %       ^       &      *      (      )    ?
-ESC   -   =   [   ]   \\      C-LEFT  C-DOWN C-UP   C-RGHT :    "
-LALT  _   +   {   }   |       HOME    PGDN   PGUP   END    <    >
-              trans trans trans    trans trans trans
-```
-
-## ADJ
-
-```text
-trns  BT1   BT2   BT3   BT4   BT5      PSCRN  WIN+S+S  WIN+V  WIN+S  WIN+TAB  WIN+L
-BTCLR C+A   C+S   trns  C+F   trns     PREV   PLAY     NEXT   MUTE   VOLD     VOLU
-trns  C+Z   C+X   C+C   C+V   C+Y      trns   trns     trns   trns   BOOT     RESET
-              trans trans trans    trans trans trans
-```
-
-Windows utility chords on the top-right are Print Screen, Win+Shift+S, Win+V, Win+S, Win+Tab, and Win+L. Media controls on the right home row are previous, play/pause, next, mute, volume down, and volume up.
-
-Bluetooth select/clear controls are preserved on `ADJ`. There are no output-switching bindings because normal firmware is BLE-only for Windows; bootloader and reset are retained for maintenance.
-
-## RGB and LED chain length
-
-RGB underglow/per-key LEDs are disabled because the Corne v4 LED count and pinout are unknown. The keymap has no `&rgb_ug` bindings and no `&led_strip` chain-length override.
+The static keymap check verifies 42 bindings on every layer and exact ADJ positions. The documentation check independently requires this file and `README.md` to describe the native Windows bindings.
