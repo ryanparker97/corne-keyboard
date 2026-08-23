@@ -17,15 +17,16 @@
 
 / {
     behaviors {
-        // Bilateral home-row modifiers use ZMK's timeless profile. Opposite-hand
-        // triggers, release evaluation, and the idle gate keep normal same-hand
-        // rolls as taps while preserving intentional cross-hand modifier chords.
+        // Bilateral home-row modifiers: 120+ WPM prose profile. A 250 ms prior-idle
+        // gate resolves active letter rolls as taps; balanced opposite-hand release
+        // keeps deliberate chords usable. The 300 ms term requires a deliberate hold;
+        // 175 ms quick-tap keeps repeated letter taps responsive.
         hm_l: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "balanced";
-            require-prior-idle-ms = <150>;
-            tapping-term-ms = <280>;
+            require-prior-idle-ms = <250>;
+            tapping-term-ms = <300>;
             quick-tap-ms = <175>;
             bindings = <&kp>, <&kp>;
             // Right half: rows 0-2 (6-11, 18-23, 30-35), then thumbs (39-41).
@@ -37,8 +38,8 @@
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "balanced";
-            require-prior-idle-ms = <150>;
-            tapping-term-ms = <280>;
+            require-prior-idle-ms = <250>;
+            tapping-term-ms = <300>;
             quick-tap-ms = <175>;
             bindings = <&kp>, <&kp>;
             // Left half: rows 0-2 (0-5, 12-17, 24-29), then thumbs (36-38).
