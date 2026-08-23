@@ -70,7 +70,7 @@
 
             bindings = <
 &kp ESC    &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
-&kp CAPS   &hm_l LCTRL A  &hm_l LALT S  &hm_l LGUI D  &hm_l LSHFT F  &kp G      &kp H  &hm_r RSHFT J  &hm_r RGUI K      &hm_r RALT L    &hm_r RCTRL SEMI  &kp SQT
+&kp CAPS   &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
                          &kp LALT  &mo 2  &kp LGUI    &kp SPACE  &mo 1  &kp RET
             >;
