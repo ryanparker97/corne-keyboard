@@ -61,13 +61,13 @@
         base_layer {
             /*
              * | ESC  Q    W    E    R    T | Y    U    I    O    P    BSPC |
-             * | CAPS A/C  S/O  D/Cm F/Sh G | H    J/Sh K/Cm L/O  ;/C  '    |
+             * | TAB  A/C  S/O  D/Cm F/Sh G | H    J/Sh K/Cm L/O  ;/C  '    |
              * | SHFT Z    X    C    V    B | N    M    ,    .    /    CTRL |
              *              | OPT  RSE  CMD | SPC  LWR  RET |
              */
             bindings = <
 &kp ESC    &kp Q          &kp W         &kp E         &kp R          &kp T        &kp Y  &kp U          &kp I         &kp O         &kp P           &kp BSPC
-&kp CAPS   &hm_l LCTRL A  &hm_l LALT S  &hm_l LGUI D  &hm_l LSHFT F  &kp G        &kp H  &hm_r RSHFT J  &hm_r RGUI K  &hm_r RALT L  &hm_r RCTRL SEMI  &kp SQT
+&kp TAB    &hm_l LCTRL A  &hm_l LALT S  &hm_l LGUI D  &hm_l LSHFT F  &kp G        &kp H  &hm_r RSHFT J  &hm_r RGUI K  &hm_r RALT L  &hm_r RCTRL SEMI  &kp SQT
 &kp LSHFT  &kp Z          &kp X         &kp C         &kp V          &kp B        &kp N  &kp M          &kp COMMA     &kp DOT       &kp FSLH        &kp RCTRL
                                 &kp LALT  &mo RAISE  &kp LGUI        &kp SPACE  &mo LOWER  &kp RET
             >;
@@ -76,13 +76,13 @@
         lower_layer {
             /*
              * | `    1    2    3    4    5 | 6    7    8    9    0    DEL  |
-             * | TAB  F1   F2   F3   F4   F5| LEFT DOWN UP   RGHT PGDN INS  |
+             * | CAPS F1   F2   F3   F4   F5| LEFT DOWN UP   RGHT PGDN INS  |
              * | SHFT F6   F7   F8   F9  F10| Cm-L PGDN PGUP Cm-R F11  F12  |
              *              | OPT  RSE  CMD | SPC  LWR  RET |
              */
             bindings = <
 &kp GRAVE  &kp N1  &kp N2  &kp N3  &kp N4  &kp N5     &kp N6    &kp N7     &kp N8     &kp N9     &kp N0   &kp DEL
-&kp TAB    &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &kp PG_DN  &kp INS
+&kp CAPS   &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &kp PG_DN  &kp INS
 &kp LSHFT  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10    &kp LG(LEFT)  &kp PG_DN  &kp PG_UP  &kp LG(RIGHT)  &kp F11  &kp F12
                            &kp LALT  &mo RAISE  &kp LGUI          &kp SPACE  &mo LOWER  &kp RET
             >;
