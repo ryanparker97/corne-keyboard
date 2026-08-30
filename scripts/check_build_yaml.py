@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 EXPECTED_BOARD = "nice_nano/nrf52840/zmk"
-STALE_BOARDS = {"nice_nano_v2"}
+STALE_BOARDS = {"nice_nano_v2", "nice_oled", "settings_reset"}
 EXPECTED_MATRIX = {
     (EXPECTED_BOARD, "corne_left", "corne_v4_left"),
     (EXPECTED_BOARD, "corne_right", "corne_v4_right"),
@@ -17,10 +17,11 @@ EXPECTED_MATRIX = {
 README_REQUIRED_SNIPPETS = [
     f"`{EXPECTED_BOARD}`",
     f"west build -s zmk/app -d build/corne_left -b {EXPECTED_BOARD} -- "
-    '-DSHIELD="corne_left nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD=corne_left -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
     f"west build -s zmk/app -d build/corne_right -b {EXPECTED_BOARD} -- "
-    '-DSHIELD="corne_right nice_oled" -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
+    '-DSHIELD=corne_right -DZMK_CONFIG="$PWD/config" -DZMK_EXTRA_MODULES="$PWD"',
 ]
+WORKFLOW_VALIDATION_COMMAND = "python3 scripts/validate.py"
 
 
 def fail(message: str) -> None:
@@ -31,6 +32,46 @@ def reject_stale_targets(path: Path, text: str) -> None:
     found = sorted(stale for stale in STALE_BOARDS if stale in text)
     if found:
         fail(f"{path} contains stale board target(s): {', '.join(found)}")
+
+
+def validate_workflow(path: Path, text: str) -> None:
+    lines = text.splitlines()
+    validate_header = "  validate:"
+    if validate_header not in lines:
+        fail(f"{path} missing validate job")
+
+    start = lines.index(validate_header)
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        line = lines[index]
+        if line.startswith("  ") and not line.startswith("    ") and line.strip().endswith(":"):
+            end = index
+            break
+    job_lines = lines[start:end]
+
+    checkout_index = next(
+        (index for index, line in enumerate(job_lines) if line.strip() == "- name: Check out repository"),
+        None,
+    )
+    command_index = next(
+        (
+            index
+            for index, line in enumerate(job_lines)
+            if line.strip() in {WORKFLOW_VALIDATION_COMMAND, f"run: {WORKFLOW_VALIDATION_COMMAND}"}
+        ),
+        None,
+    )
+    if checkout_index is None:
+        fail(f"{path} validate job missing checkout step")
+    if command_index is None:
+        fail(f"{path} validate job must run `{WORKFLOW_VALIDATION_COMMAND}`")
+
+    command_step_index = max(
+        (index for index, line in enumerate(job_lines[: command_index + 1]) if line.startswith("      - ")),
+        default=-1,
+    )
+    if command_step_index <= checkout_index:
+        fail(f"{path} must run `{WORKFLOW_VALIDATION_COMMAND}` in a step after checkout")
 
 
 def parse_include_entries(text: str) -> list[dict[str, str]]:
@@ -60,8 +101,10 @@ def parse_include_entries(text: str) -> list[dict[str, str]]:
 def main() -> None:
     build_path = Path("build.yaml")
     readme_path = Path("README.md")
+    workflow_path = Path(".github/workflows/build.yml")
     build_text = build_path.read_text(encoding="utf-8")
     readme_text = readme_path.read_text(encoding="utf-8")
+    workflow_text = workflow_path.read_text(encoding="utf-8")
 
     for path, text in ((build_path, build_text), (readme_path, readme_text)):
         reject_stale_targets(path, text)
@@ -83,9 +126,12 @@ def main() -> None:
     if missing_readme:
         fail("README.md missing expected board documentation: " + ", ".join(missing_readme))
 
+    validate_workflow(workflow_path, workflow_text)
+
     print(
         "Build metadata check passed: "
-        f"{EXPECTED_BOARD} corne_left and corne_right targets present; stale targets absent."
+        f"{EXPECTED_BOARD} corne_left and corne_right targets present; "
+        "stale targets absent; CI validation wired."
     )
 
 

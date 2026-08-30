@@ -39,7 +39,7 @@ def main() -> None:
     required_readme = [
         "Dependency reproducibility status",
         VERIFIED_ZMK_REVISION,
-        "full firmware compilation was not run in this environment.",
+        "both `corne_left` and `corne_right` completed full pinned-source firmware builds",
     ]
     missing_readme = [snippet for snippet in required_readme if snippet not in readme_text]
     if missing_readme:
@@ -47,7 +47,7 @@ def main() -> None:
 
     print(
         "Dependency check passed: west and reusable workflow refs match the documented "
-        f"known-good ZMK revision {VERIFIED_ZMK_REVISION}."
+        f"fully built ZMK revision {VERIFIED_ZMK_REVISION}."
     )
 
 

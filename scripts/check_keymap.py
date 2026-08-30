@@ -1,275 +1,165 @@
 #!/usr/bin/env python3
-"""Static sanity checks for the Corne ZMK keymap."""
-
+"""Validate the complete four-layer Windows Corne keymap."""
 from __future__ import annotations
 
 import re
 from pathlib import Path
 
 KEYMAP = Path("config/corne.keymap")
+
 EXPECTED_LAYERS = {
-    "default_layer": 42,
-    "lower_layer": 42,
-    "raise_layer": 42,
-    "adjust_layer": 42,
+    "base_layer": [
+        "&kp ESC", "&kp Q", "&kp W", "&kp E", "&kp R", "&kp T",
+        "&kp Y", "&kp U", "&kp I", "&kp O", "&kp P", "&kp BSPC",
+        "&kp TAB", "&hm_l LCTRL A", "&hm_l LALT S", "&hm_l LGUI D",
+        "&hm_l LSHFT F", "&kp G", "&kp H", "&hm_r RSHFT J",
+        "&hm_r RGUI K", "&hm_r RALT L", "&hm_r RCTRL SEMI", "&kp SQT",
+        "&kp LSHFT", "&kp Z", "&kp X", "&kp C", "&kp V", "&kp B",
+        "&kp N", "&kp M", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp RCTRL",
+        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+    ],
+    "lower_layer": [
+        "&kp GRAVE", "&kp N1", "&kp N2", "&kp N3", "&kp N4", "&kp N5",
+        "&kp N6", "&kp N7", "&kp N8", "&kp N9", "&kp N0", "&kp DEL",
+        "&kp LEFT", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT", "&kp DOWN",
+        "&kp UP", "&kp RSHFT", "&kp RGUI", "&kp RALT", "&kp RCTRL", "&kp RIGHT",
+        "&kp F1", "&kp F2", "&kp F3", "&kp F4", "&kp F5", "&kp F6",
+        "&kp F7", "&kp F8", "&kp F9", "&kp F10", "&kp F11", "&kp F12",
+        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+    ],
+    "raise_layer": [
+        "&kp TILDE", "&kp EXCL", "&kp AT", "&kp HASH", "&kp DLLR", "&kp PRCNT",
+        "&kp CARET", "&kp AMPS", "&kp STAR", "&kp LPAR", "&kp RPAR", "&kp QUESTION",
+        "&kp MINUS", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT", "&kp EQUAL",
+        "&kp LBKT", "&kp RSHFT", "&kp RGUI", "&kp RALT", "&kp RCTRL", "&kp RBKT",
+        "&kp BSLH", "&kp COLON", "&kp DQT", "&kp UNDER", "&kp PLUS", "&kp LBRC",
+        "&kp RBRC", "&kp PIPE", "&kp LT", "&kp GT", "&kp LG(TAB)", "&kp LG(DOT)",
+        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+    ],
+    "adjust_layer": [
+        "&bootloader", "&bt BT_SEL 0", "&bt BT_SEL 1", "&bt BT_SEL 2",
+        "&bt BT_SEL 3", "&bt BT_SEL 4", "&kp PSCRN", "&kp LG(LS(S))",
+        "&kp LG(S)", "&kp LG(LC(LEFT))", "&kp LG(LC(RIGHT))", "&kp LG(L)",
+        "&bt BT_CLR", "&kp C_PREV", "&kp C_PP", "&kp C_NEXT", "&kp C_MUTE",
+        "&kp C_VOL_DN", "&none", "&none", "&none", "&kp CAPS", "&none", "&none",
+        "&sys_reset", "&kp C_BRI_DN", "&kp C_BRI_UP", "&out OUT_USB", "&out OUT_BLE",
+        "&kp C_VOL_UP", "&out OUT_TOG", "&none", "&none", "&none", "&none", "&none",
+        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+    ],
 }
 
-text = KEYMAP.read_text(encoding="utf-8")
-without_block_comments = re.sub(r"/\*[\s\S]*?\*/", "", text)
-without_comments = re.sub(r"//.*", "", without_block_comments)
+REQUIRED_SNIPPETS = (
+    '#include <dt-bindings/zmk/outputs.h>',
+    "#define BASE  0",
+    "#define LOWER 1",
+    "#define RAISE 2",
+    "#define ADJUST 3",
+    'compatible = "zmk,behavior-hold-tap"',
+    'flavor = "balanced"',
+    "tapping-term-ms = <280>",
+    "require-prior-idle-ms = <150>",
+    "quick-tap-ms = <175>",
+    "hold-trigger-on-release",
+    'compatible = "zmk,conditional-layers"',
+    "if-layers = <LOWER RAISE>",
+    "then-layer = <ADJUST>",
+)
 
-errors: list[str] = []
-if without_comments.count("{") != without_comments.count("}"):
-    errors.append("unbalanced braces")
-if without_comments.count("<") != without_comments.count(">"):
-    errors.append("unbalanced angle brackets")
+FORBIDDEN_SNIPPETS = (
+    "dt-bindings/zmk/rgb.h",
+    "&rgb_ug",
+    "RGB_ON",
+    "RGB_OFF",
+    "RGB_EFF",
+    "&led_strip",
+    "LG(LS(N3))",
+    "LG(LS(N4))",
+    "LG(LS(N5))",
+    "LC(LG(Q))",
+    "LC(LG(SPACE))",
+    "LG(GRAVE)",
+)
 
-layer_bindings: dict[str, list[str]] = {}
-for layer, expected in EXPECTED_LAYERS.items():
-    pattern = rf"{layer}\s*\{{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;"
-    match = re.search(pattern, without_comments)
+CTRL_THUMB_DIAGRAM = "| ALT  RSE  CTRL | SPC  LWR  RET |"
+
+
+def strip_comments(text: str) -> str:
+    text = re.sub(r"/\*[\s\S]*?\*/", "", text)
+    return re.sub(r"//.*", "", text)
+
+
+def parse_bindings(text: str, layer: str) -> list[str]:
+    match = re.search(
+        rf"{layer}\s*\{{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", text
+    )
     if not match:
-        errors.append(f"missing bindings for {layer}")
-        continue
-    raw_bindings = match.group(1)
-    bindings = re.findall(r"&[A-Za-z0-9_]+", raw_bindings)
-    if len(bindings) != expected:
-        errors.append(f"{layer}: expected {expected} bindings, found {len(bindings)}")
-    layer_bindings[layer] = [
+        return []
+    return [
         " ".join(binding.split())
-        for binding in re.findall(r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)*", raw_bindings)
+        for binding in re.findall(r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)*", match.group(1))
     ]
 
-required_tokens = [
-    'compatible = "zmk,conditional-layers"',
-    "if-layers = <LWR RSE>",
-    "then-layer = <ADJ>",
-    "&bt BT_SEL 0",
-    "&bootloader",
-    "&sys_reset",
-    "&kp CAPS",
-    "&kp LGUI",
-    "&kp LALT",
-    "&kp ESC",
-    "&kp LC(LEFT)",
-    "&kp LC(DOWN)",
-    "&kp LC(UP)",
-    "&kp LC(RIGHT)",
-    "&kp QUESTION",
-]
-for token in required_tokens:
-    if token not in text:
-        errors.append(f"missing required token: {token}")
 
-common_key_baseline_by_layer = {
-    # Practical compact-keyboard baseline: validate the parsed bindings from
-    # the actual layers, not just token presence anywhere in comments/docs.
-    # Avoid full-size/niche parity keys unless they become a confirmed workflow
-    # requirement.
-    "default_layer": {
-        "letters": [f"&kp {letter}" for letter in "BCEGHIMNOPQRTUVWXYZ"],
-        "base_punctuation": [
-            "&kp SQT",
-            "&kp COMMA",
-            "&kp DOT",
-            "&kp FSLH",
-        ],
-        "base_editing_modifiers": [
-            "&kp ESC",
-            "&kp BSPC",
-            "&kp RET",
-            "&kp SPACE",
-            "&mo 1",
-            "&kp CAPS",
-            "&kp LSHFT",
-            "&kp LCTRL",
-            "&kp LALT",
-            "&kp LGUI",
-        ],
-    },
-    "lower_layer": {
-        "digits": [f"&kp N{digit}" for digit in range(10)],
-        "lower_symbol_punctuation": ["&kp GRAVE"],
-        "lower_editing_navigation": [
-            "&kp TAB",
-            "&kp DEL",
-            "&kp LEFT",
-            "&kp DOWN",
-            "&kp UP",
-            "&kp RIGHT",
-            "&kp HOME",
-            "&kp END",
-            "&kp PG_UP",
-            "&kp PG_DN",
-        ],
-        "function_keys": [f"&kp F{number}" for number in range(1, 13)],
-    },
-    "raise_layer": {
-        "paired_symbol_punctuation": [
-            "&kp TILDE",
-            "&kp MINUS",
-            "&kp UNDER",
-            "&kp EQUAL",
-            "&kp PLUS",
-            "&kp LBKT",
-            "&kp RBKT",
-            "&kp LBRC",
-            "&kp RBRC",
-            "&kp BSLH",
-            "&kp PIPE",
-            "&kp COLON",
-            "&kp DQT",
-            "&kp LT",
-            "&kp GT",
-            "&kp QUESTION",
-            "&kp EXCL",
-            "&kp AT",
-            "&kp HASH",
-            "&kp DLLR",
-            "&kp PRCNT",
-            "&kp CARET",
-            "&kp AMPS",
-            "&kp STAR",
-            "&kp LPAR",
-            "&kp RPAR",
-        ],
-        "editor_resize_chords": [
-            "&kp LC(LEFT)",
-            "&kp LC(DOWN)",
-            "&kp LC(UP)",
-            "&kp LC(RIGHT)",
-        ],
-    },
-}
-for layer, groups in common_key_baseline_by_layer.items():
-    actual = set(layer_bindings.get(layer, []))
-    for group, bindings in groups.items():
-        for binding in bindings:
-            if binding not in actual:
-                errors.append(f"{layer}: missing common {group} binding: {binding}")
-
-# The bilateral home-row modifiers must keep their intended tap letters and
-# hold modifiers at their documented physical positions.
-# Default layer physical placement checks. Keep the Windows key and Space as
-# plain thumb keys on opposite hands, with separate Lower and Enter right thumbs.
-default_match = re.search(
-    r"default_layer\s*\{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", without_comments
-)
-if default_match:
-    default_bindings = re.findall(
-        r"&[A-Za-z0-9_]+(?:\s+[^&\s]+)*", default_match.group(1)
-    )
-    normalized = [" ".join(binding.split()) for binding in default_bindings]
-    expected_positions = {
-        0: "&kp ESC",
-        11: "&kp BSPC",
-        12: "&kp CAPS",
-        35: "&kp LCTRL",
-        36: "&kp LALT",
-        37: "&mo 2",
-        38: "&kp LGUI",
-        39: "&kp SPACE",
-        40: "&mo 1",
-        41: "&kp RET",
+def check_opposite_hand_triggers(text: str, errors: list[str]) -> None:
+    expected = {
+        "hm_l": list(range(6, 12)) + list(range(18, 24)) + list(range(30, 36)) + list(range(39, 42)),
+        "hm_r": list(range(0, 6)) + list(range(12, 18)) + list(range(24, 30)) + list(range(36, 39)),
     }
-    for index, expected in expected_positions.items():
-        if len(normalized) <= index or normalized[index] != expected:
-            actual = normalized[index] if len(normalized) > index else "<missing>"
-            errors.append(
-                f"default_layer position {index}: expected {expected}, found {actual}"
-            )
-
-    expected_home_row_mod_bindings = {
-        13: "&kp A",
-        14: "&kp S",
-        15: "&kp D",
-        16: "&kp F",
-        19: "&kp J",
-        20: "&kp K",
-        21: "&kp L",
-        22: "&kp SEMI",
-    }
-    for index, expected in expected_home_row_mod_bindings.items():
-        if len(normalized) <= index or normalized[index] != expected:
-            actual = normalized[index] if len(normalized) > index else "<missing>"
-            errors.append(
-                f"default_layer position {index}: expected {expected}, found {actual}"
-            )
-
-# ADJ physical placement checks. Validate every position so Windows shortcuts
-# cannot shift the Bluetooth selectors, clear action, or guarded boot/reset controls.
-adjust_bindings = layer_bindings.get("adjust_layer", [])
-expected_adjust_bindings = [
-    "&trans",
-    "&bt BT_SEL 0",
-    "&bt BT_SEL 1",
-    "&bt BT_SEL 2",
-    "&bt BT_SEL 3",
-    "&bt BT_SEL 4",
-    "&kp PSCRN",
-    "&kp LG(LS(S))",
-    "&kp LG(V)",
-    "&kp LG(S)",
-    "&kp LG(TAB)",
-    "&kp LG(L)",
-    "&bt BT_CLR",
-    "&kp LC(A)",
-    "&kp LC(S)",
-    "&kp LG(R)",
-    "&kp LC(F)",
-    "&kp LG(LEFT)",
-    "&kp LG(RIGHT)",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&kp LC(Z)",
-    "&kp LC(X)",
-    "&kp LC(C)",
-    "&kp LC(V)",
-    "&kp LC(LS(Z))",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&bootloader",
-    "&sys_reset",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-    "&trans",
-]
-for index, expected in enumerate(expected_adjust_bindings):
-    if len(adjust_bindings) <= index or adjust_bindings[index] != expected:
-        actual = adjust_bindings[index] if len(adjust_bindings) > index else "<missing>"
-        errors.append(
-            f"adjust_layer position {index}: expected {expected}, found {actual}"
+    for behavior, positions in expected.items():
+        match = re.search(
+            rf"{behavior}:\s*[^{{]+\{{[\s\S]*?hold-trigger-key-positions\s*=\s*<([\s\S]*?)>;",
+            text,
         )
+        if not match:
+            errors.append(f"{behavior}: missing opposite-hand trigger positions")
+            continue
+        actual = [int(value) for value in re.findall(r"\d+", match.group(1))]
+        if actual != positions:
+            errors.append(f"{behavior}: trigger positions differ: expected {positions}, found {actual}")
 
-# Lower layer physical placement checks. Holding Lower with the right thumb should
-# expose left-thumb Ctrl for comfortable Ctrl+number shortcuts.
-lower_bindings = layer_bindings.get("lower_layer", [])
-if len(lower_bindings) > 36 and lower_bindings[36] != "&kp LCTRL":
-    errors.append(
-        f"lower_layer position 36: expected &kp LCTRL for Ctrl+number shortcuts, found {lower_bindings[36]}"
+
+def main() -> None:
+    text = KEYMAP.read_text(encoding="utf-8")
+    code = strip_comments(text)
+    errors: list[str] = []
+
+    if code.count("{") != code.count("}"):
+        errors.append("unbalanced braces")
+    if code.count("<") != code.count(">"):
+        errors.append("unbalanced angle brackets")
+
+    for snippet in REQUIRED_SNIPPETS:
+        if snippet not in code:
+            errors.append(f"missing required architecture: {snippet}")
+    for snippet in FORBIDDEN_SNIPPETS:
+        if snippet in code:
+            errors.append(f"forbidden stale macOS/RGB binding: {snippet}")
+
+    if code.count('compatible = "zmk,behavior-hold-tap"') != 2:
+        errors.append("expected exactly two bilateral hold-tap behaviors")
+    if text.count(CTRL_THUMB_DIAGRAM) != 4:
+        errors.append("expected all four layer diagrams to show the position 38 Ctrl thumb")
+    check_opposite_hand_triggers(code, errors)
+
+    for layer, expected in EXPECTED_LAYERS.items():
+        actual = parse_bindings(code, layer)
+        if len(actual) != 42:
+            errors.append(f"{layer}: expected 42 bindings, found {len(actual)}")
+        for index, expected_binding in enumerate(expected):
+            actual_binding = actual[index] if index < len(actual) else "<missing>"
+            if actual_binding != expected_binding:
+                errors.append(
+                    f"{layer} position {index}: expected {expected_binding}, found {actual_binding}"
+                )
+
+    if errors:
+        raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
+
+    print(
+        "Keymap check passed: exact four-layer 42-key Windows geometry, bilateral HRMs, "
+        "native Windows shortcuts, and guarded BT/output/boot/reset controls verified."
     )
-elif len(lower_bindings) <= 36:
-    errors.append("lower_layer position 36: expected &kp LCTRL, found <missing>")
 
-forbidden_tokens = [
-    "LC(LA(LS(LGUI)))",
-]
-for token in forbidden_tokens:
-    if token in text:
-        errors.append(f"obsolete custom behavior remains: {token}")
 
-if errors:
-    raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
-
-print(
-    "Keymap check passed: 4 layers, 42 bindings per layer, confirmed Backspace/Space/Lower/Enter positions, exact ADJ Windows shortcuts and BT/boot/reset safety positions, Lower Ctrl+number support, ESC, Ctrl-arrow chords, and practical common-key coverage present."
-)
+if __name__ == "__main__":
+    main()

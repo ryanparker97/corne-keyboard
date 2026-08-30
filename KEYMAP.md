@@ -1,69 +1,97 @@
 # Corne v4 Windows Keymap
 
-This document mirrors [`config/corne.keymap`](config/corne.keymap), a 42-key Corne v4 QWERTY layout for Windows. It preserves NJ68 transition priorities: corner `ESC`/`BACKSPACE`, a separate right-thumb `SPACE`/`LOWER`/`ENTER` cluster, and predictable number, symbol, navigation, and utility layers.
+This document mirrors [`config/corne.keymap`](config/corne.keymap): a four-layer, 42-key Windows layout with bilateral home-row modifiers and the supplied Corne geometry.
 
 ## Layers and activation
 
 | Layer | Purpose | Activation |
 |---|---|---|
-| `DEF` | Windows QWERTY base layer | Default |
-| `LWR` | Numbers, function keys, navigation, `TAB`, and `CTRL` thumb | Hold right-middle `LOWER` (`&mo 1`) |
-| `RSE` | Symbols, paired punctuation, and Ctrl-arrow chords | Hold left-middle `RAISE` (`&mo 2`) |
-| `ADJ` | Bluetooth, Windows shortcuts, bootloader, and reset | Hold `LOWER` and `RAISE` together |
+| `BASE` | QWERTY and timed home-row modifiers | Default |
+| `LOWER` | Numbers, arrows, function keys, and plain modifiers | Hold right-middle `LOWER` |
+| `RAISE` | Symbols, Task View, emoji, and plain modifiers | Hold left-middle `RAISE` |
+| `ADJUST` | Windows, Bluetooth, output, media, and maintenance controls | Hold `LOWER` + `RAISE` |
 
-`ADJ` is a ZMK conditional layer: `if-layers = <LWR RSE>; then-layer = <ADJ>;`. `&trans` falls through to a lower-priority active layer. `LG`, `LS`, and `LC` in a binding mean Left GUI (Windows key), Left Shift, and Left Control.
+`ADJUST` is selected by `if-layers = <LOWER RAISE>; then-layer = <ADJUST>;`.
 
-## Default layer (`DEF`)
+## Base (`BASE`)
 
 | Row | Left six positions | Right six positions |
 |---|---|---|
 | Top | `ESC` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |
-| Home | `CAPS LOCK` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |
-| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `LEFT CTRL` |
-| Thumbs | `LEFT ALT` `RAISE` `LEFT GUI` | `SPACE` `LOWER` `ENTER` |
+| Home | `TAB` `A/Ctrl` `S/Alt` `D/Windows` `F/Shift` `G` | `H` `J/Shift` `K/Windows` `L/Alt` `;/Ctrl` `'` |
+| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `RIGHT CTRL` |
+| Thumbs | `LEFT ALT` `RAISE` `LEFT CTRL` | `SPACE` `LOWER` `ENTER` |
 
-`CAPS LOCK` is a plain firmware key; no external host remapper is required. The left GUI thumb sends the Windows key. `LOWER` is momentary and `ENTER` is its own right-inner thumb key.
+The separate `TAB`, bottom-right `RIGHT CTRL`, and left-inner `LEFT CTRL` thumb are physical base positions. The thumb is position 38 and remains `LEFT CTRL` on all four layers; the D/K home-row holds remain GUI/Windows modifiers.
 
-## Lower (`LWR`) and Raise (`RSE`)
+### Bilateral home-row modifiers
 
-`LWR` top row supplies `` ` 1 2 3 4 5`` and `6 7 8 9 0 DELETE`. Its home row supplies `TAB`, `F1`-`F5`, arrows, and `PAGE UP`; its bottom row supplies `LEFT ALT`, `F6`-`F12`, `HOME`, `PAGE DOWN`, `PAGE UP`, and `END`. The left-outer thumb becomes `LEFT CTRL`, enabling held `LOWER` + thumb + number shortcuts.
+Both behaviors are balanced hold-taps with a 280 ms tapping term, 150 ms prior-idle requirement, 175 ms quick-tap window, opposite-hand trigger positions, and `hold-trigger-on-release`.
 
-`RSE` supplies paired symbols. Its right home row emits `CTRL+LEFT`, `CTRL+DOWN`, `CTRL+UP`, and `CTRL+RIGHT`; these are normal Windows Ctrl-arrow events. Minus is on the second left home-row position of `RSE`.
+| Tap | Hold | Exact binding |
+|---|---|---|
+| `A` | Left Ctrl | `&hm_l LCTRL A` |
+| `S` | Left Alt | `&hm_l LALT S` |
+| `D` | Left GUI / Windows | `&hm_l LGUI D` |
+| `F` | Left Shift | `&hm_l LSHFT F` |
+| `J` | Right Shift | `&hm_r RSHFT J` |
+| `K` | Right GUI / Windows | `&hm_r RGUI K` |
+| `L` | Right Alt | `&hm_r RALT L` |
+| `;` | Right Ctrl | `&hm_r RCTRL SEMI` |
 
-## Adjust (`ADJ`) Windows workflow
+## Lower (`LOWER`)
 
-Actions are labeled by physical base-layer position. The exact bindings below are the firmware behavior; no host automation is assumed.
+| Row | Left six positions | Right six positions |
+|---|---|---|
+| Top | `` ` `` `1` `2` `3` `4` `5` | `6` `7` `8` `9` `0` `DELETE` |
+| Home | `LEFT` `LEFT CTRL` `LEFT ALT` `LEFT GUI` `LEFT SHIFT` `DOWN` | `UP` `RIGHT SHIFT` `RIGHT GUI` `RIGHT ALT` `RIGHT CTRL` `RIGHT` |
+| Bottom | `F1` `F2` `F3` `F4` `F5` `F6` | `F7` `F8` `F9` `F10` `F11` `F12` |
+| Thumbs | `LEFT ALT` `RAISE` `LEFT CTRL` | `SPACE` `LOWER` `ENTER` |
+
+The plain CAGS keys act immediately and avoid hold-tap timing while a layer is active.
+
+## Raise (`RAISE`)
+
+| Row | Left six positions | Right six positions |
+|---|---|---|
+| Top | `~` `!` `@` `#` `$` `%` | `^` `&` `*` `(` `)` `?` |
+| Home | `-` `LEFT CTRL` `LEFT ALT` `LEFT GUI` `LEFT SHIFT` `=` | `[` `RIGHT SHIFT` `RIGHT GUI` `RIGHT ALT` `RIGHT CTRL` `]` |
+| Bottom | `\\` `:` `"` `_` `+` `{` | `}` `|` `<` `>` `TASK VIEW` `EMOJI` |
+| Thumbs | `LEFT ALT` `RAISE` `LEFT CTRL` | `SPACE` `LOWER` `ENTER` |
+
+## Native Windows shortcuts
 
 | Physical position | Exact ZMK binding | Windows action |
 |---|---|---|
+| `/` | `&kp LG(TAB)` | Win+Tab: Task View |
+| Bottom-right `CTRL` | `&kp LG(DOT)` | Win+Period: emoji picker |
 | `Y` | `&kp PSCRN` | Print Screen |
 | `U` | `&kp LG(LS(S))` | Win+Shift+S: screen snip |
-| `I` | `&kp LG(V)` | Win+V: Clipboard history |
-| `O` | `&kp LG(S)` | Win+S: Search |
-| `P` | `&kp LG(TAB)` | Win+Tab: Task View |
+| `I` | `&kp LG(S)` | Win+S: Search |
+| `O` | `&kp LG(LC(LEFT))` | Win+Ctrl+Left: previous virtual desktop |
+| `P` | `&kp LG(LC(RIGHT))` | Win+Ctrl+Right: next virtual desktop |
 | Top-right `BACKSPACE` | `&kp LG(L)` | Win+L: lock Windows |
-| `A` | `&kp LC(A)` | Ctrl+A: select all |
-| `S` | `&kp LC(S)` | Ctrl+S: save |
-| `D` | `&kp LG(R)` | Win+R: Run |
-| `F` | `&kp LC(F)` | Ctrl+F: find |
-| `G` | `&kp LG(LEFT)` | Win+Left: snap window left |
-| `H` | `&kp LG(RIGHT)` | Win+Right: snap window right |
-| `Z` | `&kp LC(Z)` | Ctrl+Z: undo |
-| `X` | `&kp LC(X)` | Ctrl+X: cut |
-| `C` | `&kp LC(C)` | Ctrl+C: copy |
-| `V` | `&kp LC(V)` | Ctrl+V: paste |
-| `B` | `&kp LC(LS(Z))` | Ctrl+Shift+Z: redo |
 
-The remaining `ADJ` positions retain Bluetooth and maintenance controls:
+The first two shortcuts are on `RAISE`; the other six are on `ADJUST`.
 
-| Physical positions | Exact binding | Behavior |
+## Adjust (`ADJUST`)
+
+| Row | Left six positions | Right six positions |
 |---|---|---|
-| `Q` through `T` | `&bt BT_SEL 0` through `&bt BT_SEL 4` | Select Bluetooth profiles 1 through 5 |
-| `CAPS` | `&bt BT_CLR` | Clear Bluetooth pairing information |
-| `/` | `&bootloader` | Enter bootloader |
-| Bottom-right `CTRL` | `&sys_reset` | System reset |
+| Top | `BOOT` `BT 1` `BT 2` `BT 3` `BT 4` `BT 5` | `PRINT SCREEN` `SNIP` `SEARCH` `DESKTOP LEFT` `DESKTOP RIGHT` `LOCK` |
+| Home | `BT CLEAR` `MEDIA PREV` `PLAY/PAUSE` `MEDIA NEXT` `MUTE` `VOL DOWN` | `NONE` `NONE` `NONE` `CAPS LOCK` `NONE` `NONE` |
+| Bottom | `RESET` `BRIGHTNESS DOWN` `BRIGHTNESS UP` `USB` `BLE` `VOL UP` | `OUTPUT TOGGLE` `NONE` `NONE` `NONE` `NONE` `NONE` |
+| Thumbs | `LEFT ALT` `RAISE` `LEFT CTRL` | `SPACE` `LOWER` `ENTER` |
 
-All other ADJ finger and thumb positions are transparent. This preserves the 42-key layer shape and avoids moving Bluetooth, bootloader, or reset controls.
+Bootloader is guarded at physical `ESC`; reset is guarded at physical `LEFT SHIFT`. Profiles use `&bt BT_SEL 0` through `&bt BT_SEL 4`, and pairing clear uses `&bt BT_CLR`. Output controls are `&out OUT_USB`, `&out OUT_BLE`, and `&out OUT_TOG`. Unused positions use `&none`, preventing base actions from leaking through this maintenance layer.
+
+## USB and BLE behavior
+
+The left central is the host-facing half. `config/corne_left.conf` enables USB and BLE, HKRO, basic consumer usages, and `CONFIG_ZMK_USB_BOOT=y` for Windows and BIOS/UEFI compatibility. `config/corne_right.conf` keeps the right half BLE-only; it forwards key positions to the central and is not a standalone USB keyboard.
+
+The three `&out` bindings choose the preferred central output. If that transport is unavailable, pinned ZMK falls back to the other ready transport. Bluetooth profile selection affects the central's host connection, not the right-to-left split link.
+
+RGB underglow is disabled, so no RGB bindings or LED overrides are present.
 
 ## Validation
 
@@ -72,4 +100,4 @@ python3 scripts/validate.py
 git diff --check
 ```
 
-The static keymap check verifies 42 bindings on every layer and exact ADJ positions. The documentation check independently requires this file and `README.md` to describe the native Windows bindings.
+The static checks verify every binding position, both HRM definitions, documentation, current config, build targets, and pinned dependencies.

@@ -29,6 +29,9 @@ jobs:
             fetch --no-tags --prune --depth=1 origin "+$GITHUB_REF:refs/remotes/origin/checkout"
           git checkout --detach "$GITHUB_SHA"
 
+      - name: Run repository validation
+        run: python3 scripts/validate.py
+
   build:
     name: Build Corne firmware
     needs: validate
