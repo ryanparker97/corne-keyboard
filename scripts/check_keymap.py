@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the complete four-layer Windows Corne keymap."""
+"""Validate the exact four-layer macOS data/DevOps Corne keymap."""
 from __future__ import annotations
 
 import re
@@ -11,76 +11,63 @@ EXPECTED_LAYERS = {
     "base_layer": [
         "&kp ESC", "&kp Q", "&kp W", "&kp E", "&kp R", "&kp T",
         "&kp Y", "&kp U", "&kp I", "&kp O", "&kp P", "&kp BSPC",
-        "&kp TAB", "&hm_l LCTRL A", "&hm_l LALT S", "&hm_l LGUI D",
-        "&hm_l LSHFT F", "&kp G", "&kp H", "&hm_r RSHFT J",
-        "&hm_r RGUI K", "&hm_r RALT L", "&hm_r RCTRL SEMI", "&kp SQT",
+        "&kp TAB", "&kp A", "&kp S", "&kp D", "&kp F", "&kp G",
+        "&kp H", "&kp J", "&kp K", "&kp L", "&kp SEMI", "&kp SQT",
         "&kp LSHFT", "&kp Z", "&kp X", "&kp C", "&kp V", "&kp B",
         "&kp N", "&kp M", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp RCTRL",
-        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LALT", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "lower_layer": [
         "&kp GRAVE", "&kp N1", "&kp N2", "&kp N3", "&kp N4", "&kp N5",
         "&kp N6", "&kp N7", "&kp N8", "&kp N9", "&kp N0", "&kp DEL",
-        "&kp LEFT", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT", "&kp DOWN",
-        "&kp UP", "&kp RSHFT", "&kp RGUI", "&kp RALT", "&kp RCTRL", "&kp RIGHT",
-        "&kp F1", "&kp F2", "&kp F3", "&kp F4", "&kp F5", "&kp F6",
-        "&kp F7", "&kp F8", "&kp F9", "&kp F10", "&kp F11", "&kp F12",
-        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&vim_window_prefix", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT",
+        "&tmux_prefix", "&kp LEFT", "&kp DOWN", "&kp UP", "&kp RIGHT",
+        "&kp PG_DN", "&kp PG_UP", "&kp F1", "&kp F2", "&kp F3", "&kp F4",
+        "&kp F5", "&kp F6", "&kp F7", "&kp F8", "&kp F9", "&kp F10",
+        "&kp F11", "&kp F12", "&kp LCTRL", "&mo RAISE", "&kp LGUI",
+        "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "raise_layer": [
         "&kp TILDE", "&kp EXCL", "&kp AT", "&kp HASH", "&kp DLLR", "&kp PRCNT",
         "&kp CARET", "&kp AMPS", "&kp STAR", "&kp LPAR", "&kp RPAR", "&kp QUESTION",
         "&kp MINUS", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT", "&kp EQUAL",
-        "&kp LBKT", "&kp RSHFT", "&kp RGUI", "&kp RALT", "&kp RCTRL", "&kp RBKT",
-        "&kp BSLH", "&kp COLON", "&kp DQT", "&kp UNDER", "&kp PLUS", "&kp LBRC",
-        "&kp RBRC", "&kp PIPE", "&kp LT", "&kp GT", "&kp LG(TAB)", "&kp LG(DOT)",
-        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LBKT", "&kp LBRC", "&kp COLON", "&kp PIPE", "&kp RBRC", "&kp RBKT",
+        "&kp BSLH", "&kp SQT", "&kp DQT", "&kp UNDER", "&kp PLUS", "&kp GRAVE",
+        "&kp LT", "&kp GT", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp SEMI",
+        "&kp LCTRL", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "adjust_layer": [
         "&bootloader", "&bt BT_SEL 0", "&bt BT_SEL 1", "&bt BT_SEL 2",
-        "&bt BT_SEL 3", "&bt BT_SEL 4", "&kp PSCRN", "&kp LG(LS(S))",
-        "&kp LG(S)", "&kp LG(LC(LEFT))", "&kp LG(LC(RIGHT))", "&kp LG(L)",
+        "&bt BT_SEL 3", "&bt BT_SEL 4", "&kp LG(LS(N5))", "&caps_word",
+        "&kp CAPS", "&kp LG(SPACE)", "&kp LG(TAB)", "&kp LC(LG(Q))",
         "&bt BT_CLR", "&kp C_PREV", "&kp C_PP", "&kp C_NEXT", "&kp C_MUTE",
-        "&kp C_VOL_DN", "&none", "&none", "&none", "&kp CAPS", "&none", "&none",
+        "&kp C_VOL_DN", "&none", "&none", "&none", "&none", "&none", "&none",
         "&sys_reset", "&kp C_BRI_DN", "&kp C_BRI_UP", "&out OUT_USB", "&out OUT_BLE",
         "&kp C_VOL_UP", "&out OUT_TOG", "&none", "&none", "&none", "&none", "&none",
-        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LCTRL", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
 }
 
 REQUIRED_SNIPPETS = (
     '#include <dt-bindings/zmk/outputs.h>',
-    "#define BASE  0",
-    "#define LOWER 1",
-    "#define RAISE 2",
-    "#define ADJUST 3",
-    'compatible = "zmk,behavior-hold-tap"',
-    'flavor = "balanced"',
-    "tapping-term-ms = <280>",
-    "require-prior-idle-ms = <150>",
-    "quick-tap-ms = <175>",
-    "hold-trigger-on-release",
+    "#define BASE   0", "#define LOWER  1", "#define RAISE  2", "#define ADJUST 3",
     'compatible = "zmk,conditional-layers"',
-    "if-layers = <LOWER RAISE>",
-    "then-layer = <ADJUST>",
+    "if-layers = <LOWER RAISE>", "then-layer = <ADJUST>",
+    'display-name = "Base"', 'display-name = "Nav/Num"',
+    'display-name = "Symbols"', 'display-name = "System"',
 )
+
+MACROS = {
+    "vim_window_prefix": "&kp LC(W)",
+    "tmux_prefix": "&kp LC(B)",
+}
 
 FORBIDDEN_SNIPPETS = (
-    "dt-bindings/zmk/rgb.h",
-    "&rgb_ug",
-    "RGB_ON",
-    "RGB_OFF",
-    "RGB_EFF",
-    "&led_strip",
-    "LG(LS(N3))",
-    "LG(LS(N4))",
-    "LG(LS(N5))",
-    "LC(LG(Q))",
-    "LC(LG(SPACE))",
-    "LG(GRAVE)",
+    "dt-bindings/zmk/rgb.h", "&rgb_ug", "RGB_", "&led_strip", "chain-length",
+    "&kscan0", "debounce-press-ms", "debounce-release-ms",
+    'compatible = "zmk,behavior-hold-tap"', "&hm_l", "&hm_r",
+    "LG(LS(S))", "LG(LC(LEFT))", "LG(LC(RIGHT))", "LG(DOT)",
 )
-
-CTRL_THUMB_DIAGRAM = "| ALT  RSE  CTRL | SPC  LWR  RET |"
 
 
 def strip_comments(text: str) -> str:
@@ -89,9 +76,7 @@ def strip_comments(text: str) -> str:
 
 
 def parse_bindings(text: str, layer: str) -> list[str]:
-    match = re.search(
-        rf"{layer}\s*\{{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", text
-    )
+    match = re.search(rf"{layer}\s*\{{[\s\S]*?bindings\s*=\s*<([\s\S]*?)>;", text)
     if not match:
         return []
     return [
@@ -100,22 +85,16 @@ def parse_bindings(text: str, layer: str) -> list[str]:
     ]
 
 
-def check_opposite_hand_triggers(text: str, errors: list[str]) -> None:
-    expected = {
-        "hm_l": list(range(6, 12)) + list(range(18, 24)) + list(range(30, 36)) + list(range(39, 42)),
-        "hm_r": list(range(0, 6)) + list(range(12, 18)) + list(range(24, 30)) + list(range(36, 39)),
-    }
-    for behavior, positions in expected.items():
-        match = re.search(
-            rf"{behavior}:\s*[^{{]+\{{[\s\S]*?hold-trigger-key-positions\s*=\s*<([\s\S]*?)>;",
-            text,
-        )
-        if not match:
-            errors.append(f"{behavior}: missing opposite-hand trigger positions")
-            continue
-        actual = [int(value) for value in re.findall(r"\d+", match.group(1))]
-        if actual != positions:
-            errors.append(f"{behavior}: trigger positions differ: expected {positions}, found {actual}")
+def validate_macro(text: str, name: str, binding: str) -> list[str]:
+    match = re.search(rf"{name}:\s*{name}\s*\{{([\s\S]*?)\}};", text)
+    if not match:
+        return [f"missing {name} macro definition"]
+    body = match.group(1)
+    required = (
+        'compatible = "zmk,behavior-macro"', "#binding-cells = <0>",
+        "wait-ms = <0>", "tap-ms = <30>", f"bindings = <{binding}>",
+    )
+    return [f"{name}: missing exact macro setting: {item}" for item in required if item not in body]
 
 
 def main() -> None:
@@ -128,18 +107,18 @@ def main() -> None:
     if code.count("<") != code.count(">"):
         errors.append("unbalanced angle brackets")
 
-    for snippet in REQUIRED_SNIPPETS:
-        if snippet not in code:
-            errors.append(f"missing required architecture: {snippet}")
-    for snippet in FORBIDDEN_SNIPPETS:
-        if snippet in code:
-            errors.append(f"forbidden stale macOS/RGB binding: {snippet}")
-
-    if code.count('compatible = "zmk,behavior-hold-tap"') != 2:
-        errors.append("expected exactly two bilateral hold-tap behaviors")
-    if text.count(CTRL_THUMB_DIAGRAM) != 4:
-        errors.append("expected all four layer diagrams to show the position 38 Ctrl thumb")
-    check_opposite_hand_triggers(code, errors)
+    errors.extend(
+        f"missing required architecture: {snippet}"
+        for snippet in REQUIRED_SNIPPETS if snippet not in code
+    )
+    errors.extend(
+        f"forbidden stale hardware/Windows/HRM content: {snippet}"
+        for snippet in FORBIDDEN_SNIPPETS if snippet in code
+    )
+    for name, binding in MACROS.items():
+        errors.extend(validate_macro(code, name, binding))
+    if code.count('compatible = "zmk,behavior-macro"') != len(MACROS):
+        errors.append("expected exactly the Vim Ctrl-W and tmux Ctrl-B macros")
 
     for layer, expected in EXPECTED_LAYERS.items():
         actual = parse_bindings(code, layer)
@@ -156,8 +135,8 @@ def main() -> None:
         raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
     print(
-        "Keymap check passed: exact four-layer 42-key Windows geometry, bilateral HRMs, "
-        "native Windows shortcuts, and guarded BT/output/boot/reset controls verified."
+        "Keymap check passed: exact four-layer 42-key macOS data/DevOps geometry, "
+        "prefix macros, disabled RGB policy, and guarded controls verified."
     )
 
 

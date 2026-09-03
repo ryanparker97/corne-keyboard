@@ -53,7 +53,7 @@ FORBIDDEN_CONFIG_SNIPPETS = {
     "CONFIG_ZMK_STUDIO=y": "Studio is not required for dual-mode keyboard operation.",
     "CONFIG_KCONFIG_WARNINGS_AS_ERRORS=n": "Do not suppress Kconfig warnings.",
     "KCONFIG_WARNINGS_AS_ERRORS=OFF": "Do not suppress Kconfig warnings.",
-    "CONFIG_BT_CTLR_PHY_2M=y": "Do not force BLE 2M PHY; the aggregate experimental setting disables it for Windows compatibility and range.",
+    "CONFIG_BT_CTLR_PHY_2M=y": "Do not force BLE 2M PHY; the aggregate experimental setting disables it for host compatibility and range.",
     "CONFIG_ZMK_BLE_EXPERIMENTAL_CONN=": "Use CONFIG_ZMK_BLE_EXPERIMENTAL_FEATURES=y rather than a contradictory separate connection assignment.",
     "CONFIG_ZMK_BLE_EXPERIMENTAL_SEC=": "Use CONFIG_ZMK_BLE_EXPERIMENTAL_FEATURES=y rather than a contradictory separate security assignment.",
     "CONFIG_BT_BUF_ACL_RX_SIZE": "Do not force a low-level ACL receive size in user config.",
