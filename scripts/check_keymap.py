@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the exact four-layer macOS data/DevOps Corne keymap."""
+"""Validate the exact four-layer Windows data/DevOps Corne keymap."""
 from __future__ import annotations
 
 import re
@@ -15,36 +15,36 @@ EXPECTED_LAYERS = {
         "&kp H", "&kp J", "&kp K", "&kp L", "&kp SEMI", "&kp SQT",
         "&kp LSHFT", "&kp Z", "&kp X", "&kp C", "&kp V", "&kp B",
         "&kp N", "&kp M", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp RCTRL",
-        "&kp LALT", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LALT", "&mo RAISE", "&kp LWIN", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "lower_layer": [
         "&kp GRAVE", "&kp N1", "&kp N2", "&kp N3", "&kp N4", "&kp N5",
         "&kp N6", "&kp N7", "&kp N8", "&kp N9", "&kp N0", "&kp DEL",
-        "&vim_window_prefix", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT",
+        "&vim_window_prefix", "&kp LCTRL", "&kp LALT", "&kp LWIN", "&kp LSHFT",
         "&tmux_prefix", "&kp LEFT", "&kp DOWN", "&kp UP", "&kp RIGHT",
         "&kp PG_DN", "&kp PG_UP", "&kp F1", "&kp F2", "&kp F3", "&kp F4",
         "&kp F5", "&kp F6", "&kp F7", "&kp F8", "&kp F9", "&kp F10",
-        "&kp F11", "&kp F12", "&kp LCTRL", "&mo RAISE", "&kp LGUI",
+        "&kp F11", "&kp F12", "&kp LCTRL", "&mo RAISE", "&kp LWIN",
         "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "raise_layer": [
         "&kp TILDE", "&kp EXCL", "&kp AT", "&kp HASH", "&kp DLLR", "&kp PRCNT",
         "&kp CARET", "&kp AMPS", "&kp STAR", "&kp LPAR", "&kp RPAR", "&kp QUESTION",
-        "&kp MINUS", "&kp LCTRL", "&kp LALT", "&kp LGUI", "&kp LSHFT", "&kp EQUAL",
+        "&kp MINUS", "&kp LCTRL", "&kp LALT", "&kp LWIN", "&kp LSHFT", "&kp EQUAL",
         "&kp LBKT", "&kp LBRC", "&kp COLON", "&kp PIPE", "&kp RBRC", "&kp RBKT",
         "&kp BSLH", "&kp SQT", "&kp DQT", "&kp UNDER", "&kp PLUS", "&kp GRAVE",
         "&kp LT", "&kp GT", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp SEMI",
-        "&kp LCTRL", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LCTRL", "&mo RAISE", "&kp LWIN", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "adjust_layer": [
         "&bootloader", "&bt BT_SEL 0", "&bt BT_SEL 1", "&bt BT_SEL 2",
-        "&bt BT_SEL 3", "&bt BT_SEL 4", "&kp LG(LS(N5))", "&caps_word",
-        "&kp CAPS", "&kp LG(SPACE)", "&kp LG(TAB)", "&kp LC(LG(Q))",
+        "&bt BT_SEL 3", "&bt BT_SEL 4", "&kp PSCRN", "&kp LG(LS(S))",
+        "&kp LG(S)", "&kp LG(LC(LEFT))", "&kp LG(LC(RIGHT))", "&kp LG(L)",
         "&bt BT_CLR", "&kp C_PREV", "&kp C_PP", "&kp C_NEXT", "&kp C_MUTE",
-        "&kp C_VOL_DN", "&none", "&none", "&none", "&none", "&none", "&none",
+        "&kp C_VOL_DN", "&none", "&none", "&caps_word", "&kp CAPS", "&none", "&none",
         "&sys_reset", "&kp C_BRI_DN", "&kp C_BRI_UP", "&out OUT_USB", "&out OUT_BLE",
         "&kp C_VOL_UP", "&out OUT_TOG", "&none", "&none", "&none", "&none", "&none",
-        "&kp LCTRL", "&mo RAISE", "&kp LGUI", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp LCTRL", "&mo RAISE", "&kp LWIN", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
 }
 
@@ -66,7 +66,8 @@ FORBIDDEN_SNIPPETS = (
     "dt-bindings/zmk/rgb.h", "&rgb_ug", "RGB_", "&led_strip", "chain-length",
     "&kscan0", "debounce-press-ms", "debounce-release-ms",
     'compatible = "zmk,behavior-hold-tap"', "&hm_l", "&hm_r",
-    "LG(LS(S))", "LG(LC(LEFT))", "LG(LC(RIGHT))", "LG(DOT)",
+    "&kp LGUI", "&kp LCMD", "&kp LG(LS(N5))", "&kp LG(SPACE)",
+    "&kp LG(TAB)", "&kp LC(LG(Q))", "&kp LW(", "LG(DOT)",
 )
 
 
@@ -112,7 +113,7 @@ def main() -> None:
         for snippet in REQUIRED_SNIPPETS if snippet not in code
     )
     errors.extend(
-        f"forbidden stale hardware/Windows/HRM content: {snippet}"
+        f"forbidden stale hardware/macOS/HRM content: {snippet}"
         for snippet in FORBIDDEN_SNIPPETS if snippet in code
     )
     for name, binding in MACROS.items():
@@ -135,7 +136,7 @@ def main() -> None:
         raise SystemExit("Keymap check failed:\n- " + "\n- ".join(errors))
 
     print(
-        "Keymap check passed: exact four-layer 42-key macOS data/DevOps geometry, "
+        "Keymap check passed: exact four-layer 42-key Windows data/DevOps geometry, "
         "prefix macros, disabled RGB policy, and guarded controls verified."
     )
 
