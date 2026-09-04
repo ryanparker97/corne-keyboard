@@ -10,8 +10,8 @@ DOCUMENTS = (Path("README.md"), Path("KEYMAP.md"))
 LAYER_ROWS = (
     "| Top | `ESC` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |",
     "| Home | `TAB` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |",
-    "| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `RIGHT CTRL` |",
-    "| Thumbs | `ALT` `RAISE` `WIN` | `SPACE` `LOWER` `ENTER` |",
+    "| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `WIN` |",
+    "| Thumbs | `ALT` `RAISE` `CTRL` | `SPACE` `LOWER` `ENTER` |",
     "| Top | `` ` `` `1` `2` `3` `4` `5` | `6` `7` `8` `9` `0` `DELETE` |",
     "| Home | `VIM` `CTRL` `ALT` `WIN` `SHIFT` `TMUX` | `LEFT` `DOWN` `UP` `RIGHT` `PAGE DOWN` `PAGE UP` |",
     "| Bottom | `F1` `F2` `F3` `F4` `F5` `F6` | `F7` `F8` `F9` `F10` `F11` `F12` |",
@@ -32,6 +32,7 @@ REQUIRED_TEXT = (
     "`&out OUT_USB`", "`&out OUT_BLE`", "`&out OUT_TOG`",
     "`LWIN` is the pinned-supported alias for a standalone Windows modifier",
     "`LG(...)` remains the standard ZMK wrapper for Windows chords",
+    "physical Base-layer swap", "Other layers retain their existing modifier clusters",
     "does not expose an `LW(...)` wrapper", "physical `K`", "physical `L`",
     "RGB underglow is disabled", "`&none`", "42",
 )

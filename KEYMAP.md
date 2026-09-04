@@ -19,10 +19,10 @@ The conditional layer uses `if-layers = <LOWER RAISE>; then-layer = <ADJUST>;`.
 |---|---|---|
 | Top | `ESC` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |
 | Home | `TAB` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |
-| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `RIGHT CTRL` |
-| Thumbs | `ALT` `RAISE` `WIN` | `SPACE` `LOWER` `ENTER` |
+| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `WIN` |
+| Thumbs | `ALT` `RAISE` `CTRL` | `SPACE` `LOWER` `ENTER` |
 
-Every letter is an ordinary key. Alt and Win occupy left thumbs; Control and Shift are dedicated edge keys. There is no tap-duration decision. `LWIN` is the pinned-supported alias for a standalone Windows modifier. `LG(...)` remains the standard ZMK wrapper for Windows chords: at this pinned revision it applies the left-GUI/Windows modifier and does not expose an `LW(...)` wrapper.
+Every letter is an ordinary key, with no tap-duration decision. This physical Base-layer swap places Control on the inner-left thumb and Win on the bottom-right edge; Alt remains a dedicated thumb modifier and Shift remains a dedicated edge key. Other layers retain their existing modifier clusters. `LWIN` is the pinned-supported alias for a standalone Windows modifier. `LG(...)` remains the standard ZMK wrapper for Windows chords: at this pinned revision it applies the left-GUI/Windows modifier and does not expose an `LW(...)` wrapper.
 
 ## Lower / Nav/Num
 

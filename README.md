@@ -14,10 +14,10 @@ ZMK is pinned to the known-good revision `6e2ef41e022d555b10f116e395832913f71717
 |---|---|---|
 | Top | `ESC` `Q` `W` `E` `R` `T` | `Y` `U` `I` `O` `P` `BACKSPACE` |
 | Home | `TAB` `A` `S` `D` `F` `G` | `H` `J` `K` `L` `;` `'` |
-| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `RIGHT CTRL` |
-| Thumbs | `ALT` `RAISE` `WIN` | `SPACE` `LOWER` `ENTER` |
+| Bottom | `LEFT SHIFT` `Z` `X` `C` `V` `B` | `N` `M` `,` `.` `/` `WIN` |
+| Thumbs | `ALT` `RAISE` `CTRL` | `SPACE` `LOWER` `ENTER` |
 
-Alt and Win are dedicated Windows thumb modifiers; Shift and Control remain dedicated edge keys. `LWIN` is the pinned-supported alias for a standalone Windows modifier. `LG(...)` remains the standard ZMK wrapper for Windows chords: at this pinned revision it applies the left-GUI/Windows modifier and does not expose an `LW(...)` wrapper.
+This physical Base-layer swap places Control on the inner-left thumb and Win on the bottom-right edge; Alt remains a dedicated thumb modifier and Shift remains a dedicated edge key. Other layers retain their existing modifier clusters. `LWIN` is the pinned-supported alias for a standalone Windows modifier. `LG(...)` remains the standard ZMK wrapper for Windows chords: at this pinned revision it applies the left-GUI/Windows modifier and does not expose an `LW(...)` wrapper.
 
 ### Lower — navigation and numbers
 

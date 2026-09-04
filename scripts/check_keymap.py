@@ -14,8 +14,8 @@ EXPECTED_LAYERS = {
         "&kp TAB", "&kp A", "&kp S", "&kp D", "&kp F", "&kp G",
         "&kp H", "&kp J", "&kp K", "&kp L", "&kp SEMI", "&kp SQT",
         "&kp LSHFT", "&kp Z", "&kp X", "&kp C", "&kp V", "&kp B",
-        "&kp N", "&kp M", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp RCTRL",
-        "&kp LALT", "&mo RAISE", "&kp LWIN", "&kp SPACE", "&mo LOWER", "&kp RET",
+        "&kp N", "&kp M", "&kp COMMA", "&kp DOT", "&kp FSLH", "&kp LWIN",
+        "&kp LALT", "&mo RAISE", "&kp LCTRL", "&kp SPACE", "&mo LOWER", "&kp RET",
     ],
     "lower_layer": [
         "&kp GRAVE", "&kp N1", "&kp N2", "&kp N3", "&kp N4", "&kp N5",

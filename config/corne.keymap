@@ -51,14 +51,14 @@
             /* Plain QWERTY with dedicated Windows modifiers; no timed keys.
              * | ESC  Q    W    E    R    T | Y    U    I    O    P    BSPC |
              * | TAB  A    S    D    F    G | H    J    K    L    ;    '    |
-             * | SHFT Z    X    C    V    B | N    M    ,    .    /    CTRL |
-             *              | ALT  RSE  WIN | SPC  LWR  RET |
+             * | SHFT Z    X    C    V    B | N    M    ,    .    /    WIN  |
+             *              | ALT  RSE  CTRL | SPC  LWR  RET |
              */
             bindings = <
 &kp ESC    &kp Q          &kp W         &kp E         &kp R          &kp T        &kp Y  &kp U          &kp I         &kp O         &kp P           &kp BSPC
 &kp TAB    &kp A          &kp S         &kp D         &kp F          &kp G        &kp H  &kp J          &kp K         &kp L         &kp SEMI        &kp SQT
-&kp LSHFT  &kp Z          &kp X         &kp C         &kp V          &kp B        &kp N  &kp M          &kp COMMA     &kp DOT       &kp FSLH        &kp RCTRL
-                                 &kp LALT  &mo RAISE  &kp LWIN       &kp SPACE  &mo LOWER  &kp RET
+&kp LSHFT  &kp Z          &kp X         &kp C         &kp V          &kp B        &kp N  &kp M          &kp COMMA     &kp DOT       &kp FSLH        &kp LWIN
+                                 &kp LALT  &mo RAISE  &kp LCTRL      &kp SPACE  &mo LOWER  &kp RET
             >;
         };
 
