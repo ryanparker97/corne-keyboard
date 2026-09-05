@@ -120,10 +120,6 @@
     };
 };
 
-/* Fully populated Corne v3.1: 27 LEDs and low-latency 3 ms scanning per half. */
-&led_strip {
-    chain-length = <27>;
-};
 
 &kscan0 {
     debounce-press-ms = <3>;
