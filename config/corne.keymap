@@ -14,8 +14,34 @@
 #define LOWER  1
 #define RAISE  2
 #define ADJUST 3
+#define WM     4
 
 / {
+    behaviors {
+        /* Left outer home key: hold for Control, tap for Escape. Kept to the
+         * outer column on purpose; alpha keys stay plain, so there is no
+         * tap/hold ambiguity while typing. */
+        ctl_esc: ctl_esc {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+            require-prior-idle-ms = <100>;
+            bindings = <&kp>, <&kp>;
+        };
+
+        /* Right outer thumb: hold for the WM layer, tap for Enter. */
+        wm_lt: wm_lt {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <180>;
+            quick-tap-ms = <150>;
+            bindings = <&mo>, <&kp>;
+        };
+    };
+
     macros {
         /* Prefix macros release Control before Vim/tmux receives the next key. */
         vim_window_prefix: vim_window_prefix {
@@ -26,12 +52,25 @@
             bindings = <&kp LC(W)>;
         };
 
+        /* tmux prefix is C-a (see tmux/tmux.conf in the dotfiles repo). */
         tmux_prefix: tmux_prefix {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <0>;
             tap-ms = <30>;
-            bindings = <&kp LC(B)>;
+            bindings = <&kp LC(A)>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        /* Both Shift keys together toggle Caps Word. */
+        caps_word_combo {
+            key-positions = <24 35>;
+            bindings = <&caps_word>;
+            timeout-ms = <40>;
+            layers = <BASE>;
         };
     };
 
@@ -50,17 +89,18 @@
         base_layer {
             display-name = "Base";
 
-            /* BASE: plain QWERTY with dedicated macOS modifiers; no tap/hold keys.
-             * | ESC  Q    W    E    R    T | Y    U    I    O    P    BSPC |
-             * | TAB  A    S    D    F    G | H    J    K    L    ;    '    |
-             * | SHFT Z    X    C    V    B | N    M    ,    .    /    CTRL |
-             *              | OPT  RSE  CMD | SPC  LWR  RET |
+            /* BASE: plain QWERTY with dedicated macOS modifiers.
+             * CTL/ESC is the only alpha-column hold-tap; WM is the Enter thumb.
+             * | TAB  Q    W    E    R    T | Y    U    I    O    P    BSPC |
+             * | CTL/ESC A  S    D    F    G | H    J    K    L    ;    '    |
+             * | SHFT Z    X    C    V    B | N    M    ,    .    /    SHFT |
+             *              | OPT  RSE  CMD | SPC  LWR  RET/WM |
              */
             bindings = <
-&kp ESC    &kp Q          &kp W         &kp E         &kp R          &kp T        &kp Y  &kp U          &kp I         &kp O         &kp P           &kp BSPC
-&kp TAB    &kp A          &kp S         &kp D         &kp F          &kp G        &kp H  &kp J          &kp K         &kp L         &kp SEMI        &kp SQT
-&kp LSHFT  &kp Z          &kp X         &kp C         &kp V          &kp B        &kp N  &kp M          &kp COMMA     &kp DOT       &kp FSLH        &kp RCTRL
-                                &kp LALT   &mo RAISE  &kp LGUI       &kp SPACE  &mo LOWER  &kp RET
+&kp TAB    &kp Q          &kp W         &kp E         &kp R          &kp T        &kp Y  &kp U          &kp I         &kp O         &kp P           &kp BSPC
+&ctl_esc LCTRL ESC &kp A  &kp S         &kp D         &kp F          &kp G        &kp H  &kp J          &kp K         &kp L         &kp SEMI        &kp SQT
+&kp LSHFT  &kp Z          &kp X         &kp C         &kp V          &kp B        &kp N  &kp M          &kp COMMA     &kp DOT       &kp FSLH        &kp RSHFT
+                                &kp LALT   &mo RAISE  &kp LGUI       &kp SPACE  &mo LOWER  &wm_lt WM RET
             >;
         };
 
@@ -68,14 +108,14 @@
             display-name = "Nav/Num";
 
             /* LOWER: numbers, released prefixes, macOS navigation, and F-keys.
-             * VIM taps C-W; TMUX taps the stock C-B prefix. H/J/K/L are arrows.
-             * | `    1    2    3    4    5 | 6    7    8    9    0    DEL  |
+             * VIM taps C-W; TMUX taps the C-A prefix. H/J/K/L are arrows.
+             * | ESC  1    2    3    4    5 | 6    7    8    9    0    BSPC |
              * | VIM  CTRL OPT  CMD  SHFT TMUX| LEFT DOWN UP  RGHT PGDN PGUP |
              * | F1   F2   F3   F4   F5   F6| F7   F8   F9   F10  F11  F12  |
              *              | CTRL RSE  CMD | SPC  LWR  RET |
              */
             bindings = <
-&kp GRAVE           &kp N1     &kp N2    &kp N3    &kp N4     &kp N5          &kp N6    &kp N7    &kp N8  &kp N9     &kp N0     &kp DEL
+&kp ESC             &kp N1     &kp N2    &kp N3    &kp N4     &kp N5          &kp N6    &kp N7    &kp N8  &kp N9     &kp N0     &kp BSPC
 &vim_window_prefix  &kp LCTRL  &kp LALT  &kp LGUI  &kp LSHFT  &tmux_prefix    &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &kp PG_DN  &kp PG_UP
 &kp F1              &kp F2     &kp F3    &kp F4    &kp F5     &kp F6          &kp F7    &kp F8    &kp F9  &kp F10    &kp F11    &kp F12
                                            &kp LCTRL  &mo RAISE  &kp LGUI               &kp SPACE  &mo LOWER  &kp RET
@@ -86,16 +126,17 @@
             display-name = "Symbols";
 
             /* RAISE: Python/data/ops symbols with immediate, ordinary modifiers.
-             * Python/data structures and YAML operators use the right home row.
-             * | ~    !    @    #    $    % | ^    &    *    (    )    ?    |
-             * | -    CTRL OPT  CMD  SHFT = | [    {    :    |    }    ]    |
-             * | \     '    "    _    +    ` | <    >    ,    .    /    ;    |
+             * Brackets are paired on the right home row with ( ) on the strongest
+             * fingers; : and | sit above them.
+             * | ~    !    @    #    $    % | ^    &    *    :    |    BSPC |
+             * | -    CTRL OPT  CMD  SHFT = | [    (    )    {    }    ]    |
+             * | \    TAB  "    _    +    ` | <    >    HOME END  ?    DEL  |
              *              | CTRL RSE  CMD | SPC  LWR  RET |
              */
             bindings = <
-&kp TILDE  &kp EXCL   &kp AT    &kp HASH   &kp DLLR   &kp PRCNT    &kp CARET  &kp AMPS   &kp STAR  &kp LPAR  &kp RPAR   &kp QUESTION
-&kp MINUS  &kp LCTRL  &kp LALT  &kp LGUI   &kp LSHFT  &kp EQUAL    &kp LBKT   &kp LBRC   &kp COLON  &kp PIPE  &kp RBRC   &kp RBKT
-&kp BSLH   &kp SQT    &kp DQT   &kp UNDER  &kp PLUS   &kp GRAVE    &kp LT     &kp GT     &kp COMMA  &kp DOT   &kp FSLH   &kp SEMI
+&kp TILDE  &kp EXCL   &kp AT    &kp HASH   &kp DLLR   &kp PRCNT    &kp CARET  &kp AMPS   &kp STAR   &kp COLON  &kp PIPE   &kp BSPC
+&kp MINUS  &kp LCTRL  &kp LALT  &kp LGUI   &kp LSHFT  &kp EQUAL    &kp LBKT   &kp LPAR   &kp RPAR   &kp LBRC   &kp RBRC   &kp RBKT
+&kp BSLH   &kp TAB    &kp DQT   &kp UNDER  &kp PLUS   &kp GRAVE    &kp LT     &kp GT     &kp HOME   &kp END    &kp QUESTION  &kp DEL
                                   &kp LCTRL  &mo RAISE  &kp LGUI              &kp SPACE  &mo LOWER  &kp RET
             >;
         };
@@ -105,16 +146,38 @@
 
             /* ADJUST: hold LOWER + RAISE.
              * CAP opens macOS's screenshot/recording UI; CWORD is Caps Word.
-             * | BOOT BT1  BT2  BT3  BT4  BT5 | CAP  CWORD CAPS SPOT APP LOCK |
-             * | BTCLR PREV PLAY NEXT MUTE VOL-| TOG  FX+   HUE+ SAT+ BRI+ SPD+|
-             * | RESET DISP- DISP+ USB BLE VOL+| OUT  FX-   HUE- SAT- BRI- SPD-|
+             * The right two rows are macOS window/screenshot shortcuts (the RGB
+             * keys were dead while CONFIG_ZMK_RGB_UNDERGLOW=n).
+             * | BOOT BT1  BT2  BT3  BT4  BT5 | CAP  CWORD CAPS SPOT APP  LOCK |
+             * | BTCLR PREV PLAY NEXT MUTE VOL-| MC   EXPO DT<  DT>  AREA FQUIT|
+             * | RESET DISP- DISP+ USB BLE VOL+| OUT  FULL WIN  HIDE MIN  -     |
              *              | CTRL RSE  CMD | SPC  LWR  RET |
              */
             bindings = <
 &bootloader  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp LG(LS(N5))   &caps_word       &kp CAPS         &kp LG(SPACE)    &kp LG(TAB)      &kp LC(LG(Q))
-&bt BT_CLR   &kp C_PREV    &kp C_PP      &kp C_NEXT    &kp C_MUTE    &kp C_VOL_DN    &rgb_ug RGB_TOG  &rgb_ug RGB_EFF  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI  &rgb_ug RGB_SPI
-&sys_reset   &kp C_BRI_DN  &kp C_BRI_UP  &out OUT_USB  &out OUT_BLE  &kp C_VOL_UP    &out OUT_TOG     &rgb_ug RGB_EFR  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD  &rgb_ug RGB_SPD
+&bt BT_CLR   &kp C_PREV    &kp C_PP      &kp C_NEXT    &kp C_MUTE    &kp C_VOL_DN    &kp LC(UP)       &kp LC(DOWN)     &kp LC(LEFT)     &kp LC(RIGHT)    &kp LG(LS(N4))   &kp LG(LA(ESC))
+&sys_reset   &kp C_BRI_DN  &kp C_BRI_UP  &out OUT_USB  &out OUT_BLE  &kp C_VOL_UP    &out OUT_TOG     &kp LG(LS(N3))   &kp LG(GRAVE)    &kp LG(H)        &kp LG(M)        &none
                                          &kp LCTRL     &mo RAISE       &kp LGUI        &kp SPACE        &mo LOWER        &kp RET
+            >;
+        };
+
+        wm_layer {
+            display-name = "WM";
+
+            /* WM: hold the right outer thumb (Enter). Each key sends
+             * ctrl+alt+<key> for skhd, at its natural QWERTY position.
+             * | TAB  .    .    E    R    T | 1    2    3    4    5    .    |
+             * | .    A    S    D    F    . | H    J    K    L    .    .    |
+             * | .    Z    X    .    V    B | .    M    .    .    .    .    |
+             *              | .    .    . | TERM .    .   |
+             * (TAB = focus recent, E = resize mode, T = float, X = split,
+             *  V = mirror, A = stack, D = bsp, TERM = new terminal.)
+             */
+            bindings = <
+&kp LC(LA(TAB))  &trans           &trans           &kp LC(LA(E))   &kp LC(LA(R))   &kp LC(LA(T))    &kp LC(LA(N1))  &kp LC(LA(N2))  &kp LC(LA(N3))  &kp LC(LA(N4))  &kp LC(LA(N5))  &trans
+&trans           &kp LC(LA(A))    &kp LC(LA(S))    &kp LC(LA(D))   &kp LC(LA(F))   &trans           &kp LC(LA(H))   &kp LC(LA(J))   &kp LC(LA(K))   &kp LC(LA(L))   &trans          &trans
+&trans           &kp LC(LA(Z))    &kp LC(LA(X))    &trans          &kp LC(LA(V))   &kp LC(LA(B))    &trans          &kp LC(LA(M))   &trans          &trans          &trans          &trans
+                                                   &trans          &trans          &trans           &kp LC(LA(RET))  &trans         &trans
             >;
         };
     };

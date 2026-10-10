@@ -1,6 +1,6 @@
 # macOS data engineering / DevOps keymap
 
-This 42-key Corne layout targets data engineering and DevOps work on macOS: SQL, Python, shell, YAML/JSON, Terraform/HCL, Docker, Kubernetes, Vim, and stock tmux. It intentionally uses **no home-row mods, mod-taps, layer-taps, sticky modifiers, tap dance, or combos**. Letters are ordinary keys; modifiers and layer keys always do exactly one thing.
+This 42-key Corne layout targets data engineering and DevOps work on macOS: SQL, Python, shell, YAML/JSON, Terraform/HCL, Docker, Kubernetes, Vim, and tmux. It intentionally uses **no home-row mods, sticky modifiers, or tap dance**. Letters are ordinary keys. Two hold-taps exist and both sit on outer keys: `CTL/ESC` (left outer home key) and `RET/WM` (right outer thumb). One combo (both Shift keys) toggles Caps Word.
 
 There is no objectively best keymap. This one favors familiar QWERTY positions, mnemonic navigation, short finger travel, and a small number of focused layers.
 
@@ -8,28 +8,29 @@ There is no objectively best keymap. This one favors familiar QWERTY positions, 
 
 ```text
 left hand                 right hand
-OPTION RAISE  COMMAND   |  SPACE  LOWER  ENTER
+OPTION RAISE  COMMAND   |  SPACE  LOWER  ENTER/WM
 ```
 
 - Hold **RAISE** for data, infrastructure, and shell symbols.
 - Hold **LOWER** for numbers, navigation, terminal prefixes, and function keys.
 - Hold **RAISE + LOWER** for system controls.
+- Hold **ENTER/WM** (tap sends Enter) for window-manager chords.
 
 ## Base — `Base`
 
 ```text
-ESC   Q     W     E     R     T   |  Y     U     I     O     P     BSPC
-TAB   A     S     D     F     G   |  H     J     K     L     ;     '
-SHIFT Z     X     C     V     B   |  N     M     ,     .     /     CONTROL
-                OPT   RAISE  CMD  |  SPACE  LOWER  ENTER
+TAB   Q     W     E     R     T   |  Y     U     I     O     P     BSPC
+CTL/ESC A   S     D     F     G   |  H     J     K     L     ;     '
+SHIFT Z     X     C     V     B   |  N     M     ,     .     /     SHIFT
+                OPT   RAISE  CMD  |  SPACE  LOWER  ENTER/WM
 ```
 
-Option and Command are on Base-layer thumbs for macOS shortcuts. Control and Shift remain dedicated edge keys. The left outer thumb becomes Control on the other layers, keeping layered navigation and terminal chords accessible. Nothing changes meaning based on tap duration.
+Option and Command are on Base-layer thumbs for macOS shortcuts. The left outer home key is **Control when held and Escape when tapped**, which puts `Ctrl-h/j/k/l` and `Esc` under the left pinky for Vim and tmux. Shift is on both sides; pressing both Shift keys together toggles Caps Word. The left outer thumb becomes Control on the other layers, keeping layered navigation and terminal chords accessible. Alpha keys never change meaning based on tap duration.
 
 ## Lower — `Nav/Num`
 
 ```text
-`     1     2     3     4     5   |  6     7     8     9     0     DEL
+ESC   1     2     3     4     5   |  6     7     8     9     0     BSPC
 VIM   CTRL  OPT   CMD   SHIFT TMUX|  LEFT  DOWN  UP    RIGHT PGDN  PGUP
 F1    F2    F3    F4    F5    F6  |  F7    F8    F9    F10   F11   F12
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
@@ -42,18 +43,18 @@ The navigation row deliberately puts arrows on physical **H/J/K/L**. The left-ha
 - `LOWER + Command + Up/Down`: move to the start/end of a document.
 - Add `LOWER + Shift` to extend the selection.
 
-`VIM` emits and releases `Ctrl-W`; while still holding Lower, tap an arrow on H/J/K/L to move between Vim windows. `TMUX` emits and releases stock `Ctrl-B`; tap a Lower-layer arrow next to move between tmux panes. Releasing Control inside each prefix macro avoids accidentally sending `Ctrl-Arrow` as the follow-up command.
+`VIM` emits and releases `Ctrl-W`; while still holding Lower, tap an arrow on H/J/K/L to move between Vim windows. `TMUX` emits and releases the `Ctrl-A` prefix (matching `tmux/tmux.conf` in the dotfiles repo); tap a Lower-layer arrow next to move between tmux panes. Releasing Control inside each prefix macro avoids accidentally sending `Ctrl-Arrow` as the follow-up command.
 
 ## Raise — `Symbols`
 
 ```text
-~     !     @     #     $     %   |  ^     &     *     (     )     ?
--     CTRL  OPT   CMD   SHIFT =   |  [     {     :     |     }     ]
-\      '     "     _     +     `   |  <     >     ,     .     /     ;
+~     !     @     #     $     %   |  ^     &     *     :     |     BSPC
+-     CTRL  OPT   CMD   SHIFT =   |  [     (     )     {     }     ]
+\     TAB   "     _     +     `   |  <     >     HOME  END   ?     DEL
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
 ```
 
-The top row mirrors the normal shifted number order, reducing memorization. The right home row groups Python/data structures and YAML operators as `[ { : | } ]`. Python's underscore, colon, both quotes, parentheses, decorators (`@`), comments (`#`), f-string braces, arithmetic operators, comparisons, comma, and period are all direct. Backtick, `-`, `=`, `$`, slash, pipe, and backslash remain direct for SQL, shell, and infrastructure code. Comma, period, and slash stay in their Base positions; semicolon remains direct on the outer bottom key, while `<` and `>` move inward for comparisons and `->` annotations.
+The left half mirrors the normal shifted number order, reducing memorization. The right home row groups the brackets as `[ ( ) { } ]`, with the parentheses on the index and middle fingers because they are the most frequent; `:` and `|` sit directly above. Python's underscore, colon, double quote, parentheses, decorators (`@`), comments (`#`), f-string braces, arithmetic operators, comparisons are all direct. Backtick, `-`, `=`, `$`, `?`, pipe, and backslash remain direct for SQL, shell, and infrastructure code. Comma, period, slash, semicolon and the single quote stay in their Base positions. `BSPC`, `DEL`, `TAB`, `HOME` and `END` are available without leaving the layer, so `foo(<BS>` does not need a layer release.
 
 ### Workflow rationale
 
@@ -71,16 +72,29 @@ The keymap intentionally does not type command names or deployment operations fo
 
 ```text
 BOOT  BT1   BT2   BT3   BT4   BT5 |  CAP   CWORD CAPS  SPOT  APP   LOCK
-BTCLR PREV  PLAY  NEXT  MUTE  VOL- |  TOG   FX+   HUE+  SAT+  BRI+  SPD+
-RESET DISP- DISP+ USB   BLE   VOL+ |  OUT   FX-   HUE-  SAT-  BRI-  SPD-
+BTCLR PREV  PLAY  NEXT  MUTE  VOL- |  MC    EXPO  DT<   DT>   AREA  FQUIT
+RESET DISP- DISP+ USB   BLE   VOL+ |  OUT   FULL  WIN   HIDE  MIN   -
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
 ```
 
 - `CAP`: macOS **Shift-Command-5** capture UI for screenshots and recordings.
-- `CWORD`: Caps Word, convenient for SQL keywords such as `SELECT` and constants such as `MAX_RETRIES`; it stops automatically on normal word-breaking input.
+- `CWORD`: Caps Word, convenient for SQL keywords such as `SELECT` and constants such as `MAX_RETRIES`; it stops automatically on normal word-breaking input. Both Shift keys together do the same from Base.
 - `CAPS`: traditional Caps Lock remains available.
 - `SPOT`, `APP`, `LOCK`: Spotlight, app switcher, and screen lock.
-- Bluetooth, USB/BLE output, media, brightness, RGB, bootloader, and reset controls are retained.
+- `MC`, `EXPO`, `DT<`, `DT>`: Mission Control, App Exposé, and desktop left/right (Ctrl-arrows).
+- `AREA`, `FULL`: Shift-Command-4 and Shift-Command-3 screenshots. `FQUIT`: Force Quit. `WIN`: next window of the app. `HIDE`, `MIN`: hide and minimize.
+- Bluetooth, USB/BLE output, media, brightness, bootloader, and reset controls are retained. The RGB underglow keys that used to live on the right two rows were dead while `CONFIG_ZMK_RGB_UNDERGLOW=n`; restore them from git history if you re-enable RGB.
+
+## WM — `Window manager`
+
+```text
+TAB   .     .     E     R     T   |  1     2     3     4     5     .
+.     A     S     D     F     .   |  H     J     K     L     .     .
+.     Z     X     .     V     B   |  .     M     .     .     .     .
+                .     .     .     |  TERM  .     (held)
+```
+
+Hold the right outer thumb. Every key sends `Ctrl+Alt+<key>` at its normal QWERTY position, so the layer drives the dotfiles' `skhd/skhdrc` without any chord gymnastics: `H/J/K/L` focus, `1-5` focus Spaces, `M`/`S`/`E` enter move/swap/resize modes, and `Z F B R X V A D T TAB` are zoom, fullscreen, balance, rotate, split, mirror, stack, bsp, float, and focus-recent. `TERM` (the Space key) opens a new Alacritty window. In move/swap/resize mode, release the layer and tap the plain `H/J/K/L` or `1-5` key.
 
 ## Build and flash
 
