@@ -1,6 +1,6 @@
 # macOS data engineering / DevOps keymap
 
-This 42-key Corne layout targets data engineering and DevOps work on macOS: SQL, Python, shell, YAML/JSON, Terraform/HCL, Docker, Kubernetes, Vim, and tmux. It intentionally uses **no home-row mods, sticky modifiers, or tap dance**. Letters are ordinary keys. Two hold-taps exist and both sit on outer keys: `CTL/ESC` (left outer home key) and `RET/WM` (right outer thumb). One combo (both Shift keys) toggles Caps Word.
+This 42-key Corne layout targets data engineering and DevOps work on macOS: SQL, Python, shell, YAML/JSON, Terraform/HCL, Docker, Kubernetes, Vim, and tmux. It intentionally uses **no home-row mods, sticky modifiers, tap dance, or combos**. Letters are ordinary keys. Two hold-taps exist and both sit on outer keys: `TAB/HYP` (left outer home key, the same on every layer) and `RET/WM` (right outer thumb).
 
 There is no objectively best keymap. This one favors familiar QWERTY positions, mnemonic navigation, short finger travel, and a small number of focused layers.
 
@@ -19,19 +19,21 @@ OPTION RAISE  COMMAND   |  SPACE  LOWER  ENTER/WM
 ## Base — `Base`
 
 ```text
-TAB   Q     W     E     R     T   |  Y     U     I     O     P     BSPC
-CTL/ESC A   S     D     F     G   |  H     J     K     L     ;     '
-SHIFT Z     X     C     V     B   |  N     M     ,     .     /     SHIFT
+ESC   Q     W     E     R     T   |  Y     U     I     O     P     BSPC
+TAB/HYP A   S     D     F     G   |  H     J     K     L     ;     '
+SHIFT Z     X     C     V     B   |  N     M     ,     .     /     CTRL
                 OPT   RAISE  CMD  |  SPACE  LOWER  ENTER/WM
 ```
 
-Option and Command are on Base-layer thumbs for macOS shortcuts. The left outer home key is **Control when held and Escape when tapped**, which puts `Ctrl-h/j/k/l` and `Esc` under the left pinky for Vim and tmux. Shift is on both sides; pressing both Shift keys together toggles Caps Word. The left outer thumb becomes Control on the other layers, keeping layered navigation and terminal chords accessible. Alpha keys never change meaning based on tap duration.
+Option and Command are on Base-layer thumbs for macOS shortcuts. **Esc** is the top-left key. The left outer home key is **Tab when tapped and Hyper when held**; Hyper is Ctrl+Alt+Cmd+Shift (skhd's built-in `hyper`), and the same key sits in the same place on every layer. Right Control is the bottom-right key, so `Ctrl-h/j/k/l` is a right-pinky chord with the left hand free for the letter. The left outer thumb becomes Control on the other layers, keeping layered navigation and terminal chords accessible. Alpha keys never change meaning based on tap duration.
+
+`TAB/HYP` uses the `balanced` flavor with a 200 ms tapping term and `require-prior-idle-ms = 100`: Tab resolves instantly while typing, and a hold becomes Hyper when the next key is tapped or the term expires. Nothing is bound to Hyper in this repo yet; the WM layer still sends `Ctrl+Alt`, so skhd is unchanged.
 
 ## Lower — `Nav/Num`
 
 ```text
 ESC   1     2     3     4     5   |  6     7     8     9     0     BSPC
-VIM   CTRL  OPT   CMD   SHIFT TMUX|  LEFT  DOWN  UP    RIGHT PGDN  PGUP
+TAB/HYP CTRL OPT  CMD   SHIFT TMUX|  LEFT  DOWN  UP    RIGHT PGDN  PGUP
 F1    F2    F3    F4    F5    F6  |  F7    F8    F9    F10   F11   F12
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
 ```
@@ -43,18 +45,18 @@ The navigation row deliberately puts arrows on physical **H/J/K/L**. The left-ha
 - `LOWER + Command + Up/Down`: move to the start/end of a document.
 - Add `LOWER + Shift` to extend the selection.
 
-`VIM` emits and releases `Ctrl-W`; while still holding Lower, tap an arrow on H/J/K/L to move between Vim windows. `TMUX` emits and releases the `Ctrl-A` prefix (matching `tmux/tmux.conf` in the dotfiles repo); tap a Lower-layer arrow next to move between tmux panes. Releasing Control inside each prefix macro avoids accidentally sending `Ctrl-Arrow` as the follow-up command.
+`TMUX` emits and releases the `Ctrl-A` prefix (matching `tmux/tmux.conf` in the dotfiles repo); tap a Lower-layer arrow next to move between tmux panes. Releasing Control inside the prefix macro avoids accidentally sending `Ctrl-Arrow` as the follow-up command. The old `VIM` (`Ctrl-W`) macro was removed to free the left home outer key for `TAB/HYP`; use Right Control + `W` for Vim window commands.
 
 ## Raise — `Symbols`
 
 ```text
-~     !     @     #     $     %   |  ^     &     *     :     |     BSPC
--     CTRL  OPT   CMD   SHIFT =   |  [     (     )     {     }     ]
-\     TAB   "     _     +     `   |  <     >     HOME  END   ?     DEL
+ESC   !     @     #     $     %   |  ^     &     *     :     |     BSPC
+TAB/HYP CTRL OPT  CMD   SHIFT =   |  [     (     )     {     }     ]
+\     -     "     _     +     `   |  <     >     HOME  END   ?     ~
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
 ```
 
-The left half mirrors the normal shifted number order, reducing memorization. The right home row groups the brackets as `[ ( ) { } ]`, with the parentheses on the index and middle fingers because they are the most frequent; `:` and `|` sit directly above. Python's underscore, colon, double quote, parentheses, decorators (`@`), comments (`#`), f-string braces, arithmetic operators, comparisons are all direct. Backtick, `-`, `=`, `$`, `?`, pipe, and backslash remain direct for SQL, shell, and infrastructure code. Comma, period, slash, semicolon and the single quote stay in their Base positions. `BSPC`, `DEL`, `TAB`, `HOME` and `END` are available without leaving the layer, so `foo(<BS>` does not need a layer release.
+The left half mirrors the normal shifted number order, reducing memorization. The right home row groups the brackets as `[ ( ) { } ]`, with the parentheses on the index and middle fingers because they are the most frequent; `:` and `|` sit directly above. Python's underscore, colon, double quote, parentheses, decorators (`@`), comments (`#`), f-string braces, arithmetic operators, comparisons are all direct. Backtick, `-`, `=`, `$`, `?`, pipe, and backslash remain direct for SQL, shell, and infrastructure code. Comma, period, slash, semicolon and the single quote stay in their Base positions. `BSPC`, `TAB` (the `TAB/HYP` key), `HOME` and `END` are available without leaving the layer, so `foo(<BS>` does not need a layer release. `~` sits at the bottom-right where `DEL` used to be; forward-delete is no longer on Raise.
 
 ### Workflow rationale
 
@@ -71,19 +73,19 @@ The keymap intentionally does not type command names or deployment operations fo
 ## Adjust — `System`
 
 ```text
-BOOT  BT1   BT2   BT3   BT4   BT5 |  CAP   CWORD CAPS  SPOT  APP   LOCK
-BTCLR PREV  PLAY  NEXT  MUTE  VOL- |  MC    EXPO  DT<   DT>   AREA  FQUIT
-RESET DISP- DISP+ USB   BLE   VOL+ |  OUT   FULL  WIN   HIDE  MIN   -
+ESC   BT1   BT2   BT3   BT4   BT5 |  CAP   CWORD CAPS  SPOT  APP   LOCK
+TAB/HYP PREV PLAY  NEXT  MUTE  VOL- |  MC    EXPO  DT<   DT>   AREA  FQUIT
+RESET DISP- DISP+ USB   BLE   VOL+ |  BTCLR FULL  WIN   HIDE  MIN   BOOT
                 CTRL  RAISE  CMD  |  SPACE  LOWER  ENTER
 ```
 
 - `CAP`: macOS **Shift-Command-5** capture UI for screenshots and recordings.
-- `CWORD`: Caps Word, convenient for SQL keywords such as `SELECT` and constants such as `MAX_RETRIES`; it stops automatically on normal word-breaking input. Both Shift keys together do the same from Base.
+- `CWORD`: Caps Word, convenient for SQL keywords such as `SELECT` and constants such as `MAX_RETRIES`; it stops automatically on normal word-breaking input. The old both-Shift combo was removed because the bottom-right key is now Right Control.
 - `CAPS`: traditional Caps Lock remains available.
 - `SPOT`, `APP`, `LOCK`: Spotlight, app switcher, and screen lock.
 - `MC`, `EXPO`, `DT<`, `DT>`: Mission Control, App Exposé, and desktop left/right (Ctrl-arrows).
 - `AREA`, `FULL`: Shift-Command-4 and Shift-Command-3 screenshots. `FQUIT`: Force Quit. `WIN`: next window of the app. `HIDE`, `MIN`: hide and minimize.
-- Bluetooth, USB/BLE output, media, brightness, bootloader, and reset controls are retained. The RGB underglow keys that used to live on the right two rows were dead while `CONFIG_ZMK_RGB_UNDERGLOW=n`; restore them from git history if you re-enable RGB.
+- Bluetooth, USB/BLE output, media, brightness, bootloader, and reset controls are retained. `BOOT` (bootloader) moved to the bottom-right and `BTCLR` (Bluetooth clear) replaced `OUT` (output toggle, redundant with `USB` and `BLE`). The RGB underglow keys that used to live on the right two rows were dead while `CONFIG_ZMK_RGB_UNDERGLOW=n`; restore them from git history if you re-enable RGB.
 
 ## WM — `Window manager`
 
