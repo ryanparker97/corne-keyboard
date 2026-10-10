@@ -16,8 +16,10 @@
 #define ADJUST 3
 #define WM     4
 
-/* Hyper = Ctrl + Alt + Cmd + Shift. skhd also knows it as `hyper`. */
+/* Hyper = Ctrl + Alt + Cmd + Shift. skhd also knows it as `hyper`.
+ * HYPER is the bare modifier chord (held by TAB/HYP); HY(k) is hyper + key. */
 #define HYPER LC(LA(LG(LSHFT)))
+#define HY(k) LC(LA(LG(LS(k))))
 
 / {
     behaviors {
@@ -149,7 +151,7 @@
             display-name = "WM";
 
             /* WM: hold the right outer thumb (Enter). Each key sends
-             * ctrl+alt+<key> for skhd, at its natural QWERTY position.
+             * hyper+<key> for skhd, at its natural QWERTY position.
              * | TAB  .    .    E    R    T | 1    2    3    4    5    .    |
              * | .    A    S    D    F    . | H    J    K    L    .    .    |
              * | .    Z    X    .    V    B | .    M    .    .    .    .    |
@@ -158,10 +160,10 @@
              *  V = mirror, A = stack, D = bsp, TERM = new terminal.)
              */
             bindings = <
-&kp LC(LA(TAB))  &trans           &trans           &kp LC(LA(E))   &kp LC(LA(R))   &kp LC(LA(T))    &kp LC(LA(N1))  &kp LC(LA(N2))  &kp LC(LA(N3))  &kp LC(LA(N4))  &kp LC(LA(N5))  &trans
-&trans           &kp LC(LA(A))    &kp LC(LA(S))    &kp LC(LA(D))   &kp LC(LA(F))   &trans           &kp LC(LA(H))   &kp LC(LA(J))   &kp LC(LA(K))   &kp LC(LA(L))   &trans          &trans
-&trans           &kp LC(LA(Z))    &kp LC(LA(X))    &trans          &kp LC(LA(V))   &kp LC(LA(B))    &trans          &kp LC(LA(M))   &trans          &trans          &trans          &trans
-                                                   &trans          &trans          &trans           &kp LC(LA(RET))  &trans         &trans
+&kp HY(TAB)  &trans       &trans       &kp HY(E)    &kp HY(R)    &kp HY(T)    &kp HY(N1)   &kp HY(N2)   &kp HY(N3)   &kp HY(N4)   &kp HY(N5)   &trans
+&trans       &kp HY(A)    &kp HY(S)    &kp HY(D)    &kp HY(F)    &trans       &kp HY(H)    &kp HY(J)    &kp HY(K)    &kp HY(L)    &trans       &trans
+&trans       &kp HY(Z)    &kp HY(X)    &trans       &kp HY(V)    &kp HY(B)    &trans       &kp HY(M)    &trans       &trans       &trans       &trans
+                                       &trans       &trans       &trans       &kp HY(RET)  &trans       &trans
             >;
         };
     };

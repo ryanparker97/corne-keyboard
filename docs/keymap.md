@@ -27,7 +27,7 @@ SHIFT Z     X     C     V     B   |  N     M     ,     .     /     CTRL
 
 Option and Command are on Base-layer thumbs for macOS shortcuts. **Esc** is the top-left key. The left outer home key is **Tab when tapped and Hyper when held**; Hyper is Ctrl+Alt+Cmd+Shift (skhd's built-in `hyper`), and the same key sits in the same place on every layer. Right Control is the bottom-right key, so `Ctrl-h/j/k/l` is a right-pinky chord with the left hand free for the letter. The left outer thumb becomes Control on the other layers, keeping layered navigation and terminal chords accessible. Alpha keys never change meaning based on tap duration.
 
-`TAB/HYP` uses the `balanced` flavor with a 200 ms tapping term and `require-prior-idle-ms = 100`: Tab resolves instantly while typing, and a hold becomes Hyper when the next key is tapped or the term expires. Nothing is bound to Hyper in this repo yet; the WM layer still sends `Ctrl+Alt`, so skhd is unchanged.
+`TAB/HYP` uses the `balanced` flavor with a 200 ms tapping term and `require-prior-idle-ms = 100`: Tab resolves instantly while typing, and a hold becomes Hyper when the next key is tapped or the term expires. The WM layer sends the same Hyper chord, so holding `TAB/HYP` and tapping `H/J/K/L` reaches skhd's bindings without the WM thumb.
 
 ## Lower — `Nav/Num`
 
@@ -96,7 +96,7 @@ TAB   .     .     E     R     T   |  1     2     3     4     5     .
                 .     .     .     |  TERM  .     (held)
 ```
 
-Hold the right outer thumb. Every key sends `Ctrl+Alt+<key>` at its normal QWERTY position, so the layer drives the dotfiles' `skhd/skhdrc` without any chord gymnastics: `H/J/K/L` focus, `1-5` focus Spaces, `M`/`S`/`E` enter move/swap/resize modes, and `Z F B R X V A D T TAB` are zoom, fullscreen, balance, rotate, split, mirror, stack, bsp, float, and focus-recent. `TERM` (the Space key) opens a new Alacritty window. In move/swap/resize mode, release the layer and tap the plain `H/J/K/L` or `1-5` key.
+Hold the right outer thumb. Every key sends `Hyper+<key>` (Ctrl+Alt+Cmd+Shift) at its normal QWERTY position, so the layer drives the dotfiles' `skhd/skhdrc` without any chord gymnastics: `H/J/K/L` focus, `1-5` focus Spaces, `M`/`S`/`E` enter move/swap/resize modes, and `Z F B R X V A D T TAB` are zoom, fullscreen, balance, rotate, split, mirror, stack, bsp, float, and focus-recent. `TERM` (the Space key) opens a new Alacritty window. In move/swap/resize mode, release the layer and tap the plain `H/J/K/L` or `1-5` key.
 
 ## Build and flash
 
