@@ -49,7 +49,7 @@ Five layers. Every layer has 42 keys; `.` means "falls through to the layer belo
 
 ### WM (layer 4, hold RET/WM): window manager
 
-Every key sends `Ctrl+Alt+<key>`.
+Every key sends `Hyper+<key>` (Ctrl+Alt+Cmd+Shift).
 
 ```text
  TAB      .    .    E    R    T   |   1    2    3    4    5    .
@@ -75,7 +75,7 @@ Every key sends `Ctrl+Alt+<key>`.
 
 - **Tap** for Tab. **Hold** for Hyper (Ctrl+Alt+Cmd+Shift).
 - Hold it and press another key to send a hyper chord. skhd understands this as `hyper`.
-- Nothing in this repo is bound to Hyper yet. WM still sends `Ctrl+Alt`.
+- The WM layer sends the same chord, so `TAB/HYP` + `H/J/K/L` drives skhd too, without the thumb.
 - Timing: `balanced` flavor, 200 ms tapping term, `require-prior-idle-ms = 100`, so Tab resolves instantly while typing.
 
 ### Esc and Control
