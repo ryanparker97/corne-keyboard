@@ -150,8 +150,10 @@ Set in [`config/corne.conf`](config/corne.conf):
 
 | Setting | Value | Why |
 |---|---|---|
-| `BT_PERIPHERAL_PREF_MIN_INT` / `MAX_INT` | 9 / 21 (11.25–26.25 ms) | Apple-compliant range, avoids the pinned 15 ms case that some devices scale to 30 ms |
+| `BT_PERIPHERAL_PREF_MIN_INT` / `MAX_INT` | 12 / 24 (15–30 ms) | Fully Apple-compliant request; macOS grants 15 ms to HID devices. An 11.25 ms request can be rejected, which leaves the link at macOS's initial 30 ms |
 | `BT_PERIPHERAL_PREF_LATENCY` | 30 | Power saving; does not delay key presses |
+| `ZMK_SPLIT_BLE_PREF_INT` | 6 (7.5 ms) | Right-to-left half link; the host-link values above do not apply to it |
+| `ZMK_DISPLAY_DEDICATED_THREAD_PRIORITY` | 10 | OLED rendering runs below the BLE send threads so a frame never holds up a key report |
 | `BT_PERIPHERAL_PREF_TIMEOUT` | 600 (6 s) | Valid under Apple's 2–6 s and newer 6–18 s guidance |
 | `BT_CTLR_TX_PWR_PLUS_8` | on | +8 dBm radio for split and host range |
 | `ZMK_BLE_EXPERIMENTAL_CONN` | on | Disables 2M PHY for compatibility |
