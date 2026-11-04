@@ -2,7 +2,8 @@
  * Copyright (c) 2020 The ZMK Contributors
  * SPDX-License-Identifier: MIT
  *
- * 42-key Corne: QWERTY, Tab/Hyper on the top-left key, Bluetooth on layer 3,
+ * 42-key Corne: QWERTY, Esc top-left, Tab/Hyper on the left home-row outer key,
+ * Control bottom-right, Bluetooth on layer 3,
  * Option / Command on the left thumb, Space / Enter on the right.
  */
 
@@ -22,7 +23,7 @@
 
 / {
     behaviors {
-        /* Top-left key: tap for Tab, hold for Hyper. require-prior-idle-ms makes
+        /* Left home-row outer key: tap for Tab, hold for Hyper. require-prior-idle-ms makes
          * Tab resolve instantly while typing. */
         hyper_tab: hyper_tab {
             compatible = "zmk,behavior-hold-tap";
@@ -41,15 +42,15 @@
         base_layer {
             display-name = "Base";
             /*
-             * | TAB/HYP  Q  W  E  R  T | Y  U  I  O  P  BSPC |
-             * | CTRL     A  S  D  F  G | H  J  K  L  ;  '    |
-             * | SHIFT    Z  X  C  V  B | N  M  ,  .  /  ESC  |
+             * | ESC      Q  W  E  R  T | Y  U  I  O  P  BSPC |
+             * | TAB/HYP  A  S  D  F  G | H  J  K  L  ;  '    |
+             * | SHIFT    Z  X  C  V  B | N  M  ,  .  /  CTRL |
              *            | OPT  MO2  CMD | SPC  MO1  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
-&kp LCTRL &kp A  &kp S  &kp D  &kp F  &kp G   &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT            &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp ESC
+&kp ESC              &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
+&hyper_tab HYPER TAB &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
+&kp LSHFT            &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
                                    &kp LALT  &mo SYMBOL  &kp LGUI      &kp SPACE  &mo NUMNAV  &kp RET
             >;
         };
@@ -57,15 +58,15 @@
         numnav_layer {
             display-name = "Nav/Num";
             /*
-             * | TAB/HYP  1  2  3  4  5 | 6     7     8   9      0  BSPC |
-             * | CTRL     .  .  .  .  . | LEFT  DOWN  UP  RIGHT  .  .    |
-             * | SHIFT    .  .  .  .  . | .     .     .   .      .  .    |
+             * | ESC      1  2  3  4  5 | 6     7     8   9      0  BSPC |
+             * | TAB/HYP  .  .  .  .  . | LEFT  DOWN  UP  RIGHT  .  .    |
+             * | SHIFT    .  .  .  .  . | .     .     .   .      .  CTRL |
              *            | OPT  _  CMD | SPC  MO3  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
-&kp LCTRL &none &none  &none   &none   &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &none   &none
-&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &none
+&kp ESC              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
+&hyper_tab HYPER TAB &none   &none   &none   &none   &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &none   &none
+&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &kp LCTRL
                                      &kp LALT  &trans  &kp LGUI      &kp SPACE  &mo SYSTEM  &kp RET
             >;
         };
@@ -73,14 +74,14 @@
         symbol_layer {
             display-name = "Symbols";
             /*
-             * | TAB/HYP  !  @  #  $  % | ^  &  *  (  )  BSPC |
-             * | CTRL     .  .  .  .  . | -  =  [  ]  \  `    |
+             * | ESC      !  @  #  $  % | ^  &  *  (  )  BSPC |
+             * | TAB/HYP  .  .  .  .  . | -  =  [  ]  \  `    |
              * | SHIFT    .  .  .  .  . | _  +  {  }  |  ~    |
              *            | OPT  MO3  CMD | SPC  _  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
-&kp LCTRL &none  &none   &none     &none     &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+&kp ESC              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
+&hyper_tab HYPER TAB &none     &none   &none     &none     &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
 &kp LSHFT            &none     &none   &none     &none     &none          &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp TILDE
                                        &kp LALT  &trans  &kp LGUI      &kp SPACE  &mo SYSTEM  &kp RET
             >;

@@ -1,6 +1,6 @@
 # Corne keyboard (ZMK)
 
-ZMK firmware configuration for a 42-key Corne (nice!nano v2, split, Bluetooth + USB) running macOS, with a plain QWERTY base, Hyper on the Tab key and Bluetooth profile keys on the system layer.
+ZMK firmware configuration for a 42-key Corne (nice!nano v2, split, Bluetooth + USB) running macOS, with a plain QWERTY base, Esc top-left, Hyper on the Tab key and Bluetooth profile keys on the system layer.
 
 - Keymap: [`config/corne.keymap`](config/corne.keymap)
 - Settings: [`config/corne.conf`](config/corne.conf)
@@ -13,26 +13,26 @@ Four layers. Every layer has 42 keys; `.` means "no key" and `_` means "falls th
 ### Base (layer 0)
 
 ```text
- TAB/HYP  Q    W    E    R    T   |   Y    U    I    O    P    BSPC
- CTRL     A    S    D    F    G   |   H    J    K    L    ;    '
- SHIFT    Z    X    C    V    B   |   N    M    ,    .    /    ESC
+ ESC      Q    W    E    R    T   |   Y    U    I    O    P    BSPC
+ TAB/HYP  A    S    D    F    G   |   H    J    K    L    ;    '
+ SHIFT    Z    X    C    V    B   |   N    M    ,    .    /    CTRL
                 OPT  NAV  CMD     |   SPACE  SYM  ENTER
 ```
 
 ### Nav/Num (layer 1, hold the left middle thumb): numbers and arrows
 
 ```text
- TAB/HYP  1    2    3    4    5   |   6     7     8    9      0    BSPC
- CTRL     .    .    .    .    .   |   LEFT  DOWN  UP   RIGHT  .    .
- SHIFT    .    .    .    .    .   |   .     .     .    .      .    .
+ ESC      1    2    3    4    5   |   6     7     8    9      0    BSPC
+ TAB/HYP  .    .    .    .    .   |   LEFT  DOWN  UP   RIGHT  .    .
+ SHIFT    .    .    .    .    .   |   .     .     .    .      .    CTRL
                 OPT  _    CMD     |   SPACE SYS   ENTER
 ```
 
 ### Symbols (layer 2, hold the right middle thumb)
 
 ```text
- TAB/HYP  !    @    #    $    %   |   ^    &    *    (    )    BSPC
- CTRL     .    .    .    .    .   |   -    =    [    ]    \    `
+ ESC      !    @    #    $    %   |   ^    &    *    (    )    BSPC
+ TAB/HYP  .    .    .    .    .   |   -    =    [    ]    \    `
  SHIFT    .    .    .    .    .   |   _    +    {    }    |    ~
                 OPT  SYS  CMD     |   SPACE _    ENTER
 ```
@@ -62,7 +62,7 @@ Reach it by holding one middle thumb (Nav/Num or Symbols) and then the other mid
 
 Option, Command, Space and Enter are the same on every layer.
 
-### `TAB/HYP` (top-left key, on layers 0-2)
+### `TAB/HYP` (left home-row outer key, on layers 0-2)
 
 - **Tap** for Tab. **Hold** for Hyper (Ctrl+Alt+Cmd+Shift).
 - Hold it and press another key to send a Hyper chord. skhd understands this as `hyper`, so `TAB/HYP` + a key triggers your Hyper bindings.
@@ -70,8 +70,10 @@ Option, Command, Space and Enter are the same on every layer.
 
 ### Control and Escape
 
-- Control is the plain `CTRL` key on the left home row, so Ctrl chords (`Ctrl-a`, `Ctrl-d`, `Ctrl-c`) work from Base.
-- Esc is the bottom-right key. Shift is the bottom-left key; there is no Right Shift.
+- Esc is the plain top-left key on layers 0-2.
+- Control is the bottom-right key on Base and Nav/Num, so Ctrl chords (`Ctrl-a`, `Ctrl-d`, `Ctrl-c`) are a right-pinky chord with the left hand free for the letter.
+- On Symbols the bottom-right key is `~`, so for a Ctrl + symbol chord hold Control first, then the Symbols thumb: a held key keeps its Base binding across a layer change.
+- Shift is the bottom-left key; there is no Right Shift.
 
 ### Nav/Num layer
 
