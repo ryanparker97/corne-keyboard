@@ -16,25 +16,25 @@ Four layers. Every layer has 42 keys; `.` means "no key" and `_` means "falls th
  ESC      Q    W    E    R    T   |   Y    U    I    O    P    BSPC
  TAB/HYP  A    S    D    F    G   |   H    J    K    L    ;    '
  SHIFT    Z    X    C    V    B   |   N    M    ,    .    /    CTRL
-                OPT  NAV  CMD     |   SPACE  SYM  ENTER
+                OPT  SYM  CMD     |   SPACE  NAV  ENTER
 ```
 
-### Nav/Num (layer 1, hold the left middle thumb): numbers and arrows
+### Nav/Num (layer 1, hold the right middle thumb): numbers and arrows
 
 ```text
  ESC      1    2    3    4    5   |   6     7     8    9      0    BSPC
  TAB/HYP  .    .    .    .    .   |   LEFT  DOWN  UP   RIGHT  .    .
  SHIFT    .    .    .    .    .   |   .     .     .    .      .    CTRL
-                OPT  _    CMD     |   SPACE SYS   ENTER
+                OPT  SYS  CMD     |   SPACE _     ENTER
 ```
 
-### Symbols (layer 2, hold the right middle thumb)
+### Symbols (layer 2, hold the left middle thumb)
 
 ```text
  ESC      !    @    #    $    %   |   ^    &    *    (    )    BSPC
  TAB/HYP  .    .    .    .    .   |   -    =    [    ]    \    `
  SHIFT    .    .    .    .    .   |   _    +    {    }    |    ~
-                OPT  SYS  CMD     |   SPACE _    ENTER
+                OPT  _    CMD     |   SPACE SYS  ENTER
 ```
 
 ### System (layer 3): Bluetooth, RGB, bootloader
@@ -55,8 +55,8 @@ Reach it by holding one middle thumb (Nav/Num or Symbols) and then the other mid
 | Key | Tap | Hold |
 |---|---|---|
 | `OPT` / `CMD` | Option / Command | same |
-| `NAV` (left middle) | n/a | Nav/Num layer (numbers, arrows) |
-| `SYM` (right middle) | n/a | Symbols layer |
+| `SYM` (left middle) | n/a | Symbols layer |
+| `NAV` (right middle) | n/a | Nav/Num layer (numbers, arrows) |
 | `SPACE` / `ENTER` | Space / Enter | n/a |
 | Both middle thumbs | n/a | System layer (hold one, then the other) |
 

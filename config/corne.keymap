@@ -61,13 +61,13 @@
              * | ESC      1  2  3  4  5 | 6     7     8   9      0  BSPC |
              * | TAB/HYP  .  .  .  .  . | LEFT  DOWN  UP  RIGHT  .  .    |
              * | SHIFT    .  .  .  .  . | .     .     .   .      .  CTRL |
-             *            | OPT  _  CMD | SPC  MO3  ENT |
+             *            | OPT  MO3  CMD | SPC  _  ENT |
              */
             bindings = <
 &kp ESC              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
 &hyper_tab HYPER TAB &none   &none   &none   &none   &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &none   &none
 &kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &kp LCTRL
-                                     &kp LALT  &trans  &kp LGUI      &kp SPACE  &mo SYSTEM  &kp RET
+                                     &kp LALT  &mo SYSTEM  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
 
@@ -77,7 +77,7 @@
              * | ESC      !  @  #  $  % | ^  &  *  (  )  BSPC |
              * | TAB/HYP  .  .  .  .  . | -  =  [  ]  \  `    |
              * | SHIFT    .  .  .  .  . | _  +  {  }  |  ~    |
-             *            | OPT  MO3  CMD | SPC  _  ENT |
+             *            | OPT  _  CMD | SPC  MO3  ENT |
              */
             bindings = <
 &kp ESC              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
@@ -90,7 +90,7 @@
         system_layer {
             display-name = "System";
             /*
-             * Reached from Nav/Num (right thumb) or Symbols (left thumb).
+             * Reached by holding both middle thumbs, in either order.
              * | BOOT   .    .    .    .   . | BT1   BT2  BT3  BT4  BT5  . |
              * | RGBTOG HUE+ SAT+ VAL+ .   . | BTCLR .    .    .    USB  BLE|
              * | RGBMOD HUE- SAT- VAL- .   . | .     .    .    .    .    . |
