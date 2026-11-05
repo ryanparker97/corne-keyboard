@@ -2,7 +2,8 @@
  * Copyright (c) 2020 The ZMK Contributors
  * SPDX-License-Identifier: MIT
  *
- * 42-key Corne: QWERTY, Tab/Hyper on the top-left key, Bluetooth on layer 3,
+ * 42-key Corne: QWERTY, Esc top-left, Tab/Hyper on the left home-row outer key,
+ * Control bottom-right, Bluetooth on layer 3,
  * Option / Command on the left thumb, Space / Enter on the right.
  */
 
@@ -22,7 +23,7 @@
 
 / {
     behaviors {
-        /* Top-left key: tap for Tab, hold for Hyper. require-prior-idle-ms makes
+        /* Left home-row outer key: tap for Tab, hold for Hyper. require-prior-idle-ms makes
          * Tab resolve instantly while typing. */
         hyper_tab: hyper_tab {
             compatible = "zmk,behavior-hold-tap";
@@ -35,21 +36,30 @@
         };
     };
 
+    /* System = both middle thumbs held, in either order; releasing either leaves it. */
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        tri_layer {
+            if-layers = <NUMNAV SYMBOL>;
+            then-layer = <SYSTEM>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         base_layer {
             display-name = "Base";
             /*
-             * | TAB/HYP  Q  W  E  R  T | Y  U  I  O  P  BSPC |
-             * | CTRL     A  S  D  F  G | H  J  K  L  ;  '    |
-             * | SHIFT    Z  X  C  V  B | N  M  ,  .  /  ESC  |
+             * | ESC      Q  W  E  R  T | Y  U  I  O  P  BSPC |
+             * | TAB/HYP  A  S  D  F  G | H  J  K  L  ;  '    |
+             * | SHIFT    Z  X  C  V  B | N  M  ,  .  /  CTRL |
              *            | OPT  MO2  CMD | SPC  MO1  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
-&kp LCTRL &kp A  &kp S  &kp D  &kp F  &kp G   &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT            &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp ESC
+&kp ESC              &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U  &kp I      &kp O    &kp P     &kp BSPC
+&hyper_tab HYPER TAB &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
+&kp LSHFT            &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH  &kp LCTRL
                                    &kp LALT  &mo SYMBOL  &kp LGUI      &kp SPACE  &mo NUMNAV  &kp RET
             >;
         };
@@ -57,49 +67,49 @@
         numnav_layer {
             display-name = "Nav/Num";
             /*
-             * | TAB/HYP  1  2  3  4  5 | 6     7     8   9      0  BSPC |
-             * | CTRL     .  .  .  .  . | LEFT  DOWN  UP  RIGHT  .  .    |
-             * | SHIFT    .  .  .  .  . | .     .     .   .      .  .    |
-             *            | OPT  _  CMD | SPC  MO3  ENT |
+             * | ESC      1  2  3  4  5 | 6     7     8   9      0  BSPC |
+             * | TAB/HYP  CTRL  OPT  CMD  SHIFT  . | LEFT  DOWN  UP  RIGHT  HOME  END |
+             * | SHIFT    .  .  .  .  . | .     .     .   .      .  CTRL |
+             *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
-&kp LCTRL &none &none  &none   &none   &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &none   &none
-&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &none
-                                     &kp LALT  &trans  &kp LGUI      &kp SPACE  &mo SYSTEM  &kp RET
+&kp ESC              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
+&hyper_tab HYPER TAB &kp LCTRL  &kp LALT  &kp LGUI  &kp LSHFT  &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &kp HOME  &kp END
+&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &kp LCTRL
+                                     &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
 
         symbol_layer {
             display-name = "Symbols";
             /*
-             * | TAB/HYP  !  @  #  $  % | ^  &  *  (  )  BSPC |
-             * | CTRL     .  .  .  .  . | -  =  [  ]  \  `    |
+             * | ESC      !  @  #  $  % | ^  &  *  (  )  BSPC |
+             * | TAB/HYP  CTRL  OPT  CMD  SHIFT  . | -  =  [  ]  \  `    |
              * | SHIFT    .  .  .  .  . | _  +  {  }  |  ~    |
-             *            | OPT  MO3  CMD | SPC  _  ENT |
+             *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
-&hyper_tab HYPER TAB &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
-&kp LCTRL &none  &none   &none     &none     &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+&kp ESC              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
+&hyper_tab HYPER TAB &kp LCTRL &kp LALT &kp LGUI &kp LSHFT &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
 &kp LSHFT            &none     &none   &none     &none     &none          &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp TILDE
-                                       &kp LALT  &mo SYSTEM  &kp LGUI      &kp SPACE  &trans  &kp RET
+                                       &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
 
         system_layer {
             display-name = "System";
             /*
-             * Reached from Nav/Num (right thumb) or Symbols (left thumb).
+             * Reached by holding both middle thumbs, in either order (conditional layer); releasing either leaves it.
              * | BOOT   .    .    .    .   . | BT1   BT2  BT3  BT4  BT5  . |
-             * | RGBTOG HUE+ SAT+ VAL+ .   . | BTCLR .    .    .    USB  BLE|
-             * | RGBMOD HUE- SAT- VAL- .   . | .     .    .    .    .    . |
+             * | RGBTOG HUE+ SAT+ VAL+ .   . |   .   .    .    .    USB  BLE|
+             * | RGBMOD HUE- SAT- VAL- .  BTCLR | .   .    .    .    .    . |
              *            | OPT  _  CMD | SPC  _  ENT |
-             * RGB keys do nothing while CONFIG_ZMK_RGB_UNDERGLOW=n.
+             * RGB is off (CONFIG_ZMK_RGB_UNDERGLOW=n), so the &rgb_ug keys fall through to Symbols: RGBTOG = Tab/Hyper, HUE+/SAT+/VAL+ = Ctrl/Opt/Cmd, RGBMOD = Shift; HUE-/SAT-/VAL- do nothing.
              */
             bindings = <
 &bootloader      &none            &none            &none            &none  &none      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &none
-&rgb_ug RGB_TOG  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI  &none  &none      &bt BT_CLR    &none         &none         &none         &out OUT_USB  &out OUT_BLE
-&rgb_ug RGB_EFF  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD  &none  &none      &none         &none         &none         &none         &none         &none
+&rgb_ug RGB_TOG  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI  &none  &none      &none         &none         &none         &none         &out OUT_USB  &out OUT_BLE
+&rgb_ug RGB_EFF  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD  &none  &bt BT_CLR      &none         &none         &none         &none         &none         &none
                                                    &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
