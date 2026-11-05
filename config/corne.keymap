@@ -36,6 +36,15 @@
         };
     };
 
+    /* System = both middle thumbs held, in either order; releasing either leaves it. */
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        tri_layer {
+            if-layers = <NUMNAV SYMBOL>;
+            then-layer = <SYSTEM>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
@@ -59,15 +68,15 @@
             display-name = "Nav/Num";
             /*
              * | ESC      1  2  3  4  5 | 6     7     8   9      0  BSPC |
-             * | TAB/HYP  .  .  .  .  . | LEFT  DOWN  UP  RIGHT  .  .    |
+             * | TAB/HYP  CTRL  OPT  CMD  SHIFT  . | LEFT  DOWN  UP  RIGHT  HOME  END |
              * | SHIFT    .  .  .  .  . | .     .     .   .      .  CTRL |
-             *            | OPT  MO3  CMD | SPC  _  ENT |
+             *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
 &kp ESC              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
-&hyper_tab HYPER TAB &none   &none   &none   &none   &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &none   &none
+&hyper_tab HYPER TAB &kp LCTRL  &kp LALT  &kp LGUI  &kp LSHFT  &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &kp HOME  &kp END
 &kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &kp LCTRL
-                                     &kp LALT  &mo SYSTEM  &kp LGUI      &kp SPACE  &trans  &kp RET
+                                     &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
 
@@ -75,32 +84,32 @@
             display-name = "Symbols";
             /*
              * | ESC      !  @  #  $  % | ^  &  *  (  )  BSPC |
-             * | TAB/HYP  .  .  .  .  . | -  =  [  ]  \  `    |
+             * | TAB/HYP  CTRL  OPT  CMD  SHIFT  . | -  =  [  ]  \  `    |
              * | SHIFT    .  .  .  .  . | _  +  {  }  |  ~    |
-             *            | OPT  _  CMD | SPC  MO3  ENT |
+             *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
 &kp ESC              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
-&hyper_tab HYPER TAB &none     &none   &none     &none     &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+&hyper_tab HYPER TAB &kp LCTRL &kp LALT &kp LGUI &kp LSHFT &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
 &kp LSHFT            &none     &none   &none     &none     &none          &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp TILDE
-                                       &kp LALT  &trans  &kp LGUI      &kp SPACE  &mo SYSTEM  &kp RET
+                                       &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
 
         system_layer {
             display-name = "System";
             /*
-             * Reached by holding both middle thumbs, in either order.
+             * Reached by holding both middle thumbs, in either order (conditional layer); releasing either leaves it.
              * | BOOT   .    .    .    .   . | BT1   BT2  BT3  BT4  BT5  . |
-             * | RGBTOG HUE+ SAT+ VAL+ .   . | BTCLR .    .    .    USB  BLE|
-             * | RGBMOD HUE- SAT- VAL- .   . | .     .    .    .    .    . |
+             * | RGBTOG HUE+ SAT+ VAL+ .   . |   .   .    .    .    USB  BLE|
+             * | RGBMOD HUE- SAT- VAL- .  BTCLR | .   .    .    .    .    . |
              *            | OPT  _  CMD | SPC  _  ENT |
-             * RGB keys do nothing while CONFIG_ZMK_RGB_UNDERGLOW=n.
+             * RGB is off (CONFIG_ZMK_RGB_UNDERGLOW=n), so the &rgb_ug keys fall through to Symbols: RGBTOG = Tab/Hyper, HUE+/SAT+/VAL+ = Ctrl/Opt/Cmd, RGBMOD = Shift; HUE-/SAT-/VAL- do nothing.
              */
             bindings = <
 &bootloader      &none            &none            &none            &none  &none      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &none
-&rgb_ug RGB_TOG  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI  &none  &none      &bt BT_CLR    &none         &none         &none         &out OUT_USB  &out OUT_BLE
-&rgb_ug RGB_EFF  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD  &none  &none      &none         &none         &none         &none         &none         &none
+&rgb_ug RGB_TOG  &rgb_ug RGB_HUI  &rgb_ug RGB_SAI  &rgb_ug RGB_BRI  &none  &none      &none         &none         &none         &none         &out OUT_USB  &out OUT_BLE
+&rgb_ug RGB_EFF  &rgb_ug RGB_HUD  &rgb_ug RGB_SAD  &rgb_ug RGB_BRD  &none  &bt BT_CLR      &none         &none         &none         &none         &none         &none
                                                    &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };

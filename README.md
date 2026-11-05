@@ -23,28 +23,28 @@ Four layers. Every layer has 42 keys; `.` means "no key" and `_` means "falls th
 
 ```text
  ESC      1    2    3    4    5   |   6     7     8    9      0    BSPC
- TAB/HYP  .    .    .    .    .   |   LEFT  DOWN  UP   RIGHT  .    .
+ TAB/HYP  CTRL OPT  CMD  SHIFT .   |   LEFT  DOWN  UP   RIGHT  HOME END
  SHIFT    .    .    .    .    .   |   .     .     .    .      .    CTRL
-                OPT  SYS  CMD     |   SPACE _     ENTER
+                OPT  _    CMD     |   SPACE _     ENTER
 ```
 
 ### Symbols (layer 2, hold the left middle thumb)
 
 ```text
  ESC      !    @    #    $    %   |   ^    &    *    (    )    BSPC
- TAB/HYP  .    .    .    .    .   |   -    =    [    ]    \    `
+ TAB/HYP  CTRL OPT  CMD  SHIFT .   |   -    =    [    ]    \    `
  SHIFT    .    .    .    .    .   |   _    +    {    }    |    ~
-                OPT  _    CMD     |   SPACE SYS  ENTER
+                OPT  _    CMD     |   SPACE _    ENTER
 ```
 
 ### System (layer 3): Bluetooth, RGB, bootloader
 
-Reach it by holding one middle thumb (Nav/Num or Symbols) and then the other middle thumb.
+Hold both middle thumbs (Nav/Num and Symbols), in either order. System stays on only while both are held; releasing either thumb leaves it.
 
 ```text
  BOOT     .    .    .    .    .   |   BT1  BT2  BT3  BT4  BT5  .
- RGBTOG   HUE+ SAT+ BRI+ .    .   |   BTCLR .   .    .    USB  BLE
- RGBMOD   HUE- SAT- BRI- .    .   |   .    .    .    .    .    .
+ RGBTOG   HUE+ SAT+ BRI+ .    .   |   .    .    .    .    USB  BLE
+ RGBMOD   HUE- SAT- BRI- .    BTCLR |  .    .    .    .    .    .
                 OPT  _    CMD     |   SPACE _   ENTER
 ```
 
@@ -58,7 +58,7 @@ Reach it by holding one middle thumb (Nav/Num or Symbols) and then the other mid
 | `SYM` (left middle) | n/a | Symbols layer |
 | `NAV` (right middle) | n/a | Nav/Num layer (numbers, arrows) |
 | `SPACE` / `ENTER` | Space / Enter | n/a |
-| Both middle thumbs | n/a | System layer (hold one, then the other) |
+| Both middle thumbs | n/a | System layer (while both are held, in either order) |
 
 Option, Command, Space and Enter are the same on every layer.
 
@@ -72,19 +72,23 @@ Option, Command, Space and Enter are the same on every layer.
 
 - Esc is the plain top-left key on layers 0-2.
 - Control is the bottom-right key on Base and Nav/Num, so Ctrl chords (`Ctrl-a`, `Ctrl-d`, `Ctrl-c`) are a right-pinky chord with the left hand free for the letter.
-- On Symbols the bottom-right key is `~`, so for a Ctrl + symbol chord hold Control first, then the Symbols thumb: a held key keeps its Base binding across a layer change.
-- Shift is the bottom-left key; there is no Right Shift.
+- On Nav/Num and Symbols the left home row (A S D F) is Ctrl, Opt, Cmd, Shift. A modifier + number, arrow or symbol chord then uses the left hand for the modifier and the thumb for the layer, for example Opt+`-` or Cmd+`[`.
+- On Symbols the bottom-right key is `~`, so for a Ctrl + symbol chord use Ctrl on `A`, or hold Control first, then the Symbols thumb: a held key keeps its Base binding across a layer change.
+- Shift is the bottom-left key (also F on Nav/Num and Symbols); there is no Right Shift.
 
 ### Nav/Num layer
 
 - Numbers are on the top row (`1`-`5` left, `6`-`0` right).
 - Arrows sit on the right home row (`LEFT DOWN UP RIGHT`, under `H J K L`).
+- Home and End sit right of the arrows (under `;` and `'`).
+- The left home row holds Ctrl, Opt, Cmd, Shift for Ctrl+arrow, Opt+arrow (word) and Cmd+arrow (line) chords.
 
 ### Symbols layer
 
 - The left half is the shifted number row: `! @ # $ %`.
 - The right half has `^ & * ( )` on top, `- = [ ] \ ``` on the home row, and `_ + { } | ~` below.
 - `;`, `'`, `,`, `.` and `/` are on Base. `:`, `"`, `<`, `>` and `?` need Shift.
+- The left home row holds Ctrl, Opt, Cmd, Shift.
 
 ### System layer
 
@@ -94,11 +98,11 @@ Option, Command, Space and Enter are the same on every layer.
 | `BTCLR` | Clear the current Bluetooth bond |
 | `USB` / `BLE` | Choose USB or Bluetooth output |
 | `BOOT` | Enter the bootloader (for flashing) |
-| `RGBTOG` `RGBMOD` `HUE±` `SAT±` `BRI±` | RGB underglow keys; they do nothing while RGB is off (see below) |
+| `RGBTOG` `RGBMOD` `HUE±` `SAT±` `BRI±` | RGB underglow keys. RGB is off (see below), so they fall through to Symbols: `RGBTOG` = Tab/Hyper, `HUE+` `SAT+` `BRI+` = Ctrl / Opt / Cmd, `RGBMOD` = Shift, and `HUE-` `SAT-` `BRI-` do nothing. |
 
 ### Not on this layout
 
-There is no Delete, Home, End, Page Up, Page Down, F1-F12 or media key, and no window-manager layer.
+There is no Delete, Page Up, Page Down, F1-F12 or media key, and no window-manager layer.
 
 ## Bluetooth and power settings
 
@@ -120,7 +124,7 @@ The final connection interval is chosen by macOS. Capture the connection with Pa
 
 ## Pairing and output
 
-1. Hold one middle thumb, then the other, for the System layer.
+1. Hold both middle thumbs for the System layer.
 2. Tap `BT1`-`BT5` to pick a profile, then pair from macOS Bluetooth settings.
 3. `BTCLR` clears the current profile. `USB` / `BLE` pick the output.
 4. `settings_reset` firmware wipes all bonds if pairing gets stuck.
@@ -129,7 +133,7 @@ The final connection interval is chosen by macOS. Capture the connection with Pa
 
 1. Push a branch that changes `config/**` (or run **Build ZMK firmware** manually in GitHub Actions).
 2. Download the `firmware` artifact. It contains `corne_left`, `corne_right` and `settings_reset` `.uf2` files.
-3. Put a half into bootloader mode (double-tap reset, or `BOOT` on the System layer, top-left) and copy the matching `.uf2` onto the `NICENANO` drive.
+3. Put a half into bootloader mode (double-tap its reset button, or `BOOT` on the System layer, top-left; `BOOT` only resets the left (central) half, so the right half always needs the reset double-tap) and copy the matching `.uf2` onto the `NICENANO` drive.
 4. Flash both halves. If the Mac does not reconnect, remove the keyboard in Bluetooth settings and pair again.
 
 Builds are defined in [`build.yaml`](build.yaml): `corne_left` (with the `studio-rpc-usb-uart` snippet for ZMK Studio over USB, lock off) and `corne_right`, both with the `nice_oled` display shield, plus a standalone `settings_reset`.
@@ -138,8 +142,9 @@ Builds are defined in [`build.yaml`](build.yaml): `corne_left` (with the `studio
 
 ```text
 build.yaml            build matrix (boards, shields, snippets)
-config/corne.keymap   all layers and the Tab/Hyper hold-tap
+config/corne.keymap   all layers, the Tab/Hyper hold-tap and the both-thumbs System rule
 config/corne.conf     shared settings (Bluetooth, power, RGB, display)
 config/boards/shields/corne/   per-half settings and shield overlays
 config/west.yml       pinned ZMK and zmk-nice-oled revisions
+docs/keymap.md       design notes for the keymap
 ```
