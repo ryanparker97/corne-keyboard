@@ -73,9 +73,9 @@
              *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
-&kp ESC              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
+&none              &kp N1  &kp N2  &kp N3  &kp N4  &kp N5      &kp N6    &kp N7    &kp N8  &kp N9     &kp N0  &kp BSPC
 &hyper_tab HYPER TAB &kp LCTRL  &kp LALT  &kp LGUI  &kp LSHFT  &none       &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &kp HOME  &kp END
-&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &kp LCTRL
+&kp LSHFT            &none   &none   &none   &none   &none       &none     &none     &none   &none      &none   &none
                                      &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
@@ -89,9 +89,9 @@
              *            | OPT  _  CMD | SPC  _  ENT |
              */
             bindings = <
-&kp ESC              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
+&kp TILDE              &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT      &kp CARET  &kp AMPS  &kp STAR  &kp LPAR  &kp RPAR  &kp BSPC
 &hyper_tab HYPER TAB &kp LCTRL &kp LALT &kp LGUI &kp LSHFT &none          &kp MINUS  &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
-&kp LSHFT            &none     &none   &none     &none     &none          &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp TILDE
+&kp LSHFT            &none     &none   &none     &none     &none          &kp UNDER  &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &none
                                        &kp LALT  &trans  &kp LGUI      &kp SPACE  &trans  &kp RET
             >;
         };
